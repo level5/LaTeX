@@ -1,28 +1,666 @@
-\documentclass[10pt]{book}
-\begin{document}
-Carrots are good for your eyes, since they contain Vitamin A\@. Have
-you ever seen a rabbit wearing glasses?
+\documentclass[12pt, oneside, b5paper]{book}  
 
 
-Note the difference in right and left quotes in 'single quotes'
-and ``double quotes''. \lq\lq double quote again\rq\rq
+\usepackage[a3paper]{geometry}
 
-I think \LaTeX\ is fun.
+\usepackage{listings}
+\usepackage{CJKutf8}  
 
-X-rays are discussed in pages 221--225 of Volume 3---the volume on
-electromagnetic waves.
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
-\ae  
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morecomment=[s]{<!--}{-->},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
 
-Maybe I have now learnt about 1\% of \LaTeX.
+\lstset{
+   language=JavaScript,
+   backgroundcolor=\color{lightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
 
-This is the first line.\\[10pt]
-This is the second line
+\pagestyle{headings}
+%\pagenumbering{arabic}
+
+\title{编程}
+\author{石峰\\
+			上海 长宁}
+\date{\today}
+	
+\begin{document}  
+\begin{CJK}{UTF8}{gkai}
+\maketitle
+%\tableofcontents
+
+\chapter{JavaScript}
+	\section{JavaScript 语言}
+	JavaScript语言有一些重要的概念,原型,函数,作用域和闭包.掌握了这些概念,基本就掌握了JavaScript这门语言,其他的就是一些语言细节特性.
+		\subsection{原型}
+		我们所说的面向对象.继承,封装和多态.从语言上来说,有两种实现面向对象的方式:基于类和基于原型的继承.
+	
+		基于类的继承. 类是模板,继承的是行为.这类语言有Java.
+		
+		基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
+
+		在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的.
+
+		先来看看简单的代码,
+	
+		\begin{lstlisting}
+var a = {};	
+a.b = 10;
+console.log(a.b); // 10
+		\end{lstlisting}
+
+		JavasScript中对象的定义是: Object是Property的集合. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
+	
+		\subsection{函数}
+		函数在JavaScript中是第一等公民。
+		\subsection{作用域}
+		函数中的变量的定义和取值和函数的作用域有关。
+		\subsection{闭包}
+		函数和作用域，就构成了闭包。
+		\subsection{语言细节}
+		这部分可以讨论一下很多关于JavaScript的细节.
+		\section{JavaScript环境}
+		\section{JavaScript类库}
+		\subsection{Backbone.js}	
+		这是一个轻量级的MVP框架.分析一下源码.
+
+    \paragraph{加载}
+		
+		\begin{lstlisting}
+(function(root, factory) {
+
+  // Set up Backbone appropriately for the environment. Start with AMD.
+  if (typeof define === 'function' && define.amd) {
+    define(['underscore', 'jquery', 'exports'], function(_, $, exports) {
+      // Export global even in AMD case in case this script is loaded with
+      // others that may still expect a global Backbone.
+      root.Backbone = factory(root, exports, _, $);
+    });
+
+  // Next for Node.js or CommonJS. jQuery may not be needed as a module.
+  } else if (typeof exports !== 'undefined') {
+    var _ = require('underscore');
+    factory(root, exports, _);
+
+  // Finally, as a browser global.
+  } else {
+    root.Backbone = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender || root.$));
+  }
+
+}(this, function(root, Backbone, _, $) {
+	...
+}));
+		\end{lstlisting}
+
+		在这段代码中，定义的匿名函数是用来在各种不同的情况下加载加载Backbone. 在支持AMD的情况，在Node.js，在browser中。factory这个函数才是定义Backbone的地方。接着让我们看看factory函数。
 
 
+		在factory函数的开始，是一些基本的设置，如版本，引用一些常用的方法，解决冲突的noConfilict。
 
-\begin{center}
-The \TeX nical Institute
-\end{center}
+		\begin{lstlisting}
+  // Initial Setup
+  // -------------
 
+  // Save the previous value of the `Backbone` variable, so that it can be
+  // restored later on, if `noConflict` is used.
+  var previousBackbone = root.Backbone;
+
+  // Create local references to array methods we'll want to use later.
+  var array = [];
+  var push = array.push;
+  var slice = array.slice;
+  var splice = array.splice;
+
+  // Current version of the library. Keep in sync with `package.json`.
+  Backbone.VERSION = '1.1.2';
+
+  // For Backbone's purposes, jQuery, Zepto, Ender, or My Library (kidding) owns
+  // the `$` variable.
+  Backbone.$ = $;
+
+  // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable
+  // to its previous owner. Returns a reference to this Backbone object.
+  Backbone.noConflict = function() {
+    root.Backbone = previousBackbone;
+    return this;
+  };
+		\end{lstlisting}
+
+		再继续，就是Backbone的几个重要的模块了。Event，Model，Collection和View。
+
+		\paragraph{Event}
+		Event模块有几个很常用的方法，on, once, off, trigger. 他们都使用了一个方法eventApi。我们先来看这个方法，然后再去理解上面说到的这些方法。这个方法是用来将key-value形式的name和listener分别调用对应API。或者是空格分割的多个name。如果上述两种情况存在，就返回false，如果什么都没有做，则返回true。
+
+	\begin{lstlisting}
+  // Implement fancy features of the Events API such as multiple event
+  // names `"change blur"` and jQuery-style event maps `{change: action}`
+  // in terms of the existing API.
+  var eventsApi = function(obj, action, name, rest) {
+    if (!name) return true;
+
+    // Handle event maps.
+    if (typeof name === 'object') {
+      for (var key in name) {
+        obj[action].apply(obj, [key, name[key]].concat(rest));
+      }
+      return false;
+    }
+
+    // Handle space separated event names.
+    if (eventSplitter.test(name)) {
+      var names = name.split(eventSplitter);
+      for (var i = 0, l = names.length; i < l; i++) {
+        obj[action].apply(obj, [names[i]].concat(rest));
+      }
+      return false;
+    }
+
+    return true;
+  };
+	\end{lstlisting}
+
+  \paragraph{Model}
+  这里，在第四行，给每个Model定义了一个唯一ID。第九行，将属性通过set方法赋值给model。最后，调用initialize方法，这个方法在定义自己的Model的时候可以重写，其他的行暂时不去管它，因为我现在也不知道作用。
+  \begin{lstlisting}
+  var Model = Backbone.Model = function(attributes, options) {
+    var attrs = attributes || {};
+    options || (options = {});
+    this.cid = _.uniqueId('c');
+    this.attributes = {};
+    if (options.collection) this.collection = options.collection;
+    if (options.parse) attrs = this.parse(attrs, options) || {};
+    attrs = _.defaults({}, attrs, _.result(this, 'defaults'));
+    this.set(attrs, options);
+    this.changed = {};
+    this.initialize.apply(this, arguments);
+  };
+  \end{lstlisting}
+
+  接下来，重点看看set方法。
+  \begin{lstlisting}
+    // Set a hash of model attributes on the object, firing `"change"`. This is
+    // the core primitive operation of a model, updating the data and notifying
+    // anyone who needs to know about the change in state. The heart of the beast.
+    set: function(key, val, options) {
+      var attr, attrs, unset, changes, silent, changing, prev, current;
+      if (key == null) return this;
+
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (typeof key === 'object') {
+        attrs = key;
+        options = val;
+      } else {
+        (attrs = {})[key] = val;
+      }
+
+      options || (options = {});
+  \end{lstlisting}
+  这一段，是对key,value和{key:value}情况的处理，如果是后一种情况，那么第二个参数val引用的就是实际上的options，所以这个地方需要重新赋值一下，最后如果options是空，就给他一个空对象。
+
+  \begin{lstlisting}
+      // Run validation.
+      if (!this._validate(attrs, options)) return false;
+  \end{lstlisting}
+
+  如果需要验证，进行验证，失败了的话直接跳出方法。下面是这个方法最复杂的逻辑部分了。在下面开始的部分，会将this.\_changing设为true，然后在方法的最后，将this.\_changing设为false。并且在改变值之前，将她赋值为局部变量changing.这么做的原因是设定一个flag，用来表示这是set方法最开始进入的，还是在调用set方法时，因为一些事件啊，什么的，触发的第二次，第三次进入set。因为如果是第一次进入set，就将原来的attributes保存在this.\_previousAttributes中，并且将this.changed清空。用来保存将要发生改变了的attributes的名字。
+
+  \begin{lstlisting}
+
+      // Extract attributes and options.
+      unset           = options.unset;
+      silent          = options.silent;
+      changes         = [];
+      changing        = this._changing;
+      this._changing  = true;
+
+      if (!changing) {
+        this._previousAttributes = _.clone(this.attributes);
+        this.changed = {};
+      }
+
+  \end{lstlisting}
+  下面的代码对于第一次进入，第二次进入set都是相同的逻辑
+  \begin{lstlisting}
+      current = this.attributes, prev = this._previousAttributes;
+
+  \end{lstlisting}
+  这里，局部变量current保存当前this.attributes，局部变量prev保存的是第一次调用set前的attributes的值。
+  \begin{lstlisting}
+      // Check for changes of `id`.
+      if (this.idAttribute in attrs) this.id = attrs[this.idAttribute];
+  \end{lstlisting}
+  首先改变id的值，这一步目前我还不知道是为啥。留在后面来更行。
+
+  \begin{lstlisting}
+      // For each `set` attribute, update or delete the current value.
+      for (attr in attrs) {
+        val = attrs[attr];
+        if (!_.isEqual(current[attr], val)) changes.push(attr);
+        if (!_.isEqual(prev[attr], val)) {
+          this.changed[attr] = val;
+        } else {
+          delete this.changed[attr];
+        }
+        unset ? delete current[attr] : current[attr] = val;
+      }
+  \end{lstlisting}
+
+  在这里，如果val和当前值比发生变化，就加入到局部变量changes这个数组中，如果和pre比起来发生变化，就加入到this.changed中，相同的话，就将她从this.changed中删除掉。这里有可能是第一次set将值改变了，第二次set又将值改回来了，这个时候就需要从this.changed中删除掉。最后，如果option中带有unset标志，就删除这个值，否则，修改这个值。
+
+  接下来就是属性修改之后的事件的触发了。
+ 
+  \begin{lstlisting}
+      // Trigger all relevant attribute changes.
+      if (!silent) {
+        if (changes.length) this._pending = options;
+        for (var i = 0, l = changes.length; i < l; i++) {
+          this.trigger('change:' + changes[i], this, current[changes[i]], options);
+        }
+      }
+  \end{lstlisting}
+  如果需要触发事件，那么就出发每个值发生改变了属性的对应事件。
+  \begin{lstlisting}
+      // You might be wondering why there's a `while` loop here. Changes can
+      // be recursively nested within `"change"` events.
+      if (changing) return this;
+  \end{lstlisting}
+  到这一步，如果不是第一次调用set,他们的changing都会是true,到此这里为止。
+
+  而如果是第一次调用set，执行下面的代码。来触发change事件，这里之所以用while，是因为在change事件中，可能又会有属性发生变法，需要再次触发change事件。最后充值\_pending和\_changing。
+  \begin{lstlisting}
+      if (!silent) {
+        while (this._pending) {
+          options = this._pending;
+          this._pending = false;
+          this.trigger('change', this, options);
+        }
+      }
+      this._pending = false;
+      this._changing = false;
+      return this;
+    },
+
+  \end{lstlisting}
+
+  接下来的两个方法很好理解，只是对上面的set方法的调用，并设定好unset,value设置为undefined，这里注意的void 0,这个会在另外一个部分来解释为什么void 0的值是undefined，这样做的一个更好的原因是void 0肯定是undefined,但是undefined不是关键字，可以定义一个变量叫做undefined。
+
+  \begin{lstlisting}
+    // Remove an attribute from the model, firing `"change"`. `unset` is a noop
+    // if the attribute doesn't exist.
+    unset: function(attr, options) {
+      return this.set(attr, void 0, _.extend({}, options, {unset: true}));
+    },
+
+    // Clear all attributes on the model, firing `"change"`.
+    clear: function(options) {
+      var attrs = {};
+      for (var key in this.attributes) attrs[key] = void 0;
+      return this.set(attrs, _.extend({}, options, {unset: true}));
+    },
+
+  \end{lstlisting}
+
+  接下来是一个很有用的方法，判断那些属性发生变化，这样可判断view的那部分需要更新，那部分数据需要push到sever上。
+  如果没有传入参数，那么就直接返回this.changed的一个克隆或者false。
+
+  如果传入了diff，那就返回Model和diff中不同的属性。
+  \begin{lstlisting}
+    // Return an object containing all the attributes that have changed, or
+    // false if there are no changed attributes. Useful for determining what
+    // parts of a view need to be updated and/or what attributes need to be
+    // persisted to the server. Unset attributes will be set to undefined.
+    // You can also pass an attributes object to diff against the model,
+    // determining if there *would be* a change.
+    changedAttributes: function(diff) {
+      if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
+      var val, changed = false;
+      var old = this._changing ? this._previousAttributes : this.attributes;
+      for (var attr in diff) {
+        if (_.isEqual(old[attr], (val = diff[attr]))) continue;
+        (changed || (changed = {}))[attr] = val;
+      }
+      return changed;
+    },
+  \end{lstlisting}
+
+  接下来，是重要的方法，fetch，save。这两个方法会调用Restful接口。
+
+  首先处理的是key, value和{key: value}的情况。
+
+  \begin{lstlisting}
+    // Set a hash of model attributes, and sync the model to the server.
+    // If the server returns an attributes hash that differs, the model's
+    // state will be `set` again.
+    save: function(key, val, options) {
+      var attrs, method, xhr, attributes = this.attributes;
+
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (key == null || typeof key === 'object') {
+        attrs = key;
+        options = val;
+      } else {
+        (attrs = {})[key] = val;
+      }
+  \end{lstlisting}
+
+  \begin{lstlisting}
+      options = _.extend({validate: true}, options);
+
+      // If we're not waiting and attributes exist, save acts as
+      // `set(attr).save(null, opts)` with validation. Otherwise, check if
+      // the model will be valid when the attributes, if any, are set.
+      if (attrs && !options.wait) {
+        if (!this.set(attrs, options)) return false;
+      } else {
+        if (!this._validate(attrs, options)) return false;
+      }
+
+      // Set temporary attributes if `{wait: true}`.
+      if (attrs && options.wait) {
+        this.attributes = _.extend({}, attributes, attrs);
+      }
+
+      // After a successful server-side save, the client is (optionally)
+      // updated with the server-side state.
+      if (options.parse === void 0) options.parse = true;
+      var model = this;
+      var success = options.success;
+      options.success = function(resp) {
+        // Ensure attributes are restored during synchronous saves.
+        model.attributes = attributes;
+        var serverAttrs = model.parse(resp, options);
+        if (options.wait) serverAttrs = _.extend(attrs || {}, serverAttrs);
+        if (_.isObject(serverAttrs) && !model.set(serverAttrs, options)) {
+          return false;
+        }
+        if (success) success(model, resp, options);
+        model.trigger('sync', model, resp, options);
+      };
+      wrapError(this, options);
+
+      method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
+      if (method === 'patch') options.attrs = attrs;
+      xhr = this.sync(method, this, options);
+
+      // Restore attributes.
+      if (attrs && options.wait) this.attributes = attributes;
+
+      return xhr;
+    },
+  \end{lstlisting}
+
+  \begin{lstlisting}
+    // Destroy this model on the server if it was already persisted.
+    // Optimistically removes the model from its collection, if it has one.
+    // If `wait: true` is passed, waits for the server to respond before removal.
+    destroy: function(options) {
+      options = options ? _.clone(options) : {};
+      var model = this;
+      var success = options.success;
+
+      var destroy = function() {
+        model.trigger('destroy', model, model.collection, options);
+      };
+
+      options.success = function(resp) {
+        if (options.wait || model.isNew()) destroy();
+        if (success) success(model, resp, options);
+        if (!model.isNew()) model.trigger('sync', model, resp, options);
+      };
+
+      if (this.isNew()) {
+        options.success();
+        return false;
+      }
+      wrapError(this, options);
+
+      var xhr = this.sync('delete', this, options);
+      if (!options.wait) destroy();
+      return xhr;
+    },
+  \end{lstlisting}
+
+  下面是Collection的源码。Model表示的是数据库的一行数据，而Collection表示的则是整个表，或者多行的数据。
+  \begin{lstlisting} 
+
+  \end{lstlisting}
+
+  \paragraph{}
+
+
+	\subsection{Require.js}
+	Require.js的目的是为了让我门编写模块化的代码，他遵循AMD规范。
+
+	\paragraph{BaseUrl}
+	Require.js根据BaseUrl来加载所有的js文件。
+
+	\begin{lstlisting}
+<!--This sets the baseUrl to the "scripts" directory, and
+    loads a script that will have a module ID of 'main'-->
+<script data-main="scripts/main.js" src="scripts/require.js"></script>
+	\end{lstlisting}
+
+	对于BaseUrl，一般来说，他是data-main属性引用的文件所在的目录，在上面的例子中，目录为scripts。
+	同时，我们也可以在config中显示的指定，如果我们在config中指定了，将不再使用data-main属性的目录了。
+	如果既没有main-data属性，也没有在config中指定，那么BaseUrl将是当前运行require.js的HTML文件所在的目录。
+
+	\paragraph{BaseUrl + path}
+	一般情况下，对js文件的查找，是通过BaseUrl + path的方式来查找。在下面的配置中，如果我们查找some/module.
+	require.js会查找/another/path/some/v1.0/module.js。
+	\begin{lstlisting}
+<script src="scripts/require.js"></script>
+<script>
+  require.config({
+    baseUrl: "/another/path",
+    paths: {
+        "some": "some/v1.0"
+    },
+    waitSeconds: 15
+  });
+  require( ["some/module", "my/module", "a.js", "b.js"],
+    function(someModule,    myModule) {
+        //This function will be called when all the dependencies
+        //listed above are loaded. Note that this function could
+        //be called before the page is loaded.
+        //This callback is optional.
+    }
+  );
+</script>
+	\end{lstlisting}
+
+	而在下面的三种情况下，Require.js不会采用BaseUrl + path的方式来查找js文件。
+	\begin{enumerate}
+	\item 以".js"结束的；
+	\item 以"/"开头的；
+	\item 以协议头，如"http:"开头的。
+	\end{enumerate}
+
+	\paragraph{模块定义}
+
+	模块应该遵循js的模块模式[先省略，日后补充][http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html]
+
+	简单的键值对，没有依赖，那么将键值对对象作为参数传递给define()
+	\begin{lstlisting}
+//Inside file my/shirt.js:
+define({
+    color: "black",
+    size: "unisize"
+});
+	\end{lstlisting}
+
+	如果没有依赖，只是需要函数来做一些先期的设定，那么讲一个函数传递给define()
+	\begin{lstlisting}
+//my/shirt.js now does setup work
+//before returning its module definition.
+define(function () {
+    //Do setup work here
+
+    return {
+        color: "black",
+        size: "unisize"
+    }
+});
+	\end{lstlisting}
+
+	如果有依赖，那么define()的一个参数是一个数组，数组元素是依赖的module的muduleID，第二个参数是一个函数，这个函数接受的参数就是你的module依赖的module，顺序和第一个参数数组元素顺序相同，这个函数必须返回一个对象，就是你定义的module。
+
+	\begin{lstlisting}
+//my/shirt.js now has some dependencies, a cart and inventory
+//module in the same directory as shirt.js
+define(["./cart", "./inventory"], function(cart, inventory) {
+        //return an object to define the "my/shirt" module.
+        return {
+            color: "blue",
+            size: "large",
+            addToCart: function() {
+                inventory.decrement(this);
+                cart.add(this);
+            }
+        }
+    }
+);
+	\end{lstlisting}
+
+	在上面的例子中，/my/shirt这个module被创建了，他依赖于/my/cart和/my/inventory.第二个参数的function会在依赖的两个module加载起来之后再被执行。
+
+	当然，这个返回的module不一定需要是个object，返回function对象也同样可以的。
+
+	对于遵循CommonJS的代码，可以采用下面的方式来重用以后代码。
+
+	\begin{lstlisting}
+define(function(require, exports, module) {
+        var a = require('a'),
+            b = require('b');
+
+        //Return the module value
+        return function () {};
+    }
+);
+	\end{lstlisting}
+
+	有时候，你会看到define()的第一个参数是你定义的module的moduleID，但是不推荐这么写，因为如果你改变你的module的目录，你需要自己来更改moduleID，所以推荐由Require.js来自动定义你的moduleID。
+
+	\begin{lstlisting}
+//Explicitly defines the "foo/title" module:
+    define("foo/title",
+        ["my/cart", "my/inventory"],
+        function(cart, inventory) {
+            //Define foo/title object in here.
+       }
+    );
+	\end{lstlisting}
+
+	\paragraph{Configuration}
+
+	有几种方式来调用require.config()，先通过script标签来加载Require.js，然后在下一个script标签中包含对require.config()的调用的代码。
+	\begin{lstlisting}
+<script src="scripts/require.js"></script>
+<script>
+  require.config({
+    baseUrl: "/another/path",
+    paths: {
+        "some": "some/v1.0"
+    },
+    waitSeconds: 15
+  });
+  require( ["some/module", "my/module", "a.js", "b.js"],
+    function(someModule,    myModule) {
+        //This function will be called when all the dependencies
+        //listed above are loaded. Note that this function could
+        //be called before the page is loaded.
+        //This callback is optional.
+    }
+  );
+</script>
+	\end{lstlisting}
+	也可以在main-data属性指定的js文件中调用。在这种情况下，需要注意script标签的异步加载，下面的标签引用的代码可能在main.js之前执行。
+	\begin{lstlisting}
+<script data-main="scripts/main" src="scripts/require.js"></script>
+<script src="scripts/other.js"></script>
+	\end{lstlisting}
+	\begin{lstlisting}
+// contents of main.js:
+require.config({
+    paths: {
+        foo: 'libs/foo-1.1.3'
+    }
+});
+	\end{lstlisting}
+	\begin{lstlisting}
+// contents of other.js:
+
+// This code might be called before the require.config() in main.js
+// has executed. When that happens, require.js will attempt to
+// load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
+require( ['foo'], function( foo ) {
+
+});
+	\end{lstlisting}
+
+	当然，你也可以先定义一个Require的全局config对象，然后再用script标签加载Require.js。使用 require = {}，而不是window.require = {}。这样保证在IE下得正确性。
+
+	\begin{lstlisting}
+<script>
+    var require = {
+        deps: ["some/module1", "my/module2", "a.js", "b.js"],
+        callback: function(module1, module2) {
+            //This function will be called when all the dependencies
+            //listed above in deps are loaded. Note that this
+            //function could be called before the page is loaded.
+            //This callback is optional.
+        }
+    };
+</script>
+<script src="scripts/require.js"></script>
+	\end{lstlisting}
+
+	\subsection{Underscore.js}
+
+  \subsection{AngularJS}
+
+  
+
+  \section{练习项目}
+
+  \subsection{NuoNuo Picture Gallary}
+
+  初步的设想是开发一个图片管理的website，包括导入图片，给图片加标注，加标签。按日期分类，安标签分类，浏览图片。
+
+  服务器采用NodeJs和Express框架。数据库采用MongoDB.前端框架使用AngularJs，然后需要使用这个地方可以考虑是不是需要使用requireJs之类的加载。
+
+  然后可以练习的包括js加载的优化。
+
+  最先要考虑的是图片保存的策略，这里先采用元数据存储在DB中，查询返回所需要图片的URL，然后浏览器从对应的URL来读取图片。。
+
+  
+		
+\newpage
+\end{CJK}  
 \end{document}
