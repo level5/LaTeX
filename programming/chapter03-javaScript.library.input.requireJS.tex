@@ -1,0 +1,186 @@
+\section{Require.js}
+    Require.js的目的是为了让我门编写模块化的代码，他遵循AMD规范。
+
+    \subsection{BaseUrl}
+    Require.js根据BaseUrl来加载所有的js文件。
+
+    \begin{lstlisting}
+<!--This sets the baseUrl to the "scripts" directory, and
+    loads a script that will have a module ID of 'main'-->
+<script data-main="scripts/main.js" src="scripts/require.js"></script>
+    \end{lstlisting}
+
+    对于BaseUrl，一般来说，他是data-main属性引用的文件所在的目录，在上面的例子中，目录为scripts。
+    同时，我们也可以在config中显示的指定，如果我们在config中指定了，将不再使用data-main属性的目录了。
+    如果既没有main-data属性，也没有在config中指定，那么BaseUrl将是当前运行require.js的HTML文件所在的目录。
+
+    \subsection{BaseUrl + path}
+    一般情况下，对js文件的查找，是通过BaseUrl + path的方式来查找。在下面的配置中，如果我们查找some/module.
+    require.js会查找/another/path/some/v1.0/module.js。
+    \begin{lstlisting}
+<script src="scripts/require.js"></script>
+<script>
+  require.config({
+    baseUrl: "/another/path",
+    paths: {
+        "some": "some/v1.0"
+    },
+    waitSeconds: 15
+  });
+  require( ["some/module", "my/module", "a.js", "b.js"],
+    function(someModule,    myModule) {
+        //This function will be called when all the dependencies
+        //listed above are loaded. Note that this function could
+        //be called before the page is loaded.
+        //This callback is optional.
+    }
+  );
+</script>
+    \end{lstlisting}
+
+    而在下面的三种情况下，Require.js不会采用BaseUrl + path的方式来查找js文件。
+    \begin{enumerate}
+    \item 以".js"结束的；
+    \item 以"/"开头的；
+    \item 以协议头，如"http:"开头的。
+    \end{enumerate}
+
+    \subsection{模块定义}
+
+    模块应该遵循js的模块模式[先省略，日后补充][http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html]
+
+    简单的键值对，没有依赖，那么将键值对对象作为参数传递给define()
+    \begin{lstlisting}
+//Inside file my/shirt.js:
+define({
+    color: "black",
+    size: "unisize"
+});
+    \end{lstlisting}
+
+    如果没有依赖，只是需要函数来做一些先期的设定，那么讲一个函数传递给define()
+    \begin{lstlisting}
+//my/shirt.js now does setup work
+//before returning its module definition.
+define(function () {
+    //Do setup work here
+
+    return {
+        color: "black",
+        size: "unisize"
+    }
+});
+    \end{lstlisting}
+
+    如果有依赖，那么define()的一个参数是一个数组，数组元素是依赖的module的muduleID，第二个参数是一个函数，这个函数接受的参数就是你的module依赖的module，顺序和第一个参数数组元素顺序相同，这个函数必须返回一个对象，就是你定义的module。
+
+    \begin{lstlisting}
+//my/shirt.js now has some dependencies, a cart and inventory
+//module in the same directory as shirt.js
+define(["./cart", "./inventory"], function(cart, inventory) {
+        //return an object to define the "my/shirt" module.
+        return {
+            color: "blue",
+            size: "large",
+            addToCart: function() {
+                inventory.decrement(this);
+                cart.add(this);
+            }
+        }
+    }
+);
+    \end{lstlisting}
+
+    在上面的例子中，/my/shirt这个module被创建了，他依赖于/my/cart和/my/inventory.第二个参数的function会在依赖的两个module加载起来之后再被执行。
+
+    当然，这个返回的module不一定需要是个object，返回function对象也同样可以的。
+
+    对于遵循CommonJS的代码，可以采用下面的方式来重用以后代码。
+
+    \begin{lstlisting}
+define(function(require, exports, module) {
+        var a = require('a'),
+            b = require('b');
+
+        //Return the module value
+        return function () {};
+    }
+);
+    \end{lstlisting}
+
+    有时候，你会看到define()的第一个参数是你定义的module的moduleID，但是不推荐这么写，因为如果你改变你的module的目录，你需要自己来更改moduleID，所以推荐由Require.js来自动定义你的moduleID。
+
+    \begin{lstlisting}
+//Explicitly defines the "foo/title" module:
+    define("foo/title",
+        ["my/cart", "my/inventory"],
+        function(cart, inventory) {
+            //Define foo/title object in here.
+       }
+    );
+    \end{lstlisting}
+
+    \subsection{Configuration}
+
+    有几种方式来调用require.config()，先通过script标签来加载Require.js，然后在下一个script标签中包含对require.config()的调用的代码。
+    \begin{lstlisting}
+<script src="scripts/require.js"></script>
+<script>
+  require.config({
+    baseUrl: "/another/path",
+    paths: {
+        "some": "some/v1.0"
+    },
+    waitSeconds: 15
+  });
+  require( ["some/module", "my/module", "a.js", "b.js"],
+    function(someModule,    myModule) {
+        //This function will be called when all the dependencies
+        //listed above are loaded. Note that this function could
+        //be called before the page is loaded.
+        //This callback is optional.
+    }
+  );
+</script>
+    \end{lstlisting}
+    也可以在main-data属性指定的js文件中调用。在这种情况下，需要注意script标签的异步加载，下面的标签引用的代码可能在main.js之前执行。
+    \begin{lstlisting}
+<script data-main="scripts/main" src="scripts/require.js"></script>
+<script src="scripts/other.js"></script>
+    \end{lstlisting}
+    \begin{lstlisting}
+// contents of main.js:
+require.config({
+    paths: {
+        foo: 'libs/foo-1.1.3'
+    }
+});
+    \end{lstlisting}
+    \begin{lstlisting}
+// contents of other.js:
+
+// This code might be called before the require.config() in main.js
+// has executed. When that happens, require.js will attempt to
+// load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
+require( ['foo'], function( foo ) {
+
+});
+    \end{lstlisting}
+
+    当然，你也可以先定义一个Require的全局config对象，然后再用script标签加载Require.js。使用 require = {}，而不是window.require = {}。这样保证在IE下得正确性。
+
+    \begin{lstlisting}
+<script>
+    var require = {
+        deps: ["some/module1", "my/module2", "a.js", "b.js"],
+        callback: function(module1, module2) {
+            //This function will be called when all the dependencies
+            //listed above in deps are loaded. Note that this
+            //function could be called before the page is loaded.
+            //This callback is optional.
+        }
+    };
+</script>
+<script src="scripts/require.js"></script>
+    \end{lstlisting}
+

@@ -1,0 +1,29 @@
+\chapter{JavaScript 语言}
+	JavaScript语言有一些重要的概念,原型,函数,作用域和闭包.掌握了这些概念,基本就掌握了JavaScript这门语言,其他的就是一些语言细节特性.
+	\section{原型}
+	我们所说的面向对象.继承,封装和多态.从语言上来说,有两种实现面向对象的方式:基于类和基于原型的继承.
+
+	基于类的继承. 类是模板,继承的是行为.这类语言有Java.
+	
+	基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
+
+	在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的.
+
+	先来看看简单的代码,
+
+	\begin{lstlisting}
+var a = {};	
+a.b = 10;
+console.log(a.b); // 10
+	\end{lstlisting}
+
+	JavasScript中对象的定义是: Object是Property的集合. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
+
+	\section{函数}
+	函数在JavaScript中是第一等公民。
+	\section{作用域}
+	函数中的变量的定义和取值和函数的作用域有关。
+	\section{闭包}
+	函数和作用域，就构成了闭包。
+	\section{语言细节}
+	这部分可以讨论一下很多关于JavaScript的细节.

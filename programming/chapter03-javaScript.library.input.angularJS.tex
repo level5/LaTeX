@@ -1,0 +1,51 @@
+\section{AngularJS}
+  这里，通过AngularJS自带的例子来学习他。
+
+  首先，从github上clone下整个项目。然后使用npm安装依赖，在这里，即使使用镜像，也可能报错，所以最好使用vpn来翻墙安装依赖包。然后启动应用，这里如果第一次启动了应用，再启动报错的话，可以关闭开关命令窗口，重新启动。原因可能是因为是使用的是ctrl+z来关闭的nodejs，而不是使用的ctrl+c来关闭。
+
+  在读完整个教程，对AngularJS有一个初步的理解之后，开始学习一下AngularJS的基本概念。
+
+
+  \subsection{Template}
+  可以看做HTML的增强。在HTML上增加了angular的一些元素和属性。angular使用template，model和controller来渲染用户在浏览器中看到的view。
+
+  有这样一些元素和属性：
+  \begin{itemize}
+  \item Directive --
+  \item Markup -- \{\{\}\}就是markup，将表达式和元素绑定。 
+  \item Filter -- 格式化数据为想要显示的样子。
+  \item Form controls -- 验证用户输入。
+  \end{itemize}
+
+
+  \subsection{Controller}
+
+  Controller是一个构造函数，用来提升Angular Scope，稍后解释什么是Angular Scope。
+
+  当一个Controller通过ng-controller和一个DOM绑定，Angular将会通过这个构造方法实例化一个Controller的对象。一个新的子scope将最为参数传递给构造方法，参数名是\$scope。
+
+  可以通过Controller来
+  \begin{itemize}
+  \item 初始化\$scope对象的属性；
+  \item 给\$scope对象添加行为。
+  \end{itemize}
+
+  但是不要通过Controller来
+  \begin{itemize}
+  \item 操作DOM，Controller只应该包含业务逻辑。在Controller中加入展现的逻辑将影响他的可测试性。angular有databinding来处理绝大情况，也可以使用directive来封装DOM操作。
+  \item 格式化输入，使用form control来做。
+  \item 过滤输出，使用filter来做。
+  \item 在Controller共享代码和状态，使用service来完成。
+  \item 管理其他部件的生命周期。例如实例化service。
+  \end{itemize}
+
+  保持Controller简单，只做单一的view需要的业务逻辑，而将不属于Contoller的逻辑分装在service中，通过依赖注入来一来service。
+
+  You can associate Controllers with scope object implicitly via the ngController directive or \$route service. ??? 这句话真不知道什么意思！！！
+
+  可以这么理解，碰到ngController directive，这个directive会产生一个\$scope，然后调用controller这个构造函数，而对于\$route service，当跳转到相应的hash url时，也会产生一个新的\$scope,并且绑定controller和template，这也是为什么在这种情况下，template中不需要使用ngController这个directive。
+
+  在ngController是嵌套的情况下，他们的scope是可以访问父scope的property，如果他们本身的property没有因为名字相同隐藏了父scope的property的话。
+
+  
+  
