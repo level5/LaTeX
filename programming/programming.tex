@@ -6,6 +6,7 @@
 \usepackage{listings}
 \usepackage{CJKutf8}  
 
+
 \usepackage{color}
 \definecolor{lightgray}{rgb}{.9,.9,.9}
 \definecolor{darkgray}{rgb}{.4,.4,.4}
@@ -78,13 +79,21 @@
 \author{石峰\\
 			上海 长宁}
 \date{\today}
+
+%\includeonly{chapter03-javaScript.library}
 	
 \begin{document}  
 \begin{CJK}{UTF8}{gkai}
 \maketitle
 %\tableofcontents
 
-\include{chapter01-javaScript}
+\part{javascript}
+\include{chapter01-javaScript.language}
+\include{chapter02-javaScript.environment}
+
+\include{chapter03-javaScript.library}
+\include{chapter-javaScript.projects}
+
   
 		
 \newpage
