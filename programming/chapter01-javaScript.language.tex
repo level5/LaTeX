@@ -7,20 +7,88 @@
 	
 	基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
 
-	在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的.
+	如果是从Java这种基于类的语言转过来学些JavaScript的，要有这样一个转变，在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的. 在这里，没有类。new Date()，这里的Date不是类，也是一个对象。
+	
+	
+	\subsection{Property}
 
-	先来看看简单的代码,
+	先来看看简单的代码。
+	
+	\lstinputlisting[
+		style=js,
+		linerange={1-8},
+		firstnumber=1
+	]{code/javascript/prototype.js}
 
-	\begin{lstlisting}
-var a = {};	
-a.b = 10;
-console.log(a.b); // 10
-	\end{lstlisting}
+	JavasScript中对象的定义是: Object是Property的集合，property是一个值或者对象的引用. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
+	
+	首先，第一行生成一个对象，并将它赋值给a。然后第二行，a.b = 10，这个时候，因为a没有b这个property，所以给他生成了一个b property，并将10复制给他，第三行，打印a.b，结果是10.第四行，对对象属性的访问有两种方式，.和[]。不同之处是.后面是直接跟标识符，而[]中是字符串，注意第四行的b是有引号的。
+	
+	在在后面，将我们定义的函数赋值给foo property，这里又不同于Java，我们前面说了，JavaScript中一切皆对象，所以函数也是对象，他是一类比较特殊的对象，可以通过被调用。因为函数是对象，所以他也可以赋值给对象的属性。赋值之后，我们可以调用他。
+	\begin{itemize}
+	\item 对象就是property的集合，在本例中，这个集合中有b这个property。
+	\item 给对象property赋值，如果存在，就修改值，如果不存在，就创建一个新的property，并赋值。
+	\item 函数也是对象，可以赋值给property。
+	\end{itemize}
+	
+	对于property，我们可以先将他看成有两类property，一类就是我们上面看到的，实际上，他还要细分为data property 和 access property，这个后面再讨论，再来有一类我们叫做internal property，他是在我们程序级别是看不到的，而是提供给语言内部实现级别所使用的。例如我们将要讨论的原型，每个对象都有原型属性，但是我们在程序中无法通过.的方式来访问他，我们在谈论到internal property的时候，会使用[[]]来表示，例如，原型属性我们会表示成[[prototype]]。
+	
+	\subsection{Prototype}
+	
+	我们说到，js是通过原型的方式来实现继承的。原型实际上就是对象的一个internal property [[prototype]]，每个对象都有[[prototype]]属性，他指向一个对象，而原型本身也有[[prototype]]属性，这样一直链接到最顶端的一个特殊对象，他的原型是空的，所有的对象的原型链的顶端都是这个对象。这就是我们说的原型链
+	
+	然后我们说说原型的作用，他就是帮我们来解析.和[]取得什么样的值的。当我们通过.的方式来读取一个对象的property的时候，会在当前对象中查找看看是否有这个property，如果有，就返回，如果没有，就会尝试着在他的[[prototype]]上来查找，如果找到了就返回，如果没有找到，就继续在这个链往上找，直到找到最顶，如果还没有找到，那就会返回undefined。
+	
+	
+	\lstinputlisting[
+		style=js,
+		linerange={11-18},
+		firstnumber=1
+	]{code/javascript/prototype.js}
+	
+	这里的Object.create函数是用来创建一个对象，他的原型是传入的参数。在第四行，因为在原型对象上定义了bar，所以可以取到值10，而bar2没有定义，所以得不到值，返回undefined。然后在第七行，我们给proto的bar2赋值20，这样当我们再次调用foo.bar2的时候，在原型链上查找，可以找到值20了。
+	
+	
+	这里说到的是取值，实现了继承。接着是赋值，通过下面赋值的方式，实现了类似于Java中的多态，这里说类似于，是因为我认为js中没有类，依旧不存在相同类型不同行为，而是动态语言所说的鸭子类型。赋值很简单，如果存在就修改值，不错在就新增这个属性，这里所说的存在与不存在是指当前对象，而不是只原型链上存不存在。
+	
+	
+	\lstinputlisting[
+		style=js,
+		linerange={22-34},
+		firstnumber=1
+	]{code/javascript/prototype.js}	
+		
+	这里可以看到foo和bar都是继承proto，所以x都等于10，而在foo.x = 20之后，foo上创建了x，并且赋值20。所以当取foo.x是等于20。而bar.x和proto.x还是10。
+	
+	
+	\subsection{typeof 和 instanceof}
+	typeof就是返回后面所跟引用的类型，这个值是固定的。
 
-	JavasScript中对象的定义是: Object是Property的集合. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
+
+	\begin{tabular}{rl}
+		类型	& 	结果\\[5pt]
+		Undefined 	& 	"undefined"\\
+		Null		&	"object"\\
+		Boolean		&	"boolean"\\
+		Number		&	"number"\\
+		String		&	"string"\\
+		Host object & Implementation-dependent\\
+		Function object & "function"\\
+		Any other object &	"object"\\
+	\end{tabular}
+
+	instanceof 则是检查第一个对象的原型链上是否包含第二个构造函数的prototype属性。
+
+	
+	\subsection{ECMA spec中和本节相关概念}
 
 	\section{函数}
 	函数在JavaScript中是第一等公民。
+
+	
+	\subsection{arguments}
+	\subsection{函数作为构造函数}	
+	
 	\section{作用域}
 	函数中的变量的定义和取值和函数的作用域有关。
 	\section{闭包}
