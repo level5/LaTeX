@@ -1,0 +1,493 @@
+\chapter{Ruby Koans}
+
+开始使用Koans来学习Ruby，第一步，当然是安装Ruby，然后设置环境变量。
+
+\section{Koans流程}
+
+\subsection{assert}
+
+我们可以通过assert来测试确定我们的代码是否按照我们期望的方式来运行。可以使用assert和assert\_equal。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={10-10},
+	firstnumber=1
+]{code/ruby/koans/about_asserts.rb}
+
+\lstinputlisting[
+	style=ruby,
+	linerange={33-33},
+	firstnumber=1
+]{code/ruby/koans/about_asserts.rb}
+
+\subsection{nil}
+
+和其他语言不太一样，Ruby中，表示Null的nil是一个对象。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={5-5},
+	firstnumber=1
+]{code/ruby/koans/about_nil.rb}
+
+\lstinputlisting[
+	style=ruby,
+	linerange={25-27},
+	firstnumber=1
+]{code/ruby/koans/about_nil.rb}
+
+
+\lstinputlisting[
+	style=ruby,
+	linerange={38-38},
+	firstnumber=1
+]{code/ruby/koans/about_nil.rb}
+
+
+\subsection{Object}
+万物皆为Object。Object是默认的所哟Ruby对象的祖先。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={5-9},
+	firstnumber=1
+]{code/ruby/koans/about_objects.rb}
+
+每个对象有一个不同的object\_id
+
+
+\subsection{Array}
+数组可以直接通过Array.new或者[]来创建，数组长度可以动态增长。可以通过length来取得数组的长度。注意<<，他是将333添加到数组的最后，类似于push方法，不过这个方法返回数组本身，所以可以连续添加。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={11-24},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+
+数组的index从0开始，可以是正数，也可以是负数，负数的话，就是从最后往前计算。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={28-35},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+通过array[start, length]可以取得数组中的一个子数组。注意最后两行个结果的区别，一个是[]，一个是nil。如果start是数组的结尾，返回[]，如果start超出数组长度，则返回nil。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={39-47},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+通过range也可以取得array[start..end]，或者array[start...end]。区别是...不包括最后一个元素。同样start超出或者在结尾和上面产生相同效果。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={58-64},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+同时，其他语言一般有的push, pop（最后添加和弹出）, unshift, shift（最前面插入和弹出）方法也有。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={68-75},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+\lstinputlisting[
+	style=ruby,
+	linerange={79-86},
+	firstnumber=1
+]{code/ruby/koans/about_arrays.rb}
+
+对于数组变量的赋值，Ruby提供了一些很方便的操作。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={10-12},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+可以看到变量和数组中的元素是按从开始到结尾的顺序一一对应的，如果变量不够就抛弃后面的元素，如果元素不够的话，就分配nil。
+\lstinputlisting[
+	style=ruby,
+	linerange={16-18},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+\lstinputlisting[
+	style=ruby,
+	linerange={28-30},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+\lstinputlisting[
+	style=ruby,
+	linerange={34-36},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+如果想要最后一个元素保存剩余元素的一个数组，使用*放在变量之前。
+
+\lstinputlisting[
+	style=ruby,
+	linerange={22-24},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+如果只想取得第一个元素，可以像下面这样，变量后面加一个,
+
+\lstinputlisting[
+	style=ruby,
+	linerange={40-41},
+	firstnumber=1
+]{code/ruby/koans/about_array_assignment.rb}
+
+下面是一个方便交换变量的值的方法。
+
+\begin{Ruby}
+	first_name = "Roy"
+	last_name = "Rob"
+	first_name, last_name = last_name, first_name
+	assert_equal "Rob", first_name
+	assert_equal "Roy", last_name
+\end{Ruby}
+
+
+\subsection{Hash}
+Hash的创建可以通过字面常量，new方法。
+
+\begin{Ruby}
+	hash = { :one => "uno", :two => "dos" }
+	assert_equal "uno", hash[:one]
+	assert_equal "dos", hash[:two]
+	assert_equal nil, hash[:doesnt_exist]
+\end{Ruby}
+
+当new不带参数时，创建一个空的Hash。当new带一个参数是，设定了default值，当Hash中不存在某个key时，返回default值。
+default值也可以通过hash对象的default来修改。
+
+\begin{Ruby}
+    hash1 = Hash.new
+    hash1[:one] = 1
+
+    assert_equal 1, hash1[:one]
+    assert_equal nil, hash1[:two]
+
+    hash2 = Hash.new("dos")
+    hash2[:one] = 1
+
+    assert_equal 1, hash2[:one]
+    assert_equal "dos", hash2.default
+    assert_equal "dos", hash2[:two]
+    assert_equal "dos", hash2[:three]
+
+    hash2.default = "uno"
+
+    assert_equal "uno", hash2[:four]
+\end{Ruby}
+
+当new带有代码块是，取某个不存在的值的时候，会调用代码块。
+
+\begin{Ruby}
+    hash = Hash.new {|hash, key| hash[key] = [] }
+
+    hash[:one] << "uno"
+    hash[:two] << "dos"
+
+    assert_equal ["uno"], hash[:one]
+    assert_equal ["dos"], hash[:two]
+    assert_equal [], hash[:three]
+\end{Ruby}
+
+
+\subsection{String}
+我们可以使用'或者"来生成一个String的字面常量。
+\begin{Ruby}
+    string = "Hello, World"
+    assert_equal true, string.is_a?(String)
+    
+    string = 'He said, "Go Away."'
+    assert_equal "He said, \"Go Away.\"", string
+    
+\end{Ruby}
+
+他们的不同之处是"中可以插入变量，同时，有些转义符在'中不生效。
+\begin{Ruby}
+	value = 123
+    string = "The value is #{value}"
+    assert_equal "The value is 123", string
+    
+    value = 123
+    string = 'The value is #{value}'
+    assert_equal "The value is \#{value}", string
+    
+    string = "\n"
+    assert_equal 1, string.size
+    
+    string = '\n'
+    assert_equal 2, string.size
+    
+    string = '\\\''
+    assert_equal 2, string.size
+    assert_equal "\\'", string
+\end{Ruby}
+
+除了"和'，我们还可以自定义包裹字符串的符号。(TODO:具体了解一下这个地方左右是怎么对应的。)如：
+\begin{Ruby}
+    a = %(flexible quotes can handle both ' and " characters)
+    b = %!flexible quotes can handle both ' and " characters!
+    c = %{flexible quotes can handle both ' and " characters}
+    assert_equal true, a == b
+    assert_equal true, a == c
+\end{Ruby}
+
+还有一种叫做Here Document的方式，采用<<加一个包裹符号。
+\begin{Ruby}
+    long_string = <<EOS
+It was the best of times,
+It was the worst of times.
+EOS
+    assert_equal 53, long_string.length
+    assert_equal 2, long_string.lines.count
+    assert_equal 'I', long_string[0,1]
+\end{Ruby}
+他的内容是EOS和EOS之间的内容，第一个EOS之后的回车不会计算到字符串中，这不同于前面的方式,下面代码的第一个回车是会计入到字符串中间的。
+\begin{Ruby}
+    long_string = %{
+It was the best of times,
+It was the worst of times.
+}
+    assert_equal 54, long_string.length
+    assert_equal 3, long_string.lines.count
+    assert_equal "\n", long_string[0,1]
+\end{Ruby}
+
+我们还可以很方便的使用[]取得子字符串，其中的参数是start, length。如果只有一个参数，就表示取得这个索引的字符。和数组一样。
+\begin{Ruby}
+    string = "Bacon, lettuce and tomato"
+    assert_equal "let", string[7,3]
+    assert_equal "let", string[7..9]
+    
+    string = "Bacon, lettuce and tomato"
+    assert_equal "a", string[1]
+\end{Ruby}
+
+数组的拼接有两种方式，+和<<，两者稍有不同，可以从下面的代码看出来。
+\begin{Ruby}
+    string = "Hello, " + "World"
+    assert_equal "Hello, World", string
+    
+    hi = "Hello, "
+    there = "World"
+    string = hi + there
+    assert_equal "Hello, ", hi
+    assert_equal "World", there
+    
+    hi = "Hello, "
+    there = "World"
+    hi += there
+    assert_equal "Hello, World", hi
+    
+    original_string = "Hello, "
+    hi = original_string
+    there = "World"
+    hi += there
+    assert_equal "Hello, ", original_string   
+    
+    hi = "Hello, "
+    there = "World"
+    hi << there
+    assert_equal "Hello, World", hi
+    assert_equal "World", there
+
+    original_string = "Hello, "
+    hi = original_string
+    there = "World"
+    hi << there
+    assert_equal "Hello, World", original_string             
+\end{Ruby}
++是不会改变原来的字符串的，+=也只是将变量引用新的字符串。而<<则修改了字符串的内容。
+
+然后就还有一些基本的方法，如拼接，分隔。这些方法其他语言都有。
+\begin{Ruby}
+    string = "Sausage Egg Cheese"
+    words = string.split
+    assert_equal ["Sausage", "Egg", "Cheese"], words
+    
+    string = "the:rain:in:spain"
+    words = string.split(/:/)
+    assert_equal ["the", "rain", "in", "spain"], words
+    
+    words = ["Now", "is", "the", "time"]
+    assert_equal "Now is the time", words.join(" ")        
+\end{Ruby}
+
+最后，有一点需要注意，相同的字面常量引用的实际上不是一个对象。
+\begin{Ruby}
+    a = "a string"
+    b = "a string"
+
+    assert_equal true, a           == b
+    assert_equal false, a.object_id == b.object_id
+\end{Ruby}
+
+
+\subsection{Symbol}
+我的感觉Symbol就是一个特殊类型的对象，使用:name或者:"name"无论在什么地方都是引用的相同的对象，具有相同的object\_id。要注意的是，它本身不是string，而是一种特殊类型的对象。
+\begin{Ruby}
+    symbol1 = :a_symbol
+    symbol2 = :a_symbol
+    symbol3 = :something_else
+
+    assert_equal true, symbol1 == symbol2
+    assert_equal false, symbol1 == symbol3
+    
+    string = "catsAndDogs"
+    assert_equal :catsAndDogs, string.to_sym
+    assert_equal :catsAndDogs, :"catsAndDogs"	    
+    
+    symbol = :"cats and dogs"
+    assert_equal "cats and dogs".to_sym, symbol
+\end{Ruby}
+
+(TODO:目前对symbol的印象和作用了解的还不是很深，等之后再补充)
+
+
+
+\subsection{Regular Expression}
+目前来看基本和其他语言的正则表达式没啥区别，需要注意的是是贪婪匹配。string[]没有匹配时返回nil。string[]最左边的匹配会被返回。
+\begin{Ruby}
+	assert_equal "abb", "abbcccddddeeeee"[/ab*/]
+
+    assert_equal nil, "some matching content"[/missing/]
+    
+    assert_equal "a", "abbccc az"[/az*/]
+\end{Ruby}
+
+下面是我以前没有注意的
+\begin{itemize}
+\item .表示除了\textbackslash\ n所有的字符。
+\item \textbackslash\ A表示字符串的头，\textbackslash\ Z表示字符串的结尾。
+\end{itemize}
+
+然后就是一些貌似Ruby有的\$1， \$2在匹配之后可以使用
+\begin{Ruby}
+    assert_equal "Gray, James", "Name:  Gray, James"[/(\w+), (\w+)/]
+    assert_equal "Gray", $1
+    assert_equal "James", $2
+\end{Ruby}
+
+另外3个String中和正则相关的方法。scan找出所有匹配，sub替换第一个找到的匹配，gsub替换所有找到的匹配
+\begin{Ruby}
+    assert_equal ["one", "two", "three"], "one two-three".scan(/\w+/)
+    
+    assert_equal "one t-three", "one two-three".sub(/(t\w*)/) { $1[0, 1] }
+    
+    assert_equal "one t-t", "one two-three".gsub(/(t\w*)/) { $1[0, 1] }     
+\end{Ruby}
+
+
+\subsection{Methods}
+依稀记得，Ruby中所有的操作符什么的都是方法(TODO:这里以后再补充，具体现在也不清楚)。
+
+使用def来定义方法，对方法的调用可以带括号，或者不带括号。
+\begin{Ruby}
+	def my_global_method(a,b)
+  		a + b
+	end
+
+	assert_equal 5, my_global_method(2,3)	
+	
+	result = my_global_method 2, 3
+    assert_equal 5, result
+\end{Ruby}
+
+方法定义的时候可以给参数带默认值
+\begin{Ruby}
+  	def method_with_defaults(a, b=:default_value)
+    	[a, b]
+  	end
+  
+    assert_equal [1, :default_value], method_with_defaults(1)
+    assert_equal [1, 2], method_with_defaults(1, 2)
+\end{Ruby}
+
+可变参数
+\begin{Ruby}
+  	def method_with_var_args(*args)
+   		args
+  	end
+  
+    assert_equal Array, method_with_var_args.class # call the method without arguments
+    assert_equal [], method_with_var_args
+    assert_equal [:one], method_with_var_args(:one)
+    assert_equal [:one, :two], method_with_var_args(:one, :two)
+\end{Ruby}
+
+如果方法没有显示的返回，就返回方法最后一行代码的返回值。
+\begin{Ruby}
+  	def method_without_explicit_return
+    	:a_non_return_value
+    	:return_value
+  	end
+  	
+  	assert_equal :return_value, method_without_explicit_return
+\end{Ruby}
+
+
+对于同一个class的方法，可以直接调用，或者self.来调用。
+
+定义私有方法。(TODO:补充)
+\begin{Ruby}
+  class Dog
+    def name
+      "Fido"
+    end
+
+    private
+
+    def tail
+      "tail"
+    end
+  end
+\end{Ruby}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
