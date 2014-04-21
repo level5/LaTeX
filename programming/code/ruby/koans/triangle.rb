@@ -17,7 +17,16 @@ def triangle(a, b, c)
   # WRITE THIS CODE
 
   if a <= 0 || b <= 0 || c <= 0
-  	raise 
+  	raise TriangleError, "not a triangle"
+  end
+
+  max = [a, b, c].max
+  min = [a, b, c].min
+  mid = a + b + c - max - min
+
+  if mid + min <= max || max - mid >= mid
+    raise TriangleError, "not a triangle"
+  end
 
   result = if a == b && b == c
   	:equilateral
