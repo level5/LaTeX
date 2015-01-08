@@ -1,0 +1,25 @@
+\chapter{洗牌算法}
+
+
+\section{Fisher–Yates shuffle}
+
+\begin{enumerate}
+\item 按顺序写下1到N；
+\item 取得一个随机数K，范围是1到还没有提出的数字的个数；
+\item 从小往大，提取出第K个值，删除他，然后在其他位置写下这个数；
+\item 重复第2步，直到所有的数字都提取完毕；
+\item 在第3步按顺序写下来的数就是原始数据的一个随机排序。
+\end{enumerate}
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+	\hline
+	范围 & 随机数 & 草稿 & 结果\\
+	\hline
+	 & &1,2,3,4,5,6,7,8& \\
+	\hline
+	1-8 & 3 & 1,2,\sout{3},4,5,6,7,8 & 3\\
+	\hline
+	
+\end{tabular}
+\end{center}

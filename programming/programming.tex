@@ -5,8 +5,10 @@
 
 \usepackage{CJKutf8}  
 
-%to support < and >
+%to support < , >, and \_(_)
 \usepackage[T1]{fontenc}
+%
+\usepackage{ulem}
 
 \usepackage{listings}
 
@@ -200,10 +202,12 @@
 \date{April 20, 2014}
 
 %\includeonly{chapter01-javaScript.language}
-\includeonly{chapter03-javaScript.library}
+%\includeonly{chapter03-javaScript.library}
 
 %\includeonly{chapter-ruby.koans}
 %\includeonly{chapter-java.osgi}
+
+\includeonly{chapter-algorithm}
 	
 \begin{document}  
 \begin{CJK}{UTF8}{gkai}
@@ -222,6 +226,9 @@
 
 \part{Java}
 \include{chapter-java.osgis}
+
+\part{Algorithm}
+\include{chapter-algorithm}
 		
 \newpage
 \end{CJK}  
