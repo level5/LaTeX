@@ -339,7 +339,7 @@ length === +length 判断length是否是数字。
 \_.property方法返回的是一个方法，这个方法会返回传入的对象的名字为key的property的值。
 
 
-\paragraph{where, findWhere} where是找到所有包含attrs上键值对的item。使用\.filter来过滤，过滤条件是\_.matches； findWhere则是找到第一个满足条件的item
+\paragraph{where, findWhere} where是找到所有包含attrs上键值对的item。使用\.filter来过滤，过滤条件是\lstinline!_.matches!； findWhere则是找到第一个满足条件的item
 
 \begin{JavaScript}
   _.where = function(obj, attrs) {
@@ -383,7 +383,7 @@ length === +length 判断length是否是数字。
 
 如果存在回调方法。则使用回调方法来计算比较的值。
 
-第16行，||后部分是用来处理回调计算结果就是-Infinity，而且result可能没有被赋值（也可能已经赋值为-Infinity，但这个时候不影响结果）的情况下，给result赋值。
+第16行，||后部分是用来处理回调计算结果就是\lstinline!-Infinity!，而且result可能没有被赋值（也可能已经赋值为-Infinity，但这个时候不影响结果）的情况下，给result赋值。
 
 
 \begin{JavaScript}

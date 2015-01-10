@@ -7,10 +7,15 @@
 
 %to support < , >, and \_(_)
 \usepackage[T1]{fontenc}
+
 %
 \usepackage{ulem}
 
+%source code style.
 \usepackage{listings}
+
+%customize caption
+\usepackage{caption}
 
 \usepackage{color}
     \definecolor{lightgray}{rgb}{0.95, 0.95, 0.95}
@@ -21,6 +26,9 @@
     \definecolor{greenCode}{rgb}{0, 0.6, 0} % #009900 -> rgb(0, 153, 0)
     \definecolor{mygray}{gray}{.75}
     \definecolor{orange}{RGB}{255, 165, 0}
+    \definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+	\definecolor{greencomments}{rgb}{0,0.5,0}
+	\definecolor{redstrings}{rgb}{0.9,0,0}
 
 \usepackage{upquote}
 \usepackage{float}
@@ -121,7 +129,22 @@
   morestring=[b]',
   morestring=[b]"
 }
-
+\lstnewenvironment{CSharp}[1][]
+{\lstset{language=[Sharp]C,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\ttfamily,
+  captionpos=t, 
+  caption=【C\#】#1
+}}
+{}
 
 \lstnewenvironment{HTML}
  {\lstset{
@@ -179,9 +202,9 @@
      numberstyle=\footnotesize,
      numbersep=9pt,
      tabsize=2,
-     breaklines=true,
+     breaklines=true,					 % sets automatic line breaking
      showtabs=false,
-     captionpos=b
+     captionpos=t						 % sets the caption-position to top
   }}
   {}
   
@@ -191,14 +214,23 @@
      style=ruby
   }}
   {}
+  \DeclareCaptionFormat{listing}{#1#2#3}
+  \captionsetup[lstlisting]{
+  	format=listing,
+  	singlelinecheck=false,
+  	margin=0pt,
+  	font={sf},
+  	labelsep=space,
+  	labelfont=bf
+  	}
   
 
 \pagestyle{headings}
 %\pagenumbering{arabic}
 
 \title{编程}
-\author{石峰\\
-			上海 长宁}
+%\author{石峰\\
+%			上海 长宁}
 \date{April 20, 2014}
 
 %\includeonly{chapter01-javaScript.language}
