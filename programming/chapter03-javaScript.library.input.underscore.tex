@@ -339,7 +339,7 @@ length === +length 判断length是否是数字。
 \_.property方法返回的是一个方法，这个方法会返回传入的对象的名字为key的property的值。
 
 
-\paragraph{where, findWhere} where是找到所有包含attrs上键值对的item。使用\.filter来过滤，过滤条件是\_.matches； findWhere则是找到第一个满足条件的item
+\paragraph{where, findWhere} where是找到所有包含attrs上键值对的item。使用\.filter来过滤，过滤条件是\lstinline!_.matches!； findWhere则是找到第一个满足条件的item
 
 \begin{JavaScript}
   _.where = function(obj, attrs) {
@@ -383,7 +383,7 @@ length === +length 判断length是否是数字。
 
 如果存在回调方法。则使用回调方法来计算比较的值。
 
-第16行，||后部分是用来处理回调计算结果就是-Infinity，而且result可能没有被赋值（也可能已经赋值为-Infinity，但这个时候不影响结果）的情况下，给result赋值。
+第16行，||后部分是用来处理回调计算结果就是\lstinline!-Infinity!，而且result可能没有被赋值（也可能已经赋值为-Infinity，但这个时候不影响结果）的情况下，给result赋值。
 
 
 \begin{JavaScript}
@@ -414,14 +414,9 @@ length === +length 判断length是否是数字。
 
 和max的情况刚好相反。没有什么需要理解的地方了。
 
-\paragraph{shuffle}洗牌算法,这里是用的是Fisher-Yates shuffle
+\paragraph{shuffle}洗牌算法,这里是用的是Fisher-Yates shuffle， inside-out方法。
 
-算法描述：
-\begin{itemize}
-\item 写下数字1到n；
-\item 挑选一个随机数k，k是1到还没有受影响的数字；
-\
-\end{itemize}
+算法大致思路是，有一个原始数组，一个拷贝。连续增大的i，每次去随机数在0~i之间，如果随机数等于i，就将随机数位置的值拷贝到i位置，然后从源数组将值拷贝到随机数的位置。
 
 \begin{JavaScript}
   _.shuffle = function(obj) {
@@ -436,4 +431,7 @@ length === +length 判断length是否是数字。
     return shuffled;
   };
 \end{JavaScript}
+
+
+\paragraph{sample}
 
