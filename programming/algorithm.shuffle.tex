@@ -103,4 +103,44 @@
 
             return result;
         }
+\end{CSharp}
+
+\section{一种解决方案}
+
+n个有序数，随机选出m个数。
+
+对每个数进行随机测试，判断是否要选择，通过有序访问整数，可以保证输出结果是有序的。
+
+考虑m=2，n=5的情况。选择第一个整数0的概率为2/5，可以通过语句\lstinline!if(bigrand % 5) < 2!来测试。对于第二个整数1我们不能用相同的概率来选择，决策上要做调整：如果已经选择了0的情况下，1/4的概率选择1；在没有选择零的情况下，2/4的概率选择1。
+
+\begin{CSharp}
+        public static int[] Shuffle(int n, int m, int seed)
+        {
+            Random rnd = new Random(seed);
+            int[] ret = new int[m];
+            for(int i = 0; i < n; i++)
+            {
+                if (rnd.Next(n - i) < m)
+                {
+                    ret[ret.Length - m] = i;
+                    m--;
+                }
+            }
+            return ret;
+        }
 \end{CSharp}        
+
+
+\section{又一种解决方案}
+
+\begin{CSharp}
+        public static void Shuffle(int[] origin, int seed)
+        {
+            Random rnd = new Random(seed);
+
+            for(int i = 0; i < origin.Length; i++)
+            {
+                Utils.Swap(ref origin[i], ref origin[rnd.Next(i, origin.Length)]);
+            }
+        }
+\end{CSharp}
