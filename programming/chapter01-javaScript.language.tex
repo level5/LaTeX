@@ -300,6 +300,46 @@ Data Property的Attribute
 \end{itemize}
 	
 \subsection{== 和 ===}
+
+首先要了解ToNumber
+
+\begin{tabular}{|l|l|}
+\hline
+参数 & 值 \\
+\hline
+Undefined & NaN \\
+Null & 0 \\
+Boolean & true转换为1，false转换为0 \\
+String & 将string转换为数字 \\
+Object & 先转换为基本类型，然后再按上面的转换
+\end{tabular}
+
+对象转换为基本类型一般是看valueOf是不是返回基本类型，不是再看看啊toString是不是返回基本类型，如果还不是则抛错。
+
+\begin{itemize}
+\item == 
+
+\begin{enumerate}
+\item 对左右引用类型求值，设左边是lval,右边是rval；
+\item 如果lval和rval是相同类型的话。
+	\begin{itemize}
+	\itme 基本类型的话，按正常的相等性进行比较.
+	\item NaN不等于其他值.
+	\item 不是基本类型时，如果不是引用同一个对象，则两者不相等。
+	\end{itemize}
+\item 当lval和rval是不同类型的时候
+	\begin{itemize}
+	\item undefined等于null。
+	\item undefined和null不等于其他值
+	\item 如果有boolean型，则将其转换为number，再比较
+	\item 如果有一方是对象，一方是数字或者字符串，将对象转换为基本类型再比较
+	\item 如果是数字和字符串比较，转换为数字在比较
+	\end{itemize}
+\end{enumerate}
+
+\item
+\end{itemize}
+
 \subsection{typeof 和 instanceof}
 typeof就是返回后面所跟引用的类型，这个值是固定的。
 
