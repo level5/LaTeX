@@ -1,0 +1,364 @@
+\chapter{基础内容}
+
+\chapter{C\# 委托 delegate}
+
+
+\section{委托，匿名函数和Lambda的语法}
+
+\begin{CSharp}[委托，匿名函数和Lambda]
+        [TestMethod]
+        public void TestMethod4()
+        {
+            List<int> list = new List<int>(new int[] { 1, 2, 3 });
+            List<int> expectResult = new List<int>(new int[] { 1, 4, 9 });
+
+            List<int> ret1 = list.ConvertAll(new Converter<int, int>(Sqrt));
+            List<int> ret2 = list.ConvertAll(delegate(int x) { return x * x; });
+            List<int> ret3 = list.ConvertAll((int x) => { return x * x; });
+            List<int> ret4 = list.ConvertAll((int x) => x * x);
+            List<int> ret5 = list.ConvertAll<int>((x) => x * x);
+            List<int> ret6 = list.ConvertAll<int>(x => x * x);
+
+            CollectionAssert.AreEqual(expectResult, ret1);
+            CollectionAssert.AreEqual(expectResult, ret2);
+            CollectionAssert.AreEqual(expectResult, ret3);
+            CollectionAssert.AreEqual(expectResult, ret4);
+            CollectionAssert.AreEqual(expectResult, ret5);
+            CollectionAssert.AreEqual(expectResult, ret6);
+        }
+
+        public static int Sqrt(int x)
+        {
+            return x * x;
+        }
+\end{CSharp}
+
+从7~12行是从委托到Lambda表达式的所有语法形式，从上往下，越来越简单。11,12行的形式需要显式写明泛型类型来帮助Lambda表达式推断变量的类型。
+
+第7行，C\#1中的delegate。
+
+第8行，匿名函数。
+
+第9行，Lambda表达式，花括号中可以有多个语句。
+
+第10行，Lambda表达式，省略花括号，直接返回expression的值。
+
+第11行，参数类型可以省略，如果编译器能够推断出此处的类型的话。
+
+第12行，参数的括号可以省略（不知道两个参数的时候是否可以省略，等补充）。
+
+\section{协变和逆变}
+
+协变就是如果类型是另一个类型的子类，就能隐式的将数组，泛型，委托转换为另一个类型。
+
+而逆变就是相反的一个过程。
+
+当类型描述的是返回类型时，协变是安全的；当类型描述的是接受类型，逆变是安全的。
+
+数组的协变：
+
+\begin{CSharp}[数组的协变]
+        [TestMethod]
+        [ExpectedException(typeof(ArrayTypeMismatchException))]
+        public void TestVariant()
+        {
+            string[] strs = new string[] { "a", "b", "c" };
+            object[] objs = strs;
+            objs[0] = new object();
+        }
+\end{CSharp}
+
+问题出现了，这个问题不能被编译器检测出来。会在运行时抛出一个ArrayTypeMismatchException。那为什么数组要支持协变呢？因为Java支持，最开始为了支持从Java源码编译过来，所以.Net也支持协变数组。
+
+泛型不支持协变。
+
+委托是支持协变和逆变的。
+
+\begin{CSharp}[协变和逆变]
+        
+        public delegate Object Dele(String str);
+
+        [TestMethod]
+        public void TestMethod1()
+        {
+            Dele b = new Dele(this.Delegated);
+
+            Assert.AreEqual(typeof(String), o.GetType());
+            Assert.AreEqual("This is a test string.", o.ToString());            
+        }
+
+        public String Delegated(Object obj) { return "This is a test string.";}
+\end{CSharp}
+
+上面是委托最初的语法，使用关键词delegate定义一个委托类型。在方法中生成一个委托对象，然后就可以像调用方法一直接调用委托对象。
+
+同样，返回值是协变，输入参数是逆变。
+
+
+\section{预定义委托类型}
+
+C\#2.0引入了一个泛型委托Action<T>
+
+\begin{CSharp}[Actio<T>的签名]
+		public delegate void Action<T>(T obj);
+\end{CSharp}
+
+
+\begin{CSharp}[Action和匿名方法]
+        [TestMethod]
+        public void TestMethod2()
+        {
+            Action<char[]> reverseString = delegate(char[] chars){
+                System.Array.Reverse(chars);
+            };
+
+            char[] test = "chars".ToCharArray();
+            reverseString(test);
+
+            Assert.AreEqual("srahc", new string(test));
+
+        }
+\end{CSharp}
+
+需要注意的是逆变性不适应匿名方法。而且值类型不支持使用this，而引用类型支持使用this。
+
+
+Action<T>没有返回值，还有另外一个有返回类型的Predicate<T>，返回bool型，常用来过滤或者匹配。签名是
+\begin{CSharp}
+		public delegate bool Predicate<T>(T obj);
+\end{CSharp}
+
+\section{闭包}
+\begin{itemize}
+\item 外部变量（ outer variable）是指作用域（ scope）内包括匿名方法的局部变量或参数（不包括ref和out参数）。在类的实例成员内部的匿名方法中， this引用也被认为是一个外部变量。
+\item 捕获的外部变量（ captured outer variable）通常简称为捕获变量（ captured variable），它是在匿名方法内部使用的外部变量。
+变量。
+\end{itemize}
+
+感觉和JavaScript的暂时还没有什么不同。
+
+
+\#更新\#
+由于JS没有块作用域，所以和C\#还是有点点不同的地方。
+
+\begin{CSharp}[此处创建的匿名函数更新的都是一个counter，因为counter只申明了一次]
+        public IList<Func<int>> createDelegate()
+        {
+            int counter = 5;
+            IList<Func<int>> ret = new List<Func<int>>();
+            for (int i = 0; i < 5; i++)
+            {
+                ret.Add( () => ++counter );
+            }
+            return ret; 
+        }
+\end{CSharp}
+
+\begin{CSharp}[而此处创建的匿名函数更新的是不同的counter，因为在迭代过程中，每次创建匿名函数之前，都在各自的作用域（scope）中申明了一个变量counter]
+        public IList<Func<int>> createDelegate2()
+        {
+            IList<Func<int>> ret = new List<Func<int>>();
+            for (int i = 0; i < 5; i++)
+            {
+                int counter = 5;    
+                ret.Add(() => ++counter );
+            }
+            return ret;
+        }
+\end{CSharp}
+
+\begin{CSharp}[运行结果]
+        [TestMethod]
+        public void TestMethod3()
+        {
+            int counter = 5;
+            IList<Func<int>> de1 = createDelegate();
+            foreach (var func in de1)
+            {
+                int ret = func();
+                Assert.AreEqual(++counter, ret);
+            }
+
+            IList<Func<int>> de2 = createDelegate2();
+            foreach (var func in de2)
+            {
+                int ret = func();
+                Assert.AreEqual(6, ret);
+            }
+        }
+\end{CSharp}
+
+
+\chapter{C\#的迭代器}
+
+\section{实现和注意}
+\begin{CSharp}[C\#1中的实现]
+using System;
+using System.Collections;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MyFirstConsoleApp.Iterator
+{
+    class IterationSample: IEnumerable
+    {
+        object[] values;
+        int startingPoint;
+
+        public IterationSample(object[] values, int position)
+        {
+            this.values = values;
+            this.startingPoint = position;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+        /* 此处生成一个新的Enumerator类，而不是用自身的原因
+         * 是可能同时调用GetEnumerator方法多次，这样状态就会乱掉
+         */
+        class IterationSampleIterator : IEnumerator
+        {
+            IterationSample parent;
+            int position;
+
+            internal IterationSampleIterator(IterationSample parent)
+            {
+                this.parent = parent;
+                this.position = -1;
+            }
+
+            public object Current
+            {
+                get { 
+                    if(position == -1 || position == parent.values.Length)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    int index = position + parent.startingPoint;
+                    index = index % parent.values.Length;
+                    return parent.values[index];
+                }
+            }
+
+            public bool MoveNext()
+            {
+                if (position != parent.values.Length)
+                {
+                    position++;
+                }
+                return position < parent.values.Length;
+            }
+
+            public void Reset()
+            {
+                position = -1;
+            }
+        }
+    }
+
+
+}
+\end{CSharp}
+\begin{CSharp}[C\#2中的实现]
+        public IEnumerator GetEnumerator()
+        {
+           for(int index = 0; index < values.Length; index++)
+           {
+               yield return values[(index + startingPoint) % values.Length];
+           }
+        }
+\end{CSharp}
+
+下面代码会打印出各个操作之后所执行的代码。
+
+\begin{CSharp}
+        static readonly string padding = new string(' ', 30);
+
+        public static IEnumerable<int> CreateEnumerable()
+        {
+            Console.WriteLine("{0}Starting of CreateEnumerable()", padding);
+
+            for(int i = 0; i < 3; i++)
+            {
+                Console.WriteLine("{0}About to yield {1}", padding, i);
+                yield return i;
+                Console.WriteLine("{0}After yield {1}", padding, i);
+            }
+
+            Console.WriteLine("{0}Yiedling final value", padding);
+            yield return -1;
+
+            Console.WriteLine("{0}End of createEnumerable()", padding);
+        }
+
+        public static void PrintIteratorSteps()
+        {
+            IEnumerable<int> iterable = CreateEnumerable();
+            IEnumerator<int> iterator = iterable.GetEnumerator();
+
+
+            Console.WriteLine("Pre starting to iterate, Current = {0}", iterator.Current);
+
+            Console.WriteLine("Starting to iterate");
+
+            while(true)
+            {
+                Console.WriteLine("Calling MoveNext()...");
+                bool result = iterator.MoveNext();
+                if(!result)
+                {
+                    break;
+                }
+                Console.WriteLine("Fetching Current...");
+                Console.WriteLine("...Current result = {0}", iterator.Current);
+            }
+
+            Console.WriteLine("After iterate, Current = {0}", iterator.Current);
+
+            try
+            {
+                iterator.Reset();
+            }
+            catch (NotSupportedException e)
+            {
+                Console.WriteLine("Reset Method has not been implemented.");
+            }
+        }
+\end{CSharp}
+
+执行结果是
+\begin{CSharp}
+Pre starting to iterate, Current = 0
+Starting to iterate
+Calling MoveNext()...
+                              Starting of CreateEnumerable()
+                              About to yield 0
+Fetching Current...
+...Current result = 0
+Calling MoveNext()...
+                              After yield 0
+                              About to yield 1
+Fetching Current...
+...Current result = 1
+Calling MoveNext()...
+                              After yield 1
+                              About to yield 2
+Fetching Current...
+...Current result = 2
+Calling MoveNext()...
+                              After yield 2
+                              Yiedling final value
+Fetching Current...
+...Current result = -1
+Calling MoveNext()...
+                              End of createEnumerable()
+After iterate, Current = -1
+Reset Method has not been implemented.
+\end{CSharp}
+\section{三个实例}
+\subsection{1}
+\subsection{2}
+\subsection{3}

@@ -32,3 +32,10 @@ foo.x = 20;
 console.log(foo.x); // 20
 console.log(bar.x); // 10
 console.log(proto.x); // 10
+
+
+var Ibar = undefined;
+if (Ibar === void 0) 
+{
+	console.log("Ibar is undefined");
+}

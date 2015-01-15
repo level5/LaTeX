@@ -435,3 +435,99 @@ length === +length 判断length是否是数字。
 
 \paragraph{sample}
 
+
+\paragraph{omit} 生成新的对象，并忽略参数部分
+\begin{JavaScript}
+  _.omit = function(obj, iteratee, context) {
+    if (_.isFunction(iteratee)) {
+      iteratee = _.negate(iteratee);
+    } else {
+      var keys = _.map(concat.apply([], slice.call(arguments, 1)), String);
+      iteratee = function(value, key) {
+        return !_.contains(keys, key);
+      };
+    }
+    return _.pick(obj, iteratee, context);
+  };
+\end{JavaScript}
+
+参数有两种类型，一种是第二个是回调函数，第三个是上下文。第二种是第二个起是要排除的key的名字。
+\begin{itemize}
+\item 当第二个参数是函数的时候，表示返回值是true的时候需要omit，这个时候需要取反一下再来执行\lstinline!_.pick!函数。
+\item 当后面是key的名字时，从第5行开始，先选取了从第2个参数起的所有参数，然后转换成String。
+
+这里有一点是\lstinline!String()!和\lstinline!new String()!都可以得到一个String。
+new操作符到底做了一些什么呢？
+假设有一个函数foo，那么\lstinline!new foo()!发生了什么?
+\begin{enumerate}
+\item 一个新的对象创建了，继承了,新对象的constructor是foo（这点可以用来判断是不是在通过new来调用foo）
+\item 这个新创建的对象被当做this，使用指定的参数来调用构造方法foo。这里new foo和new foo()是等效的
+\item 构造方法return的值被当做整个new表达式的返回值。如果对象没有显示的返回值得时候，第一步创建的对象会被当做整个表达式的值。我发现如果返回的是基本类型的话，第一步创建的对象也会被当做表达式的值返回
+\end{enumerate}
+\begin{JavaScript}[可以理解new foo是这样一个过程，但是好像又有点点不同，因为在chrome的显示上是不一样的]
+function createFoo()
+{
+	var obj = {};
+	obj.__proto__ = foo.prototype;
+	var result = foo.apply(obj, arguments);
+	// 此处判断不一定
+	if (result == undefined || typeof result == 'string' || typeof result == 'number' || typeof result == 'boolean') 
+	{
+		return obj;
+	} else 
+	{
+		return result;
+	}
+}
+\end{JavaScript}
+
+如何做到是否使用new都返回新的实例?
+\begin{JavaScript}
+function foo()
+{
+	if (!(this instanceof foo)) {
+		return new foo();
+	}
+	// 此处初始化对象
+	this.bar = 100;
+	// ...
+}
+
+console.log(foo());
+console.log(new foo);
+console.log(new foo());
+\end{JavaScript}
+
+这里为什么要转换为String的原因后面补充，感觉和\lstinline!_.contains!方法有关系。
+
+然后再定义了一个函数，如果key包含在传入的参数中，则返回false，表示不挑选。最后执行\lstinline!~.pick!来选取需要的属性。这里可以看到context传入的其实是我们要omit的key的名字或者undefined，但是因为我们的iteratee没有使用\lstinline!this!关键字，所以无所谓输入值是什么。
+\end{itemize}
+
+
+\paragraph{pick}挑选给定的属性来生成新的对象，和上面的omit刚好是反过来的,所以omit可以直接反过来调用此方法。
+\begin{JavaScript}
+  _.pick = function(obj, iteratee, context) {
+    var result = {}, key;
+    if (obj == null) return result;
+    if (_.isFunction(iteratee)) {
+      iteratee = createCallback(iteratee, context);
+      for (key in obj) {
+        var value = obj[key];
+        if (iteratee(value, key, obj)) result[key] = value;
+      }
+    } else {
+      var keys = concat.apply([], slice.call(arguments, 1));
+      obj = new Object(obj);
+      for (var i = 0, length = keys.length; i < length; i++) {
+        key = keys[i];
+        if (key in obj) result[key] = obj[key];
+      }
+    }
+    return result;
+  };
+\end{JavaScript}
+\begin{itemize}
+\item 传入的是函数的情况下，使用for in语法，直接将所有函数返回true的属性拷贝到result中。
+\item 传入的是key的时候，生成keys的数组，然后循环历遍数组的判断是否存在于obj对象中。第12行感觉是用来将基本类型转换成对象。因为如果我们使用\lstinline!"a" in 1!的话，是会跑出TypeError的异常的。
+\end{itemize}
+

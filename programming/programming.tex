@@ -3,7 +3,7 @@
 
 \usepackage[a3paper]{geometry}
 
-\usepackage{CJKutf8}  
+%\usepackage{CJKutf8}  
 
 %to support < , >, and \_(_)
 \usepackage[T1]{fontenc}
@@ -11,220 +11,15 @@
 %
 \usepackage{ulem}
 
-%source code style.
-\usepackage{listings}
+\usepackage{xeCJK}
+\setCJKmainfont{KaiTi}
 
-%customize caption
-\usepackage{caption}
+%\defaultCJKfontfeatures{AutoFakeBold=6,AutoFakeSlant=.4} %以後不用再設定粗斜
+\newCJKfontfamily\Kai{標楷體}       %定義指令\Kai則切換成標楷體
+\newCJKfontfamily\Hei{微軟正黑體}   %定義指令\Hei則切換成正黑體
+\newCJKfontfamily\NewMing{新細明體} %定義指令\NewMing則切換成新細明體
 
-\usepackage{color}
-    \definecolor{lightgray}{rgb}{0.95, 0.95, 0.95}
-    \definecolor{darkgray}{rgb}{0.4, 0.4, 0.4}
-    \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
-    \definecolor{ocherCode}{rgb}{1, 0.5, 0} % #FF7F00 -> rgb(239, 169, 0)
-    \definecolor{blueCode}{rgb}{0, 0, 0.93} % #0000EE -> rgb(0, 0, 238)
-    \definecolor{greenCode}{rgb}{0, 0.6, 0} % #009900 -> rgb(0, 153, 0)
-    \definecolor{mygray}{gray}{.75}
-    \definecolor{orange}{RGB}{255, 165, 0}
-    \definecolor{bluekeywords}{rgb}{0.13,0.13,1}
-	\definecolor{greencomments}{rgb}{0,0.5,0}
-	\definecolor{redstrings}{rgb}{0.9,0,0}
-
-\usepackage{upquote}
-\usepackage{float}
-\usepackage{graphicx}
-% code style package
-\usepackage{listings}
-\usepackage{epstopdf}
-
-\lstdefinelanguage{HTML5}{
-    sensitive=true,
-    keywords={%
-    % JavaScript
-    typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break,
-    % HTML
-    html, title, meta, style, head, body, script, canvas,
-    % CSS
-    border:, transform:, -moz-transform:, transition-duration:, transition-property:,
-    transition-timing-function:
-    },
-    % http://texblog.org/tag/otherkeywords/
-    otherkeywords={<, >, \/},   
-    ndkeywords={class, export, boolean, throw, implements, import, this},   
-    comment=[l]{//},
-    % morecomment=[s][keywordstyle]{<}{>},  
-    morecomment=[s]{/*}{*/},
-    morecomment=[s]{<!}{>},
-    morestring=[b]',
-    morestring=[b]",    
-    alsoletter={-},
-    alsodigit={:}
-}
-\lstdefinelanguage{CSS}{
- morekeywords={family,text,decoration,accelerator,azimuth,background,background-attachment,
-    background-color,background-image,background-position,
-    background-position-x,background-position-y,background-repeat,
-    behavior,border,border-bottom,border-bottom-color,
-    border-bottom-style,border-bottom-width,border-collapse,
-    border-color,border-left,border-left-color,border-left-style,
-    border-left-width,border-right,border-right-color,
-    border-right-style,border-right-width,border-spacing,
-    border-style,border-top,border-top-color,border-top-style,
-    border-top-width,border-width,bottom,caption-side,clear,
-    clip,color,content,counter-increment,counter-reset,cue,
-    cue-after,cue-before,cursor,direction,display,elevation,
-    empty-cells,filter,float,font,font-family,font-size,
-    font-size-adjust,font-stretch,font-style,font-variant,
-    font-weight,height,ime-mode,include-source,
-    layer-background-color,layer-background-image,layout-flow,
-    layout-grid,layout-grid-char,layout-grid-char-spacing,
-    layout-grid-line,layout-grid-mode,layout-grid-type,left,
-    letter-spacing,line-break,line-height,list-style,
-    list-style-image,list-style-position,list-style-type,margin,
-    margin-bottom,margin-left,margin-right,margin-top,
-    marker-offset,marks,max-height,max-width,min-height,
-    min-width,-moz-binding,-moz-border-radius,
-    -moz-border-radius-topleft,-moz-border-radius-topright,
-    -moz-border-radius-bottomright,-moz-border-radius-bottomleft,
-    -moz-border-top-colors,-moz-border-right-colors,
-    -moz-border-bottom-colors,-moz-border-left-colors,-moz-opacity,
-    -moz-outline,-moz-outline-color,-moz-outline-style,
-    -moz-outline-width,-moz-user-focus,-moz-user-input,
-    -moz-user-modify,-moz-user-select,orphans,outline,
-    outline-color,outline-style,outline-width,overflow,
-    overflow-X,overflow-Y,padding,padding-bottom,padding-left,
-    padding-right,padding-top,page,page-break-after,
-    page-break-before,page-break-inside,pause,pause-after,
-    pause-before,pitch,pitch-range,play-during,position,quotes,
-    -replace,richness,right,ruby-align,ruby-overhang,
-    ruby-position,-set-link-source,size,speak,speak-header,
-    speak-numeral,speak-punctuation,speech-rate,stress,
-    scrollbar-arrow-color,scrollbar-base-color,
-    scrollbar-dark-shadow-color,scrollbar-face-color,
-    scrollbar-highlight-color,scrollbar-shadow-color,
-    scrollbar-3d-light-color,scrollbar-track-color,table-layout,
-    text-align,text-align-last,text-decoration,text-indent,
-    text-justify,text-overflow,text-shadow,text-transform,
-    text-autospace,text-kashida-space,text-underline-position,top,
-    unicode-bidi,-use-link-source,vertical-align,visibility,
-    voice-family,volume,white-space,widows,width,word-break,
-    word-spacing,word-wrap,writing-mode,z-index,zoom},
-  morestring=[s]{:}{;},
-  sensitive,
-  morecomment=[s]{/*}{*/}
-}
-
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  morecomment=[s]{<!--}{-->},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
-  morestring=[b]',
-  morestring=[b]"
-}
-\lstnewenvironment{CSharp}[1][]
-{\lstset{language=[Sharp]C,
-  showspaces=false,
-  showtabs=false,
-  breaklines=true,
-  showstringspaces=false,
-  breakatwhitespace=true,
-  escapeinside={(*@}{@*)},
-  commentstyle=\color{greencomments},
-  keywordstyle=\color{bluekeywords},
-  stringstyle=\color{redstrings},
-  basicstyle=\ttfamily,
-  captionpos=t, 
-  caption=【C\#】#1
-}}
-{}
-
-\lstnewenvironment{HTML}
- {\lstset{
-   language=html,
-   basicstyle=\scriptsize\ttfamily,
-   keywordstyle=\bfseries\ttfamily,
-   commentstyle=\color{gray}\ttfamily,
-   escapechar=| % Escape to LaTeX between |...|
- }}
- {}
-
-\lstset{
-   language=JavaScript,
-   backgroundcolor=\color{lightgray},
-   extendedchars=true,
-   basicstyle=\footnotesize\ttfamily,
-   showstringspaces=false,
-   showspaces=false,
-   numbers=left,
-   numberstyle=\footnotesize,
-   numbersep=9pt,
-   tabsize=2,
-   breaklines=true,
-   showtabs=false,
-   captionpos=b
-}
-
-\lstdefinestyle{js} {
-    numbers=left,
-    language=JavaScript,
-    breaklines=true
-}
-
-\lstdefinestyle{ruby} {
-    numbers=left,
-    language=Ruby,
-    breaklines=true,
-    backgroundcolor=\color{lightgray},
-    basicstyle=\ttfamily\color{black},
-	commentstyle=\ttfamily\color{red},
-	keywordstyle=\ttfamily\color{blue},
-	stringstyle=\color{orange}
-}
-
-
-\lstnewenvironment{JavaScript}[1][]
-  {\lstset{
-     language=JavaScript,
-     backgroundcolor=\color{lightgray},
-     extendedchars=true,
-     basicstyle=\footnotesize\ttfamily,
-     showstringspaces=false,
-     showspaces=false,
-     numbers=left,
-     numberstyle=\footnotesize,
-     numbersep=9pt,
-     tabsize=2,
-     breaklines=true,					 % sets automatic line breaking
-     showtabs=false,
-     captionpos=t,						 % sets the caption-position to top
-     caption=【JavaScript】#1
-  }}
-  {}
-  
-
-\lstnewenvironment{Ruby}
-  {\lstset{
-     style=ruby
-  }}
-  {}
-  \DeclareCaptionFormat{listing}{#1#2#3}
-  \captionsetup[lstlisting]{
-  	format=listing,
-  	singlelinecheck=false,
-  	margin=0pt,
-  	font={sf},
-  	labelsep=space,
-  	labelfont=bf
-  	}
-  
+\input{styles-of-source-code}
 
 \pagestyle{headings}
 %\pagenumbering{arabic}
@@ -233,9 +28,11 @@
 %\author{石峰\\
 %			上海 长宁}
 \date{April 20, 2014}
+%\includeonly{chapter-javaScript.unit.test}
+\includeonly{chapter01-javaScript.language}
+%\includeonly{chapter03-javaScript.library}
 
-%\includeonly{chapter01-javaScript.language}
-\includeonly{chapter03-javaScript.library}
+%\includeonly{chapter-c.sharp}
 
 %\includeonly{chapter-ruby.koans}
 %\includeonly{chapter-java.osgi}
@@ -243,11 +40,12 @@
 %\includeonly{chapter-algorithm}
 	
 \begin{document}  
-\begin{CJK}{UTF8}{gkai}
+%\begin{CJK}{UTF8}{gkai}
 \maketitle
 %\tableofcontents
 
 \part{javascript}
+\include{chapter-javaScript.unit.test}
 \include{chapter01-javaScript.language}
 \include{chapter02-javaScript.environment}
 
@@ -260,9 +58,12 @@
 \part{Java}
 \include{chapter-java.osgis}
 
+\part{C Sharp}
+\include{chapter-c.sharp}
+
 \part{Algorithm}
 \include{chapter-algorithm}
 		
 \newpage
-\end{CJK}  
+%\end{CJK}  
 \end{document}

@@ -1,97 +1,345 @@
+\renewcommand\lstlistingname{Mocha}  
 \chapter{JavaScript 语言}
-	JavaScript语言有一些重要的概念,原型,函数,作用域和闭包.掌握了这些概念,基本就掌握了JavaScript这门语言,其他的就是一些语言细节特性.
-	\section{原型}
-	我们所说的面向对象.继承,封装和多态.从语言上来说,有两种实现面向对象的方式:基于类和基于原型的继承.
 
-	基于类的继承. 类是模板,继承的是行为.这类语言有Java.
-	
-	基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
+JavaScript语言有一些重要的概念,原型,函数,作用域和闭包.掌握了这些概念,基本就掌握了JavaScript这门语言,其他的就是一些语言细节特性.
 
-	如果是从Java这种基于类的语言转过来学些JavaScript的，要有这样一个转变，在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的. 在这里，没有类。new Date()，这里的Date不是类，也是一个对象。
-	
-	
-	\subsection{Property}
+我们所说的面向对象.继承,封装和多态.从语言上来说,有两种实现面向对象的方式:基于类和基于原型的继承.
 
-	先来看看简单的代码。
+基于类的继承. 类是模板,继承的是行为.这类语言有Java.
 	
-	\lstinputlisting[
-		style=js,
-		linerange={1-8},
-		firstnumber=1
-	]{code/javascript/prototype.js}
+基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
 
-	JavasScript中对象的定义是: Object是Property的集合，property是一个值或者对象的引用. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
+如果是从Java这种基于类的语言转过来学些JavaScript的，要有这样一个转变，在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的. 在这里，没有类。new Date()，这里的Date不是类，也是一个对象。
+
+先来看看简单的代码。
 	
-	首先，第一行生成一个对象，并将它赋值给a。然后第二行，a.b = 10，这个时候，因为a没有b这个property，所以给他生成了一个b property，并将10复制给他，第三行，打印a.b，结果是10.第四行，对对象属性的访问有两种方式，.和[]。不同之处是.后面是直接跟标识符，而[]中是字符串，注意第四行的b是有引号的。
+\begin{JavaScript}
+var a = {};	
+a.b = 10;
+console.log(a.b); // 10
+console.log(a["b"]); // 10
+a.foo = function() {
+	console.log("invoke foo");
+};
+a.foo();
+\end{JavaScript}
+
+JavasScript中对象的定义是: Object是Property的集合，property是一个值或者对象的引用. JavaScript对象是一组属性的集合,这些属性引用的是一个对象或者基本类型.
 	
-	在在后面，将我们定义的函数赋值给foo property，这里又不同于Java，我们前面说了，JavaScript中一切皆对象，所以函数也是对象，他是一类比较特殊的对象，可以通过被调用。因为函数是对象，所以他也可以赋值给对象的属性。赋值之后，我们可以调用他。
-	\begin{itemize}
-	\item 对象就是property的集合，在本例中，这个集合中有b这个property。
-	\item 给对象property赋值，如果存在，就修改值，如果不存在，就创建一个新的property，并赋值。
-	\item 函数也是对象，可以赋值给property。
-	\end{itemize}
+首先，第一行生成一个对象，并将它赋值给a。然后第二行，a.b = 10，这个时候，因为a没有b这个property，所以给他生成了一个b property，并将10复制给他，第三行，打印a.b，结果是10.第四行，对对象属性的访问有两种方式，.和[]。不同之处是.后面是直接跟标识符，而[]中是字符串，注意第四行的b是有引号的。
 	
-	对于property，我们可以先将他看成有两类property，一类就是我们上面看到的，实际上，他还要细分为data property 和 access property，这个后面再讨论，再来有一类我们叫做internal property，他是在我们程序级别是看不到的，而是提供给语言内部实现级别所使用的。例如我们将要讨论的原型，每个对象都有原型属性，但是我们在程序中无法通过.的方式来访问他，我们在谈论到internal property的时候，会使用[[]]来表示，例如，原型属性我们会表示成[[prototype]]。
+在在后面，将我们定义的函数赋值给foo property，这里又不同于Java，我们前面说了，JavaScript中一切皆对象，所以函数也是对象，他是一类比较特殊的对象，可以通过被调用。因为函数是对象，所以他也可以赋值给对象的属性。赋值之后，我们可以调用他。
 	
-	\subsection{Prototype}
+\section{JavaScript的类型}
+
+\subsection{基本类型}
+
+JavaScript只有对象这种说法也不是太准确，JavaScript有基本类型和对象两类。只是在使用基本类型的时候，如果必要，基本类型会被自动转换为对象类型。
+
+基本类型有Undefined, Null, Boolean, String和Number类型
+
+\begin{tabular}{|r|l|}
+\hline
+类型 & 说明 \\
+\hline
+Undefined & 有且只有一个值，undefined。\\
+\hline
+Null & 有唯一的值null \\
+\hline
+Boolean & 两个值，true和false \\
+\hline
+String & 如 "abc" \\
+\hline
+Number & 只有浮点型表示。 NaN， Infinity, -Infinity \\
+\hline
+\end{tabular}
+
+JavaScript中的undefined就是这个值，只是undefined不是关键字，而是一个全局变量。可能被赋其他值。所以可以使用void表达式来表示，如void 0 
+\begin{JavaScript}
+var foo = undefined;
+if (foo === void 0) 
+{
+	console.log("foo is undefined");
+}
+\end{JavaScript}
+
+\subsection{对象类型}
+
+\begin{itemize}
+\item 对象就是property的集合。
+\item 给对象property赋值，如果存在，就修改值，如果不存在，就创建一个新的property，并赋值。
+\item 函数也是对象，可以赋值给property。
+\end{itemize}
 	
-	我们说到，js是通过原型的方式来实现继承的。原型实际上就是对象的一个internal property [[prototype]]，每个对象都有[[prototype]]属性，他指向一个对象，而原型本身也有[[prototype]]属性，这样一直链接到最顶端的一个特殊对象，他的原型是空的，所有的对象的原型链的顶端都是这个对象。这就是我们说的原型链
+对于property，我们可以先将他看成有两类property，一类就是我们上面看到的，实际上，他还要细分为data property 和 access property。上面和下面所说的也就是data property。我们平时写代码生成的也是data property类型。
 	
-	然后我们说说原型的作用，他就是帮我们来解析.和[]取得什么样的值的。当我们通过.的方式来读取一个对象的property的时候，会在当前对象中查找看看是否有这个property，如果有，就返回，如果没有，就会尝试着在他的[[prototype]]上来查找，如果找到了就返回，如果没有找到，就继续在这个链往上找，直到找到最顶，如果还没有找到，那就会返回undefined。
+再来有一类我们叫做internal property，他是在我们程序级别是看不到的，而是提供给语言内部实现级别所使用的。例如我们将要讨论的原型，每个对象都有原型属性，但是我们在程序中无法通过.的方式来访问他，我们在谈论到internal property的时候，会使用[[]]来表示，例如，原型属性我们会表示成[[prototype]]。
 	
+\subsection{Prototype}
 	
-	\lstinputlisting[
-		style=js,
-		linerange={11-18},
-		firstnumber=1
-	]{code/javascript/prototype.js}
+我们说到，js是通过原型的方式来实现继承的。原型实际上就是对象的一个internal property [[prototype]]，每个对象都有[[prototype]]属性，他指向一个对象，而原型本身也有[[prototype]]属性，这样一直链接到最顶端的一个特殊对象，他的原型是空的，所有的对象的原型链的顶端都是这个对象。这就是我们说的原型链。
+
+在浏览器中，我们可以通过属性名\lstinline!__proto__!来引用内部属性[[prototype]]。
 	
-	这里的Object.create函数是用来创建一个对象，他的原型是传入的参数。在第四行，因为在原型对象上定义了bar，所以可以取到值10，而bar2没有定义，所以得不到值，返回undefined。然后在第七行，我们给proto的bar2赋值20，这样当我们再次调用foo.bar2的时候，在原型链上查找，可以找到值20了。
-	
-	
-	这里说到的是取值，实现了继承。接着是赋值，通过下面赋值的方式，实现了类似于Java中的多态，这里说类似于，是因为我认为js中没有类，依旧不存在相同类型不同行为，而是动态语言所说的鸭子类型。赋值很简单，如果存在就修改值，不错在就新增这个属性，这里所说的存在与不存在是指当前对象，而不是只原型链上存不存在。
+然后我们说说原型的作用，他就是帮我们来解析.和[]取得什么样的值的。当我们通过.的方式来读取一个对象的property的时候，会在当前对象中查找看看是否有这个property，如果有，就返回，如果没有，就会尝试着在他的[[prototype]]上来查找，如果找到了就返回，如果没有找到，就继续在这个链往上找，直到找到最顶，如果还没有找到，那就会返回undefined。
 	
 	
-	\lstinputlisting[
-		style=js,
-		linerange={22-34},
-		firstnumber=1
-	]{code/javascript/prototype.js}	
+\begin{JavaScript}
+var proto = {bar : 10};
+var foo = Object.create(proto);
+
+console.log(foo.bar); // 10
+console.log(foo.bar2); // undefined
+
+proto.bar2 = 20; 
+console.log(foo.bar2); // 20
+\end{JavaScript}
+	
+这里的Object.create函数是用来创建一个对象，他的原型是传入的参数。在第四行，因为在原型对象上定义了bar，所以可以取到值10，而bar2没有定义，所以得不到值，返回undefined。然后在第七行，我们给proto的bar2赋值20，这样当我们再次调用foo.bar2的时候，在原型链上查找，可以找到值20了。
+	
+	
+这里说到的是取值，实现了继承。接着是赋值，通过下面赋值的方式，实现了类似于Java中的多态，这里说类似于，是因为我认为js中没有类，依旧不存在相同类型不同行为，而是动态语言所说的鸭子类型。赋值很简单，如果存在就修改值，不存在就新增这个属性，这里所说的存在与不存在是指当前对象，而不是只原型链上存不存在。
+	
+\begin{JavaScript}
+var proto = {x: 10};
+
+var foo = Object.create(proto);
+var bar = Object.create(proto);
+
+console.log(foo.x); // 10
+console.log(bar.x); // 10
+
+foo.x = 20;
+
+console.log(foo.x); // 20
+console.log(bar.x); // 10
+console.log(proto.x); // 10
+\end{JavaScript}
 		
-	这里可以看到foo和bar都是继承proto，所以x都等于10，而在foo.x = 20之后，foo上创建了x，并且赋值20。所以当取foo.x是等于20。而bar.x和proto.x还是10。
-	
-	
-	\subsection{typeof 和 instanceof}
-	typeof就是返回后面所跟引用的类型，这个值是固定的。
+这里可以看到foo和bar都是继承proto，所以x都等于10，而在foo.x = 20之后，foo上创建了x，并且赋值20。所以当取foo.x是等于20。而bar.x和proto.x还是10。
 
+\subsection{Property}
 
-	\begin{tabular}{rl}
-		类型	& 	结果\\[5pt]
+\subsubsection{Data Property 和 Access Property}
+
+从逻辑上来讲，Object是一系列property的集合，其中property可能是data property或者access property。
+\begin{itemize}
+\item data property就是一个key和一个ECMAScript语言类型的值和一系列boolean型的Attribute组成。
+\item access property就是一个key和一个或者两个accessor function和一系列boolean型的Attribute组成。
+\end{itemize}	
+这里的key，要么是一个string，要么是一个symbol(ECMAScript6)。
+
+ECMAScript的使用key来标示Property，有两中方式来访问Property。get和set。
+
+\subsubsection{Attribute}
+Attribute则是规范用来定义和解释Property的。
+
+Data Property的Attribute
+
+\begin{tabular}{|l|l|l|}
+\hline
+属性名 & 属性值 & 解释 \\
+\hline
+\lstinline![[Value]]! & 任意ECMAScript语言类型 & 属性的值 \\
+\hline
+\lstinline![[Writable]]! & Boolean & 如果是false，则通过[[Set]]来设定[[Value]]不会成功。 \\
+\hline
+\lstinline![[Enumerable]]! & Boolean & 如果是true，则可以在for-in中被迭代。 \\
+\hline
+\lstinline![[Configurable]]! & Boolean &　\parbox[t]{8cm}{如果是false，则删除，从Data转换成accessor Property，修改除\lstinline![[Value]]! 之外的值都会失败}\\
+\hline
+\end{tabular}
+
+\begin{JavaScript}[Data Property中Attribute的默认值]
+		it(' should return correct default descriptor', function(){
+			var foo  = Object.create({}, {
+				bar: {}
+			});
+			var descriptor = Object.getOwnPropertyDescriptor(foo, 'bar');
+			descriptor.should.eql(
+				{
+					value: undefined, 
+					writable: false, 
+					enumerable: false, 
+					configurable: false
+				});
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[writable为false时，不能修改Value]
+		it(' should not able to change property value when writable is false', function(){
+			var foo = Object.create({}, {
+				bar: {value: 100, writable: false}
+			})
+
+			foo.bar = 200;
+			foo.bar.should.be.exactly(100).and.be.Number;
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[enumerable为false时，key不会再for in语句中出现]
+		it(' should not be able to enumerate in for in statement when enumerable is false', function(){
+			var foo = Object.create({}, {
+				bar: {value: 100, enumerable: false}
+			});
+
+			for (var key in foo)
+			{
+				key.should.not.be.exactly('bar');
+			}
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[configurable为false时，不能修改除Value之外的Attributes]
+		it(' should not be able to modify attributes of property excluded [[Value]] when configurable is false', function(){
+			var foo = Object.create({}, {
+				bar: {value: 100, writable: true, enumerable: false, configurable: false}
+			});
+
+			var descriptor = {value: 200, writable: false, enumerable: true, configurable: true};
+			(function(){
+				Object.defineProperty(foo, 'bar', descriptor);
+			}).should.throw();
+
+			foo.bar = 200;
+			foo.bar.should.be.exactly(200).and.be.Number;			
+		});
+\end{JavaScript}
+
+\begin{tabular}{|l|l|l|}
+\hline
+属性名 & 属性值 & 解释 \\
+\hline
+\lstinline![[Get]]! & & \\
+\hline
+\lstinline![[Set]]! & & \\
+\hline
+\lstinline![[Enumerable]]! & & \\
+\hline
+\lstinline![[Configurable]]! & Boolean & \\
+\hline
+\end{tabular}
+
+\begin{JavaScript}[Accessor Property的Attributs的默认值]
+		it('should get correct default descriptor', function(){
+			var foo = Object.create({}, {
+				bar : {get: undefined}
+			});
+			var descriptor = Object.getOwnPropertyDescriptor(foo, 'bar');
+			descriptor.should.eql({
+				get: undefined,
+				set: undefined,
+				enumerable: false,
+				configurable: false
+			});
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[对于Accessor Property，接受请求的对象会被当做this]
+		it('base should be treat as this when assign or get property value', function(){
+			var foo = Object.create({}, {
+				bar: {get: function(){
+					return this._bar;
+				}, 
+				set: function(value){
+					this._bar = value;
+				}}
+			});
+			foo.bar = 100;
+			foo.should.have.ownProperty('_bar').be.exactly(100);
+			foo.should.have.ownProperty('bar').be.exactly(100);
+		});
+\end{JavaScript}
+
+\subsubsection{对Property进行赋值操作}
+这里稍微比前面说如果对象上不存在某个被赋值的属性，就创建会要复杂点。对于对象上已经存在这个Property的情况，赋值的赋值，调用set方法的调用set方法。
+
+而对于Property在对象上不存在的，可以分三种情况处理：
+\begin{itemize}
+\item 如果这个Property在原型链上不存在的话，则会创建一个Data Property
+\begin{JavaScript}[Property在原型链上也不存在的话]
+		it('should create a own data property when assignning a not exist property', function() {
+			foo = Object.create({}, {});
+			foo.bar = 100;
+			foo.should.have.ownProperty('bar').be.exactly(100);
+			var descriptor = Object.getOwnPropertyDescriptor(foo, 'bar');
+			descriptor.should.eql({
+				value: 100,
+				writable: true,
+				enumerable: true,
+				configurable: true
+			})
+		});
+\end{JavaScript}
+\item 如果这个Property在原型链上存在一个Accessor　Property的话，直接调用这个Accessor Property的\lstinline![[Set]]!方法，reciver会被当做this来传给这个方法。
+\begin{JavaScript}[原型链上存在Accessor Property的情况]
+		it('should not create own propert when assignning a inherited accessor property', function(){
+			var x = 100
+			var parent= {};
+			Object.defineProperty(parent, 'bar', {set: function(value){x = value}});
+
+			foo = Object.create(parent, {});
+
+			foo.should.not.have.ownProperty('bar');
+			foo.bar = 200;
+			foo.should.not.have.ownProperty('bar');
+			x.should.be.exactly(200);
+		});
+\end{JavaScript}
+
+\item 如果原型链上存在一个Data Property的话，还是直接在当前对象上创建一个Data Property.
+\begin{JavaScript}[原型链上存在Data Property的情况]
+		it('should create a own data property when assignning a inherited data property', function(){
+			foo = Object.create({bar: 200}, {});
+
+			foo.should.not.have.ownProperty('bar');
+			foo.bar = 100;
+			foo.should.have.ownProperty('bar').be.exactly(100);
+		});
+\end{JavaScript}
+\end{itemize}
+	
+\subsection{== 和 ===}
+\subsection{typeof 和 instanceof}
+typeof就是返回后面所跟引用的类型，这个值是固定的。
+
+\begin{tabular}{|r|l|}
+		\hline
+		类型	& 	结果\\
+		\hline
 		Undefined 	& 	"undefined"\\
+		\hline
 		Null		&	"object"\\
+		\hline
 		Boolean		&	"boolean"\\
+		\hline
 		Number		&	"number"\\
+		\hline
 		String		&	"string"\\
+		\hline
 		Host object & Implementation-dependent\\
+		\hline
 		Function object & "function"\\
+		\hline
 		Any other object &	"object"\\
-	\end{tabular}
+		\hline
+\end{tabular}
 
 	instanceof 则是检查第一个对象的原型链上是否包含第二个构造函数的prototype属性。
 
 	
-	\subsection{ECMA spec中和本节相关概念}
+\subsection{ECMA spec中和本节相关概念}
 
-	\section{函数}
-	函数在JavaScript中是第一等公民。
+\section{函数}
+函数在JavaScript中是第一等公民。
 
 	
-	\subsection{arguments}
-	\subsection{函数作为构造函数}	
+\subsection{arguments}
+\subsection{函数作为构造函数}	
 	
-	\section{作用域}
+\section{作用域}
 	函数中的变量的定义和取值和函数的作用域有关。
-	\section{闭包}
+\section{闭包}
 	函数和作用域，就构成了闭包。
-	\section{语言细节}
+\section{语言细节}
 	这部分可以讨论一下很多关于JavaScript的细节.
