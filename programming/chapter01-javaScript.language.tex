@@ -301,7 +301,8 @@ Data Property的Attribute
 	
 \subsection{== 和 ===}
 
-首先要了解ToNumber
+\begin{itemize}
+\item ToNumber
 
 \begin{tabular}{|l|l|}
 \hline
@@ -319,7 +320,16 @@ Object & 先转换为基本类型，然后再按上面的转换 \\
 \hline
 \end{tabular}
 
-对象转换为基本类型一般是看valueOf是不是返回基本类型，不是再看看啊toString是不是返回基本类型，如果还不是则抛错。
+\item PrimtiveValue
+
+根据参数Hint来判断怎么执行，如果Hint是number，
+对象转换为基本类型看valueOf是不是返回基本类型，不是再看看toString是不是返回基本类型，如果还不是则抛错。
+
+如果Hint是String，
+对象转换为基本类型看toString是不是返回基本类型，不是再看看valueOf啊、是不是返回基本类型，如果还不是则抛错。
+
+如果不带Hint，则按Hint是number来执行。
+\end{itemize}
 
 \begin{itemize}
 \item == 
@@ -382,7 +392,13 @@ Object & 先转换为基本类型，然后再按上面的转换 \\
 \begin{JavaScript}
 		it('should throw exception', function(){
 			(function(){
-				var a = {toString: undefined, valueOf: undefined} ;
+				var a = {toString: undefined, valueOf: undefined};
+				a == 1;
+			}).should.throw();
+			// 先调用valueOf，再调用toString(一般来说)， 
+			// 如果都不是函数， 或者返回的都不是基本类型，报错
+			(function(){
+				var a = {toString: function(){ return {}}, valueOf: function(){return {}}};
 				a == 1;
 			}).should.throw();
 		});
@@ -414,7 +430,7 @@ typeof就是返回后面所跟引用的类型，这个值是固定的。
 		\hline
 \end{tabular}
 
-	instanceof 则是检查第一个对象的原型链上是否包含第二个构造函数的prototype属性。
+instanceof运算符用来检测constructor.prototype是否存在于参数object的原型链上.
 
 	
 \subsection{ECMA spec中和本节相关概念}
@@ -422,13 +438,17 @@ typeof就是返回后面所跟引用的类型，这个值是固定的。
 \section{函数}
 函数在JavaScript中是第一等公民。
 
-	
+\subsection{函数申明和函数表达式}	
 \subsection{arguments}
 \subsection{函数作为构造函数}	
+\subsubsection{constructor}
 	
 \section{作用域}
 	函数中的变量的定义和取值和函数的作用域有关。
 \section{闭包}
 	函数和作用域，就构成了闭包。
+	
+\section{函数执行时发生了什么}
+
 \section{语言细节}
 	这部分可以讨论一下很多关于JavaScript的细节.
