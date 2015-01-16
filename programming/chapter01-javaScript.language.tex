@@ -308,10 +308,15 @@ Data Property的Attribute
 参数 & 值 \\
 \hline
 Undefined & NaN \\
+\hline
 Null & 0 \\
+\hline
 Boolean & true转换为1，false转换为0 \\
+\hline
 String & 将string转换为数字 \\
-Object & 先转换为基本类型，然后再按上面的转换
+\hline
+Object & 先转换为基本类型，然后再按上面的转换 \\
+\hline
 \end{tabular}
 
 对象转换为基本类型一般是看valueOf是不是返回基本类型，不是再看看啊toString是不是返回基本类型，如果还不是则抛错。
@@ -323,7 +328,7 @@ Object & 先转换为基本类型，然后再按上面的转换
 \item 对左右引用类型求值，设左边是lval,右边是rval；
 \item 如果lval和rval是相同类型的话。
 	\begin{itemize}
-	\itme 基本类型的话，按正常的相等性进行比较.
+	\item 基本类型的话，按正常的相等性进行比较.
 	\item NaN不等于其他值.
 	\item 不是基本类型时，如果不是引用同一个对象，则两者不相等。
 	\end{itemize}
@@ -334,11 +339,55 @@ Object & 先转换为基本类型，然后再按上面的转换
 	\item 如果有boolean型，则将其转换为number，再比较
 	\item 如果有一方是对象，一方是数字或者字符串，将对象转换为基本类型再比较
 	\item 如果是数字和字符串比较，转换为数字在比较
+	\item 其他情况一律不相等
 	\end{itemize}
 \end{enumerate}
 
-\item
+\item ===
+如果是不同类型，直接返回false，如果是相同类型，比较结果和 == 一样。
 \end{itemize}
+
+\begin{JavaScript}
+		it('test between same type', function(){
+			should(undefined == undefined).be.ok;
+			should(null == null).be.ok;
+			should(NaN == 1).not.be.ok;
+			should(NaN == NaN).not.be.ok;
+			should({} == {}).not.be.ok;
+		});
+\end{JavaScript}
+对于相同类型的值得比较，NaN不和自己本身以及任何数相等。两个不同的对象是不相等的。
+
+\begin{JavaScript}
+		it('test between different type', function(){
+			should(undefined == null).be.ok;
+			should(0 == undefined).not.be.ok;
+			should(0 == null).not.be.ok;
+			should(2 == true).not.be.ok;
+			should(1 == true).be.ok;
+			should(0 == false).be.ok;
+
+			should(1 == '1').be.ok;
+
+			var a = {
+				toString: function() {return "a"},
+				valueOf: function(){return 1;}
+			}
+			should(a == 1).be.ok;
+			should(a == "a").not.be.ok;
+
+			should(true == a).be.ok;
+		});
+\end{JavaScript}
+\begin{JavaScript}
+		it('should throw exception', function(){
+			(function(){
+				var a = {toString: undefined, valueOf: undefined} ;
+				a == 1;
+			}).should.throw();
+		});
+\end{JavaScript}
+对于不同的类型，undefined和null是相等的，因为boolean的转化造成基本类型是1和0，所以2是不会等于boolean型的。对于有字符串或者数字参与的比较，需要将对象转变为基本类型。如果和valueOf和toString都不存在，则会在转换的过程抛出错误。
 
 \subsection{typeof 和 instanceof}
 typeof就是返回后面所跟引用的类型，这个值是固定的。
@@ -347,17 +396,17 @@ typeof就是返回后面所跟引用的类型，这个值是固定的。
 		\hline
 		类型	& 	结果\\
 		\hline
-		Undefined 	& 	"undefined"\\
+		Undefined 	& 	"undefined" \\
 		\hline
-		Null		&	"object"\\
+		Null		&	"object" \\
 		\hline
-		Boolean		&	"boolean"\\
+		Boolean		&	"boolean" \\
 		\hline
-		Number		&	"number"\\
+		Number		&	"number" \\
 		\hline
-		String		&	"string"\\
+		String		&	"string" \\
 		\hline
-		Host object & Implementation-dependent\\
+		Host object & Implementation-dependent \\
 		\hline
 		Function object & "function"\\
 		\hline
