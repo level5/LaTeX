@@ -17,14 +17,17 @@ console.log(new foo());
 function createFoo()
 {
 	var obj = {};
-	obj.__proto__ = foo.prototype;
+	if (typeof foo.prototype != 'object') {
+		obj.__proto__ = Object.prototype;
+	} else {
+		obj.__proto__ = foo.prototype;
+	}
+	
 	var result = foo.apply(obj, arguments);
 	// 此处判断不一定
-	if (result == undefined || typeof result == 'string' || typeof result == 'number' || typeof result == 'boolean') 
-	{
+	if (typeof result != 'object') {
 		return obj;
-	} else 
-	{
+	} else {
 		return result;
 	}
 }

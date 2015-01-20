@@ -81,6 +81,7 @@ describe('Property', function(){
 	});
 
 	describe('#Get & Set', function(){
+
 		it('should create a own data property when assignning a not exist property', function() {
 			foo = Object.create({}, {});
 			foo.bar = 100;

@@ -1,18 +1,12 @@
 \renewcommand\lstlistingname{Mocha}  
 \chapter{JavaScript 语言}
 
-JavaScript语言有一些重要的概念,原型,函数,作用域和闭包.掌握了这些概念,基本就掌握了JavaScript这门语言,其他的就是一些语言细节特性.
+面向对象,有两种实现面向对象的方式:基于类和基于原型的继承.
 
-我们所说的面向对象.继承,封装和多态.从语言上来说,有两种实现面向对象的方式:基于类和基于原型的继承.
-
-基于类的继承. 类是模板,继承的是行为.这类语言有Java.
+基于类的继承. 类是模板,继承的是行为。
 	
-基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.这类语言有JavaScript
+基于原型的继承, 所有的都是对象(当然还有基本类型),继承的是状态和行为.JavaScript是基于原型的继承，这里只有对象，没有类的概念。
 
-如果是从Java这种基于类的语言转过来学些JavaScript的，要有这样一个转变，在JavaScript的世界中,只有对象这个概念.当然还有基本类型,但是在需要对象的时候,会自动将基本类型转换为对象的. 在这里，没有类。new Date()，这里的Date不是类，也是一个对象。
-
-先来看看简单的代码。
-	
 \begin{JavaScript}
 var a = {};	
 a.b = 10;
@@ -56,11 +50,9 @@ Number & 只有浮点型表示。 NaN， Infinity, -Infinity \\
 
 JavaScript中的undefined就是这个值，只是undefined不是关键字，而是一个全局变量。可能被赋其他值。所以可以使用void表达式来表示，如void 0 
 \begin{JavaScript}
-var foo = undefined;
-if (foo === void 0) 
-{
-	console.log("foo is undefined");
-}
+		it('void 0 is undefined', function(){
+			should(void 0).be.exactly(undefined);
+		});
 \end{JavaScript}
 
 \subsection{对象类型}
@@ -77,8 +69,12 @@ if (foo === void 0)
 	
 \subsection{Prototype}
 	
-我们说到，js是通过原型的方式来实现继承的。原型实际上就是对象的一个internal property [[prototype]]，每个对象都有[[prototype]]属性，他指向一个对象，而原型本身也有[[prototype]]属性，这样一直链接到最顶端的一个特殊对象，他的原型是空的，所有的对象的原型链的顶端都是这个对象。这就是我们说的原型链。
-
+js是通过原型的方式来实现继承的。原型实际上就是对象的一个internal property [[prototype]]，每个对象都有[[prototype]]属性，他指向一个对象，而原型本身也有[[prototype]]属性，这样一直链接到最顶端的一个特殊对象，他的原型是空的（是null，不是undefined），所有的对象的原型链的顶端都是这个对象。这就是我们说的原型链。
+\begin{JavaScript}[原型链的顶端是null]
+		it('__proto__ of Object.prototype is null', function(){
+			should(Object.prototype.__proto__).be.exactly(null);
+		});
+\end{JavaScript}
 在浏览器中，我们可以通过属性名\lstinline!__proto__!来引用内部属性[[prototype]]。
 	
 然后我们说说原型的作用，他就是帮我们来解析.和[]取得什么样的值的。当我们通过.的方式来读取一个对象的property的时候，会在当前对象中查找看看是否有这个property，如果有，就返回，如果没有，就会尝试着在他的[[prototype]]上来查找，如果找到了就返回，如果没有找到，就继续在这个链往上找，直到找到最顶，如果还没有找到，那就会返回undefined。
@@ -98,7 +94,7 @@ console.log(foo.bar2); // 20
 这里的Object.create函数是用来创建一个对象，他的原型是传入的参数。在第四行，因为在原型对象上定义了bar，所以可以取到值10，而bar2没有定义，所以得不到值，返回undefined。然后在第七行，我们给proto的bar2赋值20，这样当我们再次调用foo.bar2的时候，在原型链上查找，可以找到值20了。
 	
 	
-这里说到的是取值，实现了继承。接着是赋值，通过下面赋值的方式，实现了类似于Java中的多态，这里说类似于，是因为我认为js中没有类，依旧不存在相同类型不同行为，而是动态语言所说的鸭子类型。赋值很简单，如果存在就修改值，不存在就新增这个属性，这里所说的存在与不存在是指当前对象，而不是只原型链上存不存在。
+这里说到的是取值，实现了继承。接着是赋值，赋值很简单，如果存在就修改值，不存在就新增这个属性，这里所说的存在与不存在是指当前对象，而不是只原型链上存不存在。
 	
 \begin{JavaScript}
 var proto = {x: 10};
@@ -431,24 +427,441 @@ typeof就是返回后面所跟引用的类型，这个值是固定的。
 \end{tabular}
 
 instanceof运算符用来检测constructor.prototype是否存在于参数object的原型链上.
+\begin{JavaScript}
+		it('test if Constructor.prototype on the prototype chain', function(){
+			function Foo(){}
 
+			var foo = Object.create(Foo.prototype);
+
+			should(foo instanceof Foo).be.exactly(true);
+
+			var foo2 = Object.create(Foo);
+
+			should(foo2 instanceof Foo).be.exactly(false);
+		});
+\end{JavaScript}
 	
 \subsection{ECMA spec中和本节相关概念}
+\section{关于函数部分的准备知识}
+\subsection{Lexical Environment}
+
+Lexical Environment是规范中使用定义变量和函数标识符的关系结构。Lexical Environement由Environment Record和一个指向外部Lexical Environment的引用（可空）。
+
+Environment Record有两种类型，一种是Declarative Environment Record,他不提供this值,直接返回返回undefined。
+
+一种是Object Environment Record。 Declarative Environment Record用于定义标识符，而Object Environment将他的binding对象和标示符绑定，标识符会被绑定到binding对象的对应Property上，如果自身的provideThis是true，绑定的object会被当做this值来提供，provideThis的默认值是false。
+
+Global Environment是一个唯一的Lexical Environment，在代码执行之前被创建，他的Environment Record是一个Object Environment Record，这个Environment Record的绑定对象是Global Object，他的outer lexical Environment是null。
+
+
+Execution Context，进入一段代码，就进入了一个execution context。execution context是栈结构，最顶上的execution context是running execution context.所有的操作都是对running execution context的操作。
+
+execution context有三部分，
+\begin{itemize}
+\item 一个是ThisBinding，用来保存this这个keyword引用的对象；
+\item lexicalEnvironment,用来解析标识符引用的，这个在执行过程中引用的lexicalEnvironment可能是会改变的；
+\item variableEnvironment，用来保存执行过程中定义的函数和变量，这个在执行过程中是不会改变的。
+\end{itemize}
+在创建execution context时，lexicalEnvironment和variableEnvironment是引用同一个值。
+
+\subsubsection{什么时候lexicalEnvironment会变化？}
+\paragraph{with statement}
+with statement会创建一个新ObjectEnvironment，绑定object，outer为原来的lexicalEnvironment。同时将objectEnvironment的bingThis设为true，表示提供this，this就是object，用于调用function的时候提供this。
+\begin{JavaScript}
+		it('should been add to with variable environment of running execution context', function(){
+			var foo = {};
+
+			(function(){
+				bar;
+			}).should.throw();
+			
+			with(foo){
+				eval('var bar = 200');
+			}
+			bar.should.be.exactly(200);
+			foo.should.eql({});
+		});
+\end{JavaScript}
+
+此时lexicalEnvironment的envRec添加了一个object Environment record，但是variableEnvironment没有变，所以bar任然是添加到running execution context的variableEnvironment上。等出了with的范围，lexicalEnvironment又还原成和variableEnvironment为同一个对象。
+\begin{JavaScript}
+		it('should been add to with variable environment of running execution context', function(){
+			var foo = {};
+			should(bar).be.exactly(undefined);
+			with(foo){
+				var bar = 200;
+			}
+			bar.should.be.exactly(200);
+			foo.should.eql({});
+		});
+\end{JavaScript}
+
+\paragraph{catch statment}
+catch(e)
+
+会创建一个DeclarativeEnvironment（不同于with，with创建的是ObjectEnvironment）， 将他的outer指向running execution context的lexicalEnvironment，将传入的对象绑定到e上。然后将新的DeclarativeEnvironment当做lexicalEnvironment。
+
+返回执行结果，将running execution context的lexicalEnvironment回复成原来的那个。
+\subsection{解析标识符}
+\paragraph{reference Type} 是用来在规范中说明算法使用的，reference Type由三部分组成，base，name,strict。
+对于标识符，base是标识符引用的对象真正所在的那个Environment record；name就是标识符名字，strict看看是否是strict mode。
+
+GetIdentifierReference (lex, name, strict)算法
+\begin{enumerate}
+\item 如果lex是null， return {base: undefined, name: name, strict: strict}（unresolveReference）
+\item let envRec = lex.environmentRecord
+\item 如果envRec上有绑定name，return {base: envRec, name: name, strict: strict}
+\item 否则let lex = lex.outer, call GetIdentifierReference (lex, name, strict)
+\end{enumerate}
+
+
+\subsection{建立Execution Context}
+\paragraph{global execution context}
+创建:
+\begin{itemize}
+\item this: global object
+\item lexicalEnvironment: global environment
+\item variableEnvironment: global environment
+\end{itemize}
+\paragraph{eval}
+创建：
+
+如果没有calling context，步骤同上；
+否则
+\begin{itemize}
+\item this: this of calling context
+\item lexicalEnvironment: lexicalEnvironment of calling context
+\item variableEnvironment: variableEnvironment of calling context
+\end{itemize}
+\begin{JavaScript}
+		it('should been add to environment of running execution context', function(){
+			(function(){
+				eval('var bar = 100');
+				bar.should.be.exactly(100);
+			})();
+		});
+\end{JavaScript}
+如果是在strict模式下（调用代码或者eval代码是strict模式），生成新的DeclarativeEnvironment，outer environment指向上面定义的lexicalEnvironment。将lexicalEnvironment和variableEnvironment设定为新生成的DeclarativeEnvironment。
+\begin{JavaScript}
+		it('should use new declarative environment in strict mode', function(){
+			(function(){
+				'use strict';
+				var bar = 200;
+				eval('var bar = 100');
+				bar.should.be.exactly(200);
+			})();
+		});
+
+		it('should use new declarative environment in strict mode 2', function(){
+			(function(){
+				var bar = 200;
+				eval('"use strict"; var bar = 100');
+				bar.should.be.exactly(200);
+			})();
+		});
+\end{JavaScript}
+\paragraph{function}
+创建：
+
+调用的代码会传入this和参数。对于strict code，this就等于传入的this。
+
+否则，如果传入的this是null或者undefined，this设定为global object。
+如果this是基本类型，就转换为object。
+
+新建DeclarativeEnvironment，将function的\lstinline![[Scope]]!作为outer Environment。将execution context的lexicalEnvironment和variableEnvironment设定为新生成的DeclarativeEnvironment。
+
+之后调用\lstinline![[Code]]!的代码。
+
+\begin{JavaScript}[this是object]
+		it('this should be object', function(){
+			function foo(){
+				should(typeof this).be.exactly('object');
+			}
+			foo.call(1);
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[对于undefined this会被指定为Global object]
+		it('this should be global object if null or undefined been treat as this', function(){
+			function foo(){
+				this.should.be.exactly(global);
+			}
+
+			foo.call(null);
+			foo.call(undefined);
+		});
+
+		it('this should be global object if null or undefined been treat as this', function(){
+			function foo(){
+				this.should.be.exactly(global);
+			}
+
+			foo();
+		});
+\end{JavaScript}
+
+当标识符解析时，lexicalEnvironment不会生成this,因为实现是中对于Lexical Environment Record的返回的this是undefined。
 
 \section{函数}
-函数在JavaScript中是第一等公民。
+函数也是对象，可以使用对象的地方就可以使用函数。
 
 \subsection{函数申明和函数表达式}	
-\subsection{arguments}
-\subsection{函数作为构造函数}	
-\subsubsection{constructor}
-	
-\section{作用域}
-	函数中的变量的定义和取值和函数的作用域有关。
-\section{闭包}
-	函数和作用域，就构成了闭包。
-	
-\section{函数执行时发生了什么}
+通过函数声明和函数表达是来创建Function Object，
 
-\section{语言细节}
-	这部分可以讨论一下很多关于JavaScript的细节.
+两者不同之处在于函数声明白创建的function object的\lstinline![[Scope]]!保存的是running execution context的variableEnvironment，
+
+本来我想写个例子，但是感觉实现不是这么实现的。下面可以访问到处于lexicalEnvironment链上的bar
+\begin{JavaScript}
+		it('does not work as expect', function(){
+			var foo = {bar: 200};
+			with(foo) {
+				eval('function func(){return bar;}');
+			}
+			func().should.be.exactly(200);
+		});
+\end{JavaScript}
+看上去，下面的代码可以说明，但是实际上function declaration是在执行代码之前就已经执行了。
+\begin{JavaScript}
+		it('[[Scope]] should bind with variableEnvironment', function(){
+			// cannot prove
+			var foo = {bar: 100};
+
+			with(foo) {
+				function func() {
+					(function(){
+						bar;
+					}).should.throw();
+				}
+			}
+			func();
+		});
+\end{JavaScript}
+
+匿名函数表达式创建的function object的\lstinline![[Scope]]!保存的是running execution context的lexicalEnvironment。
+\begin{JavaScript}
+		it('[[Scope]] should bind with lexicalEnvironment', function(){
+
+			try {
+				throw {bar: 100};
+			} catch(e) {
+				var foo = function(){
+					return e;
+				}
+			}
+
+			should(foo()).be.eql({bar: 100});
+		});
+\end{JavaScript}
+
+带名字的函数表达式创建的一个DeclarativeEnvironment，将running execution context的lexicalEnvironment，同时在新创建的DeclarativeEnvironment上绑定这个function object，将这个新创建DeclarativeEnvironment保存在function object的\lstinline![[Scope]]!上。（记得此处IE不是这么实现的）。
+
+\begin{JavaScript}
+		it('[[Scope]] should bind with a new DeclarativeEnvironment which outer is lexicalEnvironment of running execution context', function(){
+
+			try {
+				throw {bar: 100};
+			} catch(e) {
+				var foo = function e() {
+					return e;
+				}
+				e.should.eql({bar: 100});
+			}
+			should(foo()).be.exactly(foo);
+		});	
+\end{JavaScript}
+
+
+\subsection{函数对象的创建过程}
+\begin{enumerate}
+\item 创建ECMAScript Object；
+\item \lstinline![[Class]]!设定为"function"
+\item \lstinline![[Prototype]]!(可以通过\lstinline!__proto__!来访问)设定为Function.prototype。
+\item \lstinline![[Scope]]!设定为上面所描述的。
+\item 定义length属性
+\item 定义prototype属性，为object对象，prototype上定义constructor属性
+\end{enumerate}
+\begin{JavaScript}[此处是函数表达式]
+		it('[[Class]] is set to function', function(){
+			(typeof function(){}).should.be.exactly('function');
+		});
+\end{JavaScript}
+
+\begin{JavaScript}[所以 func instanceof Function 会返回true]
+		it('__proto__ is set to Function.prototype', function(){
+			(function(){}).__proto__.should.be.exactly(Function.prototype);
+		});
+\end{JavaScript}
+
+\begin{JavaScript}
+		it('length is the number of parameters', function(){
+			(function(a, b, c, d, e, f){}).length.should.be.exactly(6);
+		});
+\end{JavaScript}
+
+\begin{JavaScript}
+		it('default prototype should be an object with constructor property', function(){
+			function foo(){}
+			foo.prototype.should.eql({constructor: foo});
+		});
+\end{JavaScript}
+
+\subsection{函数作为构造函数}
+使用new关键字来调用，对于无参数的构造函数Foo，new Foo()和new Foo是相同的效果。	
+\begin{enumerate}
+\item 创建对象；
+\item \lstinline![[Class]]!设定为object；
+\item 取得构造函数的prototype,如果他不是object，则取得Object.prototype,将他赋值给\lstinline![[Prototype]]!
+\item 将创建的对象作为this来调用构造函数，如果返回值不是object，返回创建的对象，如果返回的是object，返回返回的对象。
+\end{enumerate}
+\begin{JavaScript}[作为构造函数生成对象的过程]
+		it('steps for new operator', function(){
+			function Foo(){
+				this.bar = 200;
+			}
+
+			var newObj;
+			var foo = {};
+			foo.__proto__ = Foo.prototype;
+			var result = Foo.call(foo);
+			if(result === undefined || result === null || typeof result == 'number' || typeof result =='string' || typeof result == 'boolean') {
+				newObj = foo;
+			} else {
+				newObj = result;
+			}
+\end{JavaScript}
+
+\begin{JavaScript}[prototype是基本类型时，会使用Object.prototype代替]
+		it('__proto__ is set to Object.prototyp if constructor.prototype is primitive or null', function(){
+			function Foo(){}
+			Foo.prototype = 1;
+
+			var foo = new Foo;
+			foo.__proto__.should.be.exactly(Object.prototype);
+		});
+\end{JavaScript}
+
+\subsection{调用函数的过程}
+\subsubsection{函数被调用，关注this的值}
+当解析的reference type的的base是对象，这个对象就被当做this；
+
+当reference type的base是Environment Record，则看看他是不是提供this值，如果提供就传入，否则传入undefined
+
+当reference type的base是undefined时，this传入undefined（在函数执行过程中，undefined又会被global object代替）。
+
+然后按上面提到的方式来创建execution context。
+
+说起来，this有这样几种取值：
+\begin{itemize}
+\item 使用expresson[expression]或者identifies.identifies的格式来调用函数的时候，this是前面那部分的值；
+\item 使用变量名的方式来调用的时候，this就是指向global object;
+\item func.call,func.apply的方式调用的时候，第一个参数指定this，如果这个时候传入的是undefined或者null，则this是global object，如果传入的是基本类型，则this是对应的包装类型
+\item 在with block中，使用变量名的方式来调用，如果这个变量是绑定在with传入的对象上时，this就是with传入的对象。因为：此处的LexicalEnvironment被替换成Object Environment Record，绑定了foo。bar得到的reference type是{base：objEnv(foo), name:bar, strict:false}。objEnv提供的this是foo，所以调用的时候，this被绑定为foo
+\end{itemize}
+
+\begin{JavaScript}
+	describe("#this", function(){
+		it('dot expression or square bracket', function(){
+			var foo = {
+				bar: function(){ return this;}
+			}
+			foo.bar().should.be.exactly(foo);
+			foo['bar']().should.be.exactly(foo);
+		});
+
+		it('variable', function(){
+			var foo = function(){return this;};
+			foo().should.be.exactly(global);
+		});
+
+		it('variable in with', function(){
+			var foo = {
+				bar: function(){return this;}
+			}
+			with(foo){
+				bar().should.be.exactly(foo);
+			}
+		});
+
+		it('call, apply', function(){
+			function foo(){return this;}
+			var bar = {};
+			
+			foo.call(bar).should.be.exactly(bar);
+			foo.apply(bar).should.be.exactly(bar);
+
+			var res = foo.call(1);
+			should(res).be.Object;
+			(res == 1).should.be.true;
+
+			foo.call(undefined).should.be.exactly(global);
+		});
+	});
+\end{JavaScript}
+
+
+\subsubsection{函数代码执行}
+下面的步骤是将标示符绑定到当前的execution context的VariableEnvironment上。
+\begin{enumerate}
+\item 先创建arguments对象,同时在variableEnvironment上定义参数列表中的参数，参数列表中如果有重复的变量名，后面的会覆盖前面的值；
+\item 绑定函数申明，后声明的覆盖前面申明的函数；
+\item 如果没有定义arguments的函数，绑定第一步创建的arguments对象；
+\item 绑定不存在的变量申明，值为undefined。
+\end{enumerate}
+
+\begin{JavaScript}
+	describe('#arguments', function(){
+		it('last should override first if the has same name', function(){
+			function foo(a, b, c, a){return a;}
+			foo(1,2,3,4).should.be.exactly(4);
+		});
+
+		it('arguments should be replace by function', function(){
+			function foo(){
+				arguments.should.be.type('function');
+				function arguments(){}
+				var arguments = {};
+				arguments.should.eql({});
+			}
+			foo();
+		});
+
+		it('arguments should exist', function(){
+			function foo(){
+				arguments.should.be.arguments;
+				var arguments= {};
+				arguments.should.eql({});
+			}
+			foo();
+		});
+
+		it('should be', function(){
+			function foo(){
+
+				bar.should.be.type('function');
+
+				var bar = 10;
+
+				bar.should.be.exactly(10);
+
+				function bar(){}
+
+				bar.should.be.exactly(10);
+
+			}
+
+			foo();
+		});
+
+		it('should be', function(){
+			function foo() {
+				should(bar).be.exactly(undefined);
+				var bar = 10;
+				bar.should.be.exactly(10);
+			}
+
+			foo();
+		});
+	});
+\end{JavaScript}
+\subsubsection{变量的赋值}
+通过GetIdentifierReference可以看到，找不到变量定义，reference type的base就是undefined，这个时候就会在global object上定义一个对应的property。
