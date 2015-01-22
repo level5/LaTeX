@@ -1,3 +1,138 @@
 \chapter{排序}
 
 \section{快速排序}
+最坏为 $\theta(n^2)$，期望的运行时间为$\theta(nlg n)$
+
+\subsection{快速排序的描述}
+分治过程：
+
+分解：数组A[p..r]被划分为两部分（可能空）字数组A[p..q-1]和A[q+1..r]，是的A[p..q-1]的所有元素都小于等于A(q),而A[q+1..r]中的所有元素都大于等于A(q)。
+
+解决：通过递归调用快速排序，对子数组A[p..q-1]和A[q+1..r]排序。
+
+合并：因为排序是就地进行，所以不需要合并，数组已经收有序。
+
+\begin{CSharp}
+        public void QuickSortArray(int[] a, int p, int r)
+        {
+            if (p < r){
+                int q = Partition(a, p, r);
+                QuickSortArray(a, p, q-1);
+                QuickSortArray(a, q+1, r);
+            }
+        }
+\end{CSharp}
+
+\subsubsection{数组的划分}
+
+\paragraph{Lomuto's} Partition
+算法的关键就是Partition的过程。这个算法中，x用来作为将被放在A[q]位置的值，i用来记录小于等于x的元素的最大位置，j用来记录已经做过比较的值得位置。等到一轮比较完结之后，p到i位置所有的元素都小于x，交换i+1和r位置，则，i+1之前都小于等于x，i+1止呕都大于x。
+\begin{CSharp}
+        private int Partition(int[] a, int p, int r)
+        {
+            int x = a[r];
+            int i = p - 1;
+            for(int j = p; j < r; j++)
+            {
+                if (a[j] <= x)
+                {
+                    i = i + 1;
+                    Utils.Swap(ref a[i], ref a[j]);
+                }
+            }
+            Utils.Swap(ref a[i + 1], ref a[r]);
+            return i + 1;
+        }
+\end{CSharp}
+
+对上面的Partition做一个随机化处理，可以得到更好的平均性能。
+\begin{CSharp}
+        public void RandomQuickSortArray(int[] a, int p, int r)
+        {
+            if (p < r)
+            {
+                int q = Partition(a, p, r);
+                RandomQuickSortArray(a, p, q - 1);
+                RandomQuickSortArray(a, q + 1, r);
+            }
+        }
+
+        private int RandomPartition(int[] a, int p, int r)
+        {
+            Random rnd = new Random();
+            int i = rnd.Next(p, r + 1);
+            Utils.Swap(ref a[i], ref a[r]);
+            return Partition(a, p, r);
+        }
+\end{CSharp}
+
+\paragraph{Hoare's} Partition
+\begin{CSharp}
+        public void HoareQuickSortArray(int[] a, int p, int r)
+        {
+            if (p < r)
+            {
+                int q = HoarePartition(a, p, r); // p <= q < r
+                HoareQuickSortArray(a, p, q);
+                HoareQuickSortArray(a, q + 1, r);
+            }
+        }
+
+        private int HoarePartition(int[] a, int p, int r)
+        {
+            int x = a[p];
+            int i = p - 1;
+            int j = r + 1;
+            while (true)
+            {
+                while (a[--j] > x) { }
+                while (a[++i] < x) { }
+                if (i < j)
+                {
+                    Utils.Swap(ref a[i], ref a[j]);
+                }
+                else
+                {
+                    return j;
+                }
+            }
+        }
+\end{CSharp}
+
+\section{希尔排序}
+
+
+\section{堆排序}
+对一般通过一维数组来实现，堆的子节点小于父节点
+\begin{itemize}
+\item 父节点i的左孩子节点$2*i+1$
+\item 父节点i的右孩子节点$2*i+2$
+\item 子节点i的父节点$floor((i-1)/2)$
+\end{itemize}
+
+\begin{enumerate}
+\item 建堆；
+\item 移除堆的root元素，然后调整堆；
+\item 当堆中所有元素都移除完毕，数组也就排好序了。
+\end{enumerate}
+
+\section{计数排序}
+算法步骤：
+\begin{enumerate}
+\item 找出待排序的数组中最大和最小的元素
+\item 统计数组中每个值为i的元素出现的次数，存入数组C的第i项
+\item 对所有的计数累加（从C中的第一个元素开始，每一项和前一项相加）
+\end{enumerate}
+\section{归并排序 Merge}
+
+\section{选择排序}
+迭代一遍，每次选择剩下的元素的最小的，交换最小元素和第个i元素的位置。复杂度$n^2$
+\section{插入排序}
+迭代一遍，每次将第i个元素插入其前面的已排序的元素中。复杂度为$n^2$
+
+\section{冒泡排序}
+
+
+
+
+
