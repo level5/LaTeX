@@ -1,0 +1,107 @@
+\chapter{基础内容}
+
+\begin{CSharp}
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+
+        List<Person> friends = new List<Person>();
+        public List<Person> Friends { get; }
+
+        Location home = new Location();
+        public Location Home { get; }
+
+        public Person(string name)
+        {
+            Name = name;
+        }
+
+        public Person() { }
+    }
+
+    public class Location
+    {
+        public string Country { get; set; }
+        public string Town { get; set; }
+    }
+\end{CSharp}
+
+\begin{CSharp}[使用属性]
+    class UserAutoProperties
+    {
+        public static void CreatePerson()
+        {
+            Person tom = new Person("Tom");
+
+            Person jack = new Person { Name = "Jack", Age = 9 };
+
+            Person david = new Person("David") { Age = 10 };
+
+            Person jin = new Person
+            {
+                Name = "jim",
+                Age = 3,
+                Home = {
+                    Country = "China",
+                    Town = "Zhuzhou"
+                }
+            };
+
+            Person snow = new Person
+            {
+                Name = "Snow",
+                Age = 1,
+                Home = { Country = "China", Town = "Xiangtan" },
+                Friends = {
+                    new Person("Titi"){Age = 12},
+                    new Person{Name = "Jim", Age=11},
+                    new Person{Name = "Kate", Age=5,
+                        Home = {Country = "China", Town = "Xiangtan"}
+                    }
+                }
+            };
+        }
+\end{CSharp}
+
+想自定义可以使用集合初始化的类的话，实现IEnumerable接口和提供公共的Add方法。
+\begin{CSharp}[自定义集合初始化类]
+class SampleCollection:IEnumerable
+    {
+        List<Tuple<string, int, string>> person = new List<Tuple<string, int, string>>();
+
+        public void Add(string name, int age, string country)
+        {
+            person.Add(Tuple.Create(name, age, country));
+        }
+
+
+        public IEnumerator GetEnumerator()
+        {
+            return person.GetEnumerator();
+        }
+
+        public static void CeateSameple()
+        {
+            var sample = new SampleCollection{
+                {"Snow", 1, "China"},
+                {"Davide", 5, "China"},
+                {"Jim", 2, "China"}
+            };
+        }
+    }
+\end{CSharp}
+
+\begin{CSharp}[匿名类]
+            var family = new[]{
+                new {Name = "Feng", Age=35},
+                new {Name="Hui",Age=36},
+                new {Name="Nuo", Age=4}
+            };
+
+            int totalAge = 0;
+            foreach (var p in family)
+            {
+                totalAge += p.Age;
+            }
+\end{CSharp}
