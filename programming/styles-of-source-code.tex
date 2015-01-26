@@ -207,6 +207,44 @@
   }}
   {}
   
+% style for Scala
+
+\lstdefinelanguage{Scala}{
+  morekeywords={def, val},
+  alsolanguage=Java,
+  %keywords={object, extend, package},
+  keywordstyle=\color{blue}\bfseries,
+  %ndkeywords={class, export, boolean, throw, implements, import, this},
+  %ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morecomment=[s]{<!--}{-->},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstnewenvironment{Scala}[1][]
+  {\lstset{
+     language=Scala,
+     backgroundcolor=\color{lightgray},
+     extendedchars=true,
+     basicstyle=\footnotesize\ttfamily,
+     showstringspaces=false,
+     showspaces=false,
+     numbers=left,
+     numberstyle=\footnotesize,
+     numbersep=9pt,
+     tabsize=2,
+     breaklines=true,					 % sets automatic line breaking
+     showtabs=false,
+     captionpos=t,						 % sets the caption-position to top
+     caption=【Scala】#1
+  }}
+  {}
 
 % style for Bash
 \lstnewenvironment{Bash}[1][]

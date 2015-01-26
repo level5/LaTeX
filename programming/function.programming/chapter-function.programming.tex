@@ -1,0 +1,291 @@
+\chapter{Function Programming}
+
+\subsection{基本概念}
+
+函数式编程严格意义上的定义是没有可变量，没有赋值操作，没有命令控制结构的编程。
+
+在实际操作中，函数式编程语言就是functions are first-class-citizens.
+意思：
+\begin{itemize}
+\item function能在任何地方定义，包括在其他function中
+\item function可以作为函数的参数和返回值
+\item 存在一系列操作符来构建function
+\end{itemize}
+
+\begin{Scala}
+  def square(x: Double) = x * x                   //> square: (x: Double)Double
+  
+  def sumOfSquare(x: Double, y: Double): Double = square(x) + square(y)
+                                                  //> sumOfSquare: (x: Double, y: Double)Double
+  
+  sumOfSquare(3, 2 + 2)                           //> res0: Double = 25.0
+\end{Scala}
+
+\subsubsection{CBV \& CBN}
+
+\begin{Scala}[运算过程:call by value]
+sumOfSquare(3, 2+2)
+sumOfSquare(3, 4)
+3*3 + square(4)
+9 + square(4)
+9 + 4*4
+9 + 16
+25
+\end{Scala}
+
+\begin{Scala}[运算过程:call by name]
+sumOfSquare(3, 2+2)
+square(3) + square(2+2)
+3*3 + square(2+2)
+9 + square(2+2)
+9 + (2+2)*(2+2)
+9 + 4*4
+25
+\end{Scala}
+
+最终计算结果相同，如果满足下面的条件：
+\begin{itemize}
+\item 被计算的表达式是纯函数，
+\item 并且，表达式可以完成计算。
+\end{itemize}
+
+优势：
+\begin{itemize}
+\item call by value(CBV)的优势是所有的参数都只计算一次；
+\item call by name(CBN)的有优势是对没有用的参数不进行计算。
+\end{itemize}
+
+表达式可以被终结
+\begin{itemize}
+\item CBV如果可以被终结，CBN也可以被终结
+\item CBN可以被终结，CBV不一定可以被终结
+\end{itemize}
+
+\begin{Scala}
+  def loop:Int = loop                             //> loop: => Int
+  def first(x:Int, y:Int) = x                     //> first: (x: Int, y: Int)Int
+  // Scala默认使用CBV，如果要强制使用CBN，使用=>来修饰参数
+  def second(x: => Int, y:Int) = y                //> second: (x: => Int, y: Int)Int
+ 
+  second(loop, 2)                                 //> res1: Int = 2
+\end{Scala}
+
+\subsubsection{if - else Expression}
+
+\begin{Scala}[和Java相似，但是这里是表达式，不是Java中的statement]
+  def abs(x: Int) = if (x >= 0) x else -x         //> abs: (x: Int)Int
+\end{Scala}
+
+\begin{Scala}[使用if实现and和or]
+  def and(x: Boolean, y: Boolean) = if (x) y else false
+                                                  //> and: (x: Boolean, y: Boolean)Boolean
+  def or(x: Boolean, y: Boolean) = if (x) true else y
+                                                  //> or: (x: Boolean, y: Boolean)Boolean
+
+  and(true, false)                                //> res2: Boolean = false
+  and(true, true)                                 //> res3: Boolean = true
+  and(false, true)                                //> res4: Boolean = false
+  and(false, false)                               //> res5: Boolean = false
+
+  or(true, false)                                 //> res6: Boolean = true
+  or(false, true)                                 //> res7: Boolean = true
+  or(true, true)                                  //> res8: Boolean = true
+  or(false, false)                                //> res9: Boolean = false
+\end{Scala}
+
+\subsubsection{Name Definition \& Value Definition}
+\begin{Scala}[名字和值的不同]
+  //name definition & value definition
+  def x = square(2)                               //> x: => Double
+
+  val y = square(2)                               //> y  : Double = 4.0
+\end{Scala}
+
+\subsubsection{牛顿法求根}
+对于x求x的根y，首先预估一个y，这个数只需要是正数，然后通过不断改进这个值来找到合适的y（误差在要求范围之内的y），改进的公式是$y_{n+1} = (y_n + x/y)/2$
+\begin{Scala}[没太弄懂为什么需要除以x来解决问题]
+  def abs(x: Double): Double = if (x < 0) -x else x
+                                                  //> abs: (x: Double)Double
+
+  def sqrtIter(guess: Double, x: Double): Double =
+    if (isGoodEnough(guess, x)) guess
+    else sqrtIter(improve(guess, x), x)           //> sqrtIter: (guess: Double, x: Double)Double
+
+  def isGoodEnough(guess: Double, x: Double): Boolean =
+    abs(guess * guess - x) / x < 0.01             //> isGoodEnough: (guess: Double, x: Double)Boolean
+
+  def improve(guess: Double, x: Double): Double =
+    (guess + x / guess) / 2                       //> improve: (guess: Double, x: Double)Double
+
+  def sqrt(x: Double): Double = sqrtIter(1.0, x)  //> sqrt: (x: Double)Double
+\end{Scala}
+注：对于递归调用的function，Scala必须指定返回的类型，而其他function则不是必须的，因为编译器无法判断递归调用的返回类型是什么。
+
+\subsubsection{Block}
+Block： {...}
+\begin{itemize}
+\item 包含一系列的definition和expression
+\item 最后的一个元素是一个expression，定义了block的值
+\item block可以出现在任何expression出现的地方
+\end{itemize}
+
+\begin{Scala}[嵌套]
+  def sqrt(x: Double): Double = {
+
+    def abs(x: Double): Double = if (x < 0) -x else x
+
+    def sqrtIter(guess: Double, x: Double): Double =
+      if (isGoodEnough(guess, x)) guess
+      else sqrtIter(improve(guess, x), x)
+
+    def isGoodEnough(guess: Double, x: Double): Boolean =
+      abs(guess * guess - x) / x < 0.01
+
+    def improve(guess: Double, x: Double): Double =
+      (guess + x / guess) / 2
+
+    sqrtIter(1.0, x)
+  }      
+\end{Scala}
+
+
+\begin{Scala}[由于嵌套作用域，可以删除定义在里面的x]
+  def sqrt(x: Double): Double = {
+
+    def abs(x: Double): Double = if (x < 0) -x else x
+
+    def sqrtIter(guess: Double): Double =
+      if (isGoodEnough(guess)) guess
+      else sqrtIter(improve(guess))
+
+    def isGoodEnough(guess: Double): Boolean =
+      abs(guess * guess - x) / x < 0.01
+
+    def improve(guess: Double): Double =
+      (guess + x / guess) / 2
+
+    sqrtIter(1.0)
+  }  
+\end{Scala}
+
+
+\subsubsection{代码分行}
+Scala的分号可以不写，也可以写，但是如果将一个表达式分行写
+
+\begin{Scala}
+someExpression
+ + someExpression
+\end{Scala}
+会被编译器解析为：
+\begin{Scala}
+someExpression;
++ someExpression;
+\end{Scala}
+
+可以这么写
+\begin{Scala}
+(someExpression
+ + someExpression)
+\end{Scala}
+或者这么写
+\begin{Scala}
+someExpression + 
+	someExpression
+\end{Scala}
+
+
+\subsubsection{尾递归}
+
+递归的例子：
+\begin{Scala}[GCD]
+def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+\end{Scala}
+今天才了解到，不需要a >　ｂ,a < b的时候，第一次迭代自然的交换了两者的位置。
+
+factorial:
+\begin{Scala}
+  def factorial(n: Int): Int =
+    if (n == 0) 1 else n * factorial(n - 1)       //> factorial: (n: Int)Int
+\end{Scala}
+GCD和factorial一处很大的不同，factorial最后的结果需要外面一层的context的值，这样就导致计算机的stack必须保存外一层的execution context，而gcd的话，只是对自身本身的调用，所以stack可以重用，这样就可以使用常量的memroy space。
+
+
+\subsubsection{high order function}
+high order function就是函数能够被当做函数参数，能够当做函数返回值。
+
+\begin{Scala}
+  def id(x: Int): Int = x                         //> id: (x: Int)Int
+  def sumInts(a: Int, b: Int): Int =
+    if (a > b) 0 else id(a) + sumInts(a + 1, b)   //> sumInts: (a: Int, b: Int)Int
+
+  def cube(x: Int): Int = x * x * x               //> cube: (x: Int)Int
+  def sumCubes(a: Int, b: Int): Int =
+    if (a > b) 0 else cube(a) + sumCubes(a + 1, b)//> sumCubes: (a: Int, b: Int)Int
+
+  def factorial(n: Int): Int =
+    if (n == 0) 1 else n * factorial(n - 1)       //> factorial: (n: Int)Int
+  def sumFactorial(a: Int, b: Int): Int =
+    if (a > b) 0 else factorial(a) + sumFactorial(a + 1, b)
+                                                  //> sumFactorial: (a: Int, b: Int)Int
+\end{Scala}
+
+上面的函数表示的是$\sum_{n=a}^{b}f(x)$
+
+\begin{Scala}
+  def sum(f: Int => Int, a: Int, b: Int): Int =
+    if (a > b) 0 else f(a) + sum(f, a + 1, b)     //> sum: (f: Int => Int, a: Int, b: Int)Int
+
+  def sumInts2(a: Int, b: Int): Int = sum(x => x, a, b)
+                                                  //> sumInts2: (a: Int, b: Int)Int
+
+  def sumCubes2(a: Int, b: Int): Int = sum(x => x * x * x, a, b)
+                                                  //> sumCubes2: (a: Int, b: Int)Int
+
+  def sumFactorials2(a: Int, b: Int): Int = sum(factorial, a, b)
+                                                  //> sumFactorials2: (a: Int, b: Int)Int
+\end{Scala}
+
+然后是
+\begin{Scala}
+  def sum2(f: Int => Int): (Int, Int) => Int = {
+    def sumOfF(a: Int, b: Int): Int =
+      if (a > b) 0 else f(a) + sumOfF(a + 1, b)
+    sumOfF
+  }                                               //> sum2: (f: Int => Int)(Int, Int) => Int
+
+  def sumInt3 = sum2(x => x)                      //> sumInt3: => (Int, Int) => Int
+
+  def sumCubes3 = sum2(x => x * x * x)            //> sumCubes3: => (Int, Int) => Int
+
+  def sumFactorials3 = sum2(factorial)            //> sumFactorials3: => (Int, Int) => Int	
+\end{Scala}
+
+上面sum2的定义可以简写为：
+\begin{Scala}
+  def sum3(f: Int => Int)(a: Int, b: Int): Int =
+    if (a > b) 0 else f(a) + sum3(f)(a + 1, b)    //> sum3: (f: Int => Int)(a: Int, b: Int)Int
+\end{Scala}
+
+\subsubsection{Map Reduce}
+找到prodcut和sum的共通
+\begin{Scala}
+  def product(f: Int => Int)(a: Int, b: Int):Int =
+    if (a > b) 1 else f(a) * product(f)(a + 1, b) //> product: (f: Int => Int)(a: Int, b: Int)Int
+    
+  def sum(f:Int=>Int)(a:Int, b:Int):Int =
+  	if (a> b) 0 else f(a) + sum(f)(a+1, b)    //> sum: (f: Int => Int)(a: Int, b: Int)Int
+ 
+ def reduce(f:Int=>Int, combine:(Int, Int)=>Int, zero:Int)(a:Int, b:Int):Int =
+ 	if (a>b) zero
+ 	else combine(f(a),reduce(f, combine, zero)(a+1, b))
+                                                  //> reduce: (f: Int => Int, combine: (Int, Int) => Int, zero: Int)(a: Int, b: In
+                                                  //| t)Int
+  product(x=>x*x)(4,6)                            //> res0: Int = 14400
+  
+  reduce(x=>x*x, (x,y)=>x*y, 1)(4,6)              //> res1: Int = 14400
+\end{Scala}
+
+
+\section{Data Struct}
+
+\subsubsection{class}
