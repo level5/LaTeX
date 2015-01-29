@@ -1,0 +1,199 @@
+\chapter{Mocha}
+
+使用npm来安装Mocha
+\begin{Bash}
+npm install -g mocha
+\end{Bash}
+创建测试目录
+\begin{Bash}
+mkdir test
+vi test/test.js
+\end{Bash}
+
+\subsection{Assert}
+node提供的assert
+使用扩充的assert库来进行断言。 \lstinline!--save!用来更新package.json中的依赖包，\lstinline!--save-dev!则是表示开发时依赖。
+\begin{Bash}
+npm install should --save-dev
+\end{Bash}
+
+
+\chapter{Selenium}
+
+\section{Selenium IDE}
+这是一个firefox add-on,用于录制test case。
+
+\subsection{命令 verify page Elements}
+\begin{itemize}
+\item verifyTitle/assertTitle
+
+verifies an expected page title.
+
+\item verifyTextPresent
+
+verifies expected text is somewhere on the page.
+
+\item verifyElementPresent
+
+verifies an expected UI element, as defined by its HTML tag, is present on the page.
+
+\item verifyText
+
+verifies expected text and its corresponding HTML tag are present on the page.
+
+\item verifyTable
+
+verifies a table’s expected contents.
+\end{itemize}
+
+
+
+
+
+\subsubsection{verify 还是 assert}
+assert不通过将导致case失败，并且放弃这个case，而verfiy不通过case会失败，但是case会继续执行。
+
+比如说如果打开一个页面不成功，这样也就没有继续执行下去的必要。而如果是打开页面后检查页面是否包含你想要的元素或其他，这个时候可以检查完所有想检查的地方然后统一来看看那些地方不符合要求。
+
+最好是按逻辑分组test commands,每一组以一个assert跟着一个或者多个verfiy命令
+
+命令：
+\begin{itemize}
+\item verifyTextPresent
+
+判断想要的string是否存在在页面上。参数是想要的string。当只关心页面上是否有对应string时，才使用这条命令。如果还关心string出现的位置的时候，不要使用这条命令。
+
+\item verifyElementPresent
+
+判断对应的HTML tag是否存在在页面上。只检查tag，不检查tag中的内容。参数是一个locator。告诉selenium在哪里可以找到对应的元素。
+
+\item verifyText
+
+判断对应的HTML tag及tag中的内容是否存在。参数包括locator和对应的string
+\end{itemize}
+
+\subsubsection{定位元素}
+
+\paragraph{Locating by Identifier} 通过标识符定位
+
+identifier=loginForm
+
+由于是默认的locator，所以也可以直接写作
+
+loginForm
+
+首先id为loginForm的元素会被匹配，如果没有对应id的元素，则第一个name为loginForm的元素会被匹配。
+
+\paragraph{Locating by Id} 通过id定位
+
+id=loginForm
+
+\paragraph{Locating by name} 通过name定位
+
+name=username
+
+匹配第一个name等于username的元素，如果有多个元素使用相同的name，可以增加更多的过滤条件，例如：
+
+name=continue value=Clear
+
+name=continue type=button
+
+\paragraph{Locating by XPath} 通过XPath定位
+\begin{itemize}
+\item xpath=/html/body/form[1] - Absolute path (would break if the HTML was changed only slightly)
+\item //form[1] - First form element in the HTML
+\item xpath=//form[@id='loginForm'] - The form element with attribute named ‘id’ and the value ‘loginForm’
+\item xpath=//form[input/@name='username'] - First form element with an input child element with attribute \item named ‘name’ and the value ‘username’
+\item //input[@name='username'] - First input element with attribute named ‘name’ and the value ‘username’
+\item //form[@id='loginForm']/input[1] - First input child element of the form element with attribute \item named ‘id’ and the value ‘loginForm’
+\item //input[@name='continue'][@type='button'] - Input with attribute named ‘name’ and the value ‘continue’ and attribute named ‘type’ and the value ‘button’
+\item  //form[@id='loginForm']/input[4] - Fourth input child element of the form element with attribute named ‘id’ and value ‘loginForm’
+\end{itemize}
+
+\paragraph{Locating Hyperlinks by Link Tex} 通过文本定位超链接
+
+link=Continue
+
+通过link中的文本来定位超链接，如果有多个link包含相同的文本，第一个匹配的link会被选择。
+
+\paragraph{Locating by DOM} 通过DOM定位
+
+dom=document.getElementById('loginForm')
+
+看上去像js来查找元素。
+
+\paragraph{Locating by CSS} 通过CSS选择器定位
+
+css=input.required[type="text"]
+
+\paragraph{implicit Locators}
+\begin{itemize}
+\item 默认情况下使用Identifier
+\item "//"开始的是XPath
+\item "document."开始的是DOM
+\end{itemize}
+
+\subsubsection{Matching Text Patterns}
+\begin{itemize}
+\item Globbing Patterns,通配符
+
+glob：result*.cs
+
+* 匹配任意，nothing，a single character, many characters
+
+[a-zA-Z0-9]匹配字母数字字符
+
+由于glob是默认的匹配模式，所以可以不带这个glob：这个前缀
+
+\item Regular Expressions 正则
+
+regexp:[0-9]+
+
+\item exact
+
+exact:Real * 匹配"Real *"
+
+exact中的所有符号都是字面意思。但是上面的其实也可以通过正则表达式的转义符号来实现。
+
+\end{itemize}
+
+\subsubsection{AndWait命令}
+click和clickAndWait命令的区别是，click命令完成之后马上执行下一个步骤，而clickAndWait在执行完之后会等页面加载完成之后再继续往下执行。
+
+如果AndWait没有触发浏览器跳转或者刷新，case会因为timeout而失败。
+\subsubsection{AJAX中的waitFor命令}
+在AJAX应用中，使用AndWait会失败，因为页面没有刷新。这个时候使用waitFor是一个很好地选择。waitForElementPresent or waitForVisible会动态等待，每秒检查期望的条件是否达成。当条件达成才会继续执行下一条命令
+
+\subsubsection{计算和流程控制}
+
+
+
+\subsubsection{存储命令和Selenium变量}
+
+\subsubsection{Alerts, Popup}
+
+\paragraph{alert} 
+
+\paragraph{confirmation} You may notice that you cannot replay this test, because Selenium complains that there is an unhandled confirmation. This is because the order of events Selenium-IDE records causes the click and chooseCancelOnNextConfirmation to be put in the wrong order (it makes sense if you think about it, Selenium can’t know that you’re cancelling before you open a confirmation) Simply switch these two commands and your test will run fine.
+
+\section{WebDriver}
+
+Selenium-WebDriver makes direct calls to the browser using each browser’s native support for automation.
+
+\subsubsection{准备工作}
+
+由于最近在学习C#,所以使用C#版本来做这个练习
+\begin{enumerate}
+\item 下载webDriver的dll文件，reference到C#项目
+\item 下载对应浏览器的driver，放在环境变量Path中，这样webdriver才能够找到他
+\item 安装driver对应的浏览器
+\end{enumerate}
+
+\subsubsection{Selenium-WebDriver API}
+
+\paragraph{Fetching a Page}
+\begin{CSharp}
+driver.Url = "http://www.google.com";
+\end{CSharp}
+
+\paragraph{Using JavaScript}
