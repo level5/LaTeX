@@ -134,13 +134,17 @@
  }}
  {}
  
-\lstnewenvironment{HTML5}
+\lstnewenvironment{HTML5}[1][]
  {\lstset{
    language=HTML5,
    basicstyle=\scriptsize\ttfamily,
    keywordstyle=\bfseries\ttfamily,
    commentstyle=\color{gray}\ttfamily,
    escapechar=| % Escape to LaTeX between |...|
+   breaklines=true,					 % sets automatic line breaking
+   showtabs=false,
+   captionpos=t,						 % sets the caption-position to top
+   caption=【HTML5】#1
  }}
  {}
 

