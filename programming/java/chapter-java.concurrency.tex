@@ -1,0 +1,260 @@
+\chapter{Concurrency}
+
+\section{简介}
+\subsection{线程的风险}
+
+\subsubsection{安全性问题}
+Race Condition 竞争条件
+
+\begin{Java}
+@NotThreadSafe
+public class UnsafeSequence {
+
+	private int value;
+
+	/*
+	 * ++包含三个操作，读取value，将value加1，将结果写入Value。
+	 * 
+	 * A   -- value->9 -------- 9+1->10 -------- value=10  
+	 * B   ----------- value->9 ------- 9+1->10--------- value=10      
+	 */
+	public int getNext() {
+		return value++;
+	}
+}
+\end{Java}
+
+下面是线程安全版本：
+\begin{Java}
+@ThreadSafe
+public class Sequence {
+
+	@GuardedBy("this")private int value;
+
+	public synchronized int getNext() {
+		return value++;
+	}
+}
+\end{Java}
+
+线程安全的代码，其核心就是要对状态访问操作的管理，特别是对共享和可变状态的访问。
+
+共享意味着变量可以由多个线程同时访问，而可变则意味着变量的值在其生命周期内可以发生变化。
+
+当多个线程访问某个状态变量并且其中有一个线程执行写入操作时，必须采用同步机制来协同这些线程对变量的访问。
+
+同步包括synchronized，volatile和Explicit Lock.
+
+当多个线程访问同一个可变的状态变量时没有使用合适的同步，修复这个问题
+\begin{itemize}
+\item 不在现在成之间共享该状态变量
+\item 将状态变量修改成不可变的变量
+\item 在访问变量时使用同步
+\end{itemize}
+
+越少代码访问某个变量，就越容易确保对变量的所有访问都实现正确同步。这也是代码封装的好处。
+
+
+线程安全的核心概念就是正确性。
+
+\paragraph{无状态的对象一定是线程安全的}比如说Servlet
+\begin{Java}
+@ThreadSafe
+public class StatelessFactorizer extends AbstractFactorizer implements Servlet {
+	
+	@Override
+	public void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		BigInteger[] factors = factor(i);
+		encodeIntoResponse(resp, factors);
+	}
+
+}
+\end{Java}
+
+\paragraph{原子性} 如同前面所说，下面的++操作线程不安全。
+
+\begin{Java}
+@NotThreadSafe
+public class UnsafeCountingFactorizer extends AbstractFactorizer implements Servlet {
+
+	private long count = 0;
+	
+	public long getCount(){ return count; }
+	
+	@Override
+	public void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		BigInteger[] factors = factor(i);
+		++count;
+		encodeIntoResponse(resp, factors);
+	}
+	
+}
+\end{Java}
+
+最常见的竞争条件是“先检查后执行”操作，即通过一个可能失效的光查结果来决定下一步的动作。
+
+\begin{Java}
+@NotThreadSafe
+public class LazyInitRace {
+
+	private ExpensiveObject instance = null;
+	
+	public ExpensiveObject getInstance() {
+		if(instance == null) {
+			instance = new ExpensiveObject();
+		}
+		return instance;
+	}
+}
+\end{Java}
+
+\paragraph{符合操作}上面的例子需要以原子方式执行一组操作。以避免竞争条件。在某个线程修改该变量时，通过某种方式防止其他线程使用这个变量，确保其他线程只能在修改完成之前或者之后读取和修改。
+
+
+\begin{Java}[使用AtomicLong来实现原子操作]
+@ThreadSafe
+public class CountingFactorizer extends AbstractFactorizer implements Servlet {
+
+	private final AtomicLong count = new AtomicLong();
+	
+	@Override
+	public void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		BigInteger[] factors = factor(i);
+		count.incrementAndGet();
+		encodeIntoResponse(resp, factors);
+	}
+
+}
+\end{Java}
+
+\paragraph{加锁}通过缓存结果来提高性能，有多个安全状态变量的时候不是线程安全的。
+\begin{Java}
+@NotThreadSafe
+public class UnsafeCachingFactorizer extends AbstractFactorizer implements
+		Servlet {
+	
+	private final AtomicReference<BigInteger> lastNumber 
+		= new AtomicReference<BigInteger>();
+	private final AtomicReference<BigInteger[]> lastFactors
+		= new AtomicReference<BigInteger[]>();
+
+	@Override
+	public void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		if (i.equals(lastNumber.get())) {
+			encodeIntoResponse(resp, lastFactors.get());
+		} else {
+			BigInteger[] factors = factor(i);
+			lastNumber.set(i);
+			lastFactors.set(factors);
+			encodeIntoResponse(resp, factors);
+		}
+	}
+
+}
+\end{Java}
+这是因为多个变量不是独立的，需要单个原子操作更新所有相关的状态变量。
+
+\paragraph{内置锁}
+
+synchronized是使用this对象作为锁，
+静态的synchronized方法以Class对象作为锁
+
+\begin{Java}[性能很差，只有单个线程相应]
+@ThreadSafe
+public class SynchronizedFactorizer extends AbstractFactorizer implements
+		Servlet {
+
+	@GuardedBy("this")private BigInteger lastNumber;
+	@GuardedBy("this")private BigInteger[] lastFactors;
+
+	@Override
+	public synchronized void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		if (i.equals(lastNumber)) {
+			encodeIntoResponse(resp, lastFactors);
+		} else {
+			BigInteger[] factors = factor(i);
+			lastNumber = i;
+			lastFactors = factors;
+			encodeIntoResponse(resp, factors);
+		}
+	}
+}
+\end{Java}
+
+\paragraph{重入}一个线程已经获得锁，那么他可以重入
+
+\paragraph{用锁保护状态}锁保护中代码路径以串行形式来访问，要保证使用所来协调对某个变量的访问是，使用的是用一个锁。不单只写入需要同步，访问的时候也需要，这样保证访问到的值是正确的的。
+
+获取与某对象相关联的锁之后，并不能阻止其他对象访问该对象，只能阻止其他线程获取这个锁。
+
+涉及到包含多个变量的不变性条件，涉及到的所有变量都需要使用同一个锁来保护。
+
+\paragraph{活跃性与性能}滥用锁可能导致的问题是活跃性和性能的问题。
+
+应该尽量将不影响共享状态且执行时间较长的操作从同步带吗中分离出去。
+
+\begin{Java}
+@ThreadSafe
+public class CachedFactorizer extends AbstractFactorizer implements Servlet {
+	
+	@GuardedBy("this") private BigInteger lastNumber;
+	@GuardedBy("this") private BigInteger[] lastFactors;
+	@GuardedBy("this") private long hits;
+	@GuardedBy("this") private long cacheHits;
+
+	public synchronized long getHits() {return hits;}
+	public synchronized double getCacheHitRatio() {
+		return (double)cacheHits / (double)hits;
+	}
+	
+	@Override
+	public void service(ServletRequest req, ServletResponse resp)
+			throws ServletException, IOException {
+		BigInteger i = extractFromRequest(req);
+		BigInteger[] factors = null;
+		synchronized (this) {
+			++hits;
+			if (i.equals(lastNumber)) {
+				++cacheHits;
+				factors = lastFactors.clone();
+			} 
+		}
+		
+		if (factors == null) {
+			factors = factor(i);
+			synchronized (this) {
+				lastNumber = i;
+				lastFactors = factors.clone();
+			}
+		}
+		encodeIntoResponse(resp, factors);
+	}
+
+}
+\end{Java}
+
+这里没有使用Atomic是因为已经使用了同步代码块，不要把两种风格的代码混到一起，容易引起混乱。
+
+执行时间较长的操作，一定不要持有锁。如网络I/O或者控制台I/O.
+
+
+
+\subsubsection{活跃性问题}
+
+活跃性问题关注“某件正确的事情最终会发生”
+
+死锁，饥饿，活锁
+
+\subsubsection{性能问题}
+
+\section{对象的共享}
