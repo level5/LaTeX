@@ -281,3 +281,26 @@ console.log(typeof doSomething);            // "function"
 \end{JavaScript}
 
 
+\section{Object}
+
+\subsection{Object literal}
+\begin{JavaScript}[ecma5的写法，重复输入]
+function createPerson(name, age) {
+    return {
+        name: name,
+        age: age
+    };
+}
+\end{JavaScript}
+
+\begin{JavaScript}[ecma6的写法，省略重复输入]
+function createPerson(name, age) {
+    return {
+        name,
+        age
+    };
+}
+\end{JavaScript}
+如果property字面量只有一个名字，JavaScript引擎会查找包含他的scope来查找名字相同的变量，如果找到了，就将变量的值赋予这个对象对应的属性名。
+When a property in an object literal only has a name and no value, the JavaScript engine looks into the surrounding scope for a variable of the same name. If found, that value is assigned to the same name on the object literal. 
+\section{Symbol}

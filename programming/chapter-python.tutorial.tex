@@ -1,0 +1,245 @@
+\chapter{Python Tutorial}
+在我了解了python的基本语法，如缩进来控制程序等之后，
+\begin{itemize}
+\item 我觉得第一个需要掌握的就是Python提供的一些基本的数据结构。这样方便熟练的写出高效的程序。
+\item 然后我觉得就是基本类库了，比如一些系统的属性什么的，文件操作等等。
+\item 在这之后，我觉得应该就是整个生态环境的了解，如pip等工具。也许需要python2和python3共存。
+\end{itemize}
+所以笔记也会用这样的方式来组成。在这个之后，我会最后记录一下其他一些语法知识。然后就是用python来实现那两本用Ruby写的书，Unix和Scoket相关的东西。
+
+最后就是cocos2d python的学习了。
+\section{Unit Test}
+在开始正式的编程之前，我希望掌握一个合适的单元测试框架。首先我们要安装pip。这是一个包管理工具，这里我们只介绍怎么安装，之后介绍python相关工具时在做具体介绍。很简单，下载get-pip.py。然后运行他。
+
+然后，这里学习一下python自带的unitest。这里我假设自己已经对单元测试很熟习了，如果想回顾一下单元测试，我会再写一篇关于单元测试的文章，他会基于Junit来说明，因为我之前花了一些力气来熟悉Junit3.8，它包括很多基本的概念和一些设计模式的知识，还有测试驱动开发的内容。
+
+\begin{Python}
+import random
+import unittest
+
+class TestSequenceFunctions(unittest.TestCase):
+
+    def setUp(self):
+        self.seq = list(range(10))
+
+    def test_shuffle(self):
+        # make sure the shuffled sequence does not lose any elements
+        random.shuffle(self.seq)
+        self.seq.sort()
+        self.assertEqual(self.seq, list(range(10)))
+
+        # should raise an exception for an immutable sequence
+        self.assertRaises(TypeError, random.shuffle, (1,2,3))
+
+    def test_choice(self):
+        element = random.choice(self.seq)
+        self.assertTrue(element in self.seq)
+
+    def test_sample(self):
+        with self.assertRaises(ValueError):
+            random.sample(self.seq, 20)
+        for element in random.sample(self.seq, 5):
+            self.assertTrue(element in self.seq)
+
+if __name__ == '__main__':
+    unittest.main()
+\end{Python}
+
+我们可以通过python testModule来执行case，这里，是通过unittest.main()来触发。
+也可以通过命令行 python -m unittest来执行，可以具体到某个case
+\begin{itemize}
+\item python -m unittest testModule
+\item python -m unittest testModule.testClass
+\item python -m unittest testModule.testClass.testMethod
+\end{itemize}
+
+也可以通过python -m unittest discover.所有的测试文件必须是在当前项目可以导入到顶层目录的module或者package。
+而且因为默认情况下 discover查找的文件名是test*.py，所以保证test文件是以test开头的。
+
+这里以我目前对python的肤浅理解是，文件名是标识符，而下一层目录必须包含文件\_\_init\_\_.py，这样python才会将这个目录当做package，而将这个目录里的module当做是submodule。
+
+在这个简单的了解之后，开始我们的第一步，对数据结构的认识。
+
+
+\section{Data Structure}
+其实作为高级语言，也没有什么特别多的数据类型。因为我有Java基础，所以一下就想到有List，Set，Map这三种容器集合，这几个基本可以满足所有需求了。python还多一个元组tuple和range。而且python没有数组。
+
+这就是python的基本数据结构。
+
+\subsection{Sequence}
+range, list, tuple都是sequence类型，也就是可以通过索引来找到对应的元素，string也是。sequence类型有很多方便的操作可以使用，如通过s[i]来找到对应位置的元素，通过s[i:j]来复制一份浅拷贝的子sequence。
+
+\begin{itemize}
+\item x in s, x not in s
+
+判断x是或不是s的一个元素。
+
+\item s + t, s*n
+
+连接s和t，n个s的浅拷贝的连接。
+
+\item s[i]
+
+选择s中的第i个元素，从0开始。
+
+\item s[i:j]
+
+当i或者j是负值的时候，他们代表的index是 len(s)+ i or len(s) + j。但是-0还是表示0。
+
+
+如果i或者j大于len(s)，取值len(s)。如果i不存在，取0，如果j不存在，取len(s)。
+
+如果i大于或等于j，返回空sequence。
+
+返回顺序的k集合，所有的k有i <= k < j。
+
+\item s[i:j:k] 
+
+k不能为0。
+
+从i到j，以k为步长的 x = i + n*k, 其中 0 <= n < (j - i)/k
+
+如果i或者j大于len(s)， 取len(s)
+
+如果i或者j不存在，则根据k来取值结束的值，我推测是如果k > 0，i就取0，如果 k < 0，i就取len(s)
+
+\item lens(s), min(s), max(s)
+
+s的长度，s中的最小，做大元素的值
+
+\item s.index(x, [i, [j]])
+
+找到s中第一个x的位置，如果有i，表示从位置i开始，如果有j，表示到位置j之前结束。
+
+\item s.count(x)
+
+统计s中x的个数。
+
+\end{itemize}
+
+对于不变的sequence，他们实现了hash这个内建方法，这样，他们就可以作为dict类型的key值，set的值。
+
+对于可以变的sequence，有下面一些特定操作：
+\begin{itemize}
+\item s[i] = x
+
+\item s[i:j] = t
+
+使用t替换掉从i到j之前的切片
+
+\item del s[i:j]
+
+删除切片
+
+\item s[i:j:k] = t
+
+这个时候左边和右边元素的个数必须相等
+
+\item del s[i:j:k]
+
+\item s.append(x), s.pop([i]), s.insert(i, x), s.remove(x), s.clear(), s.copy(), s.reverse(), s.exend(t)
+
+其中，s.pop([i])中，i的默认值是-1，等于是弹出最后一个元素。
+
+s.remove(x)，如果x不存在，会报ValueError
+
+s.reverse()会改变原来的sequence
+
+\end{itemize}
+
+
+\subsection{List}
+class list([iterable])
+
+几种常用来生成list的方法：
+\begin{itemize}
+\item [], [1,2,3,4]
+\item [x for x in iterable]
+\item list(), list(iterable)
+\end{itemize}
+
+除了上面的方法，list实现了内建的sort()方法。
+
+
+\subsection{Tuple}
+class tuple([iterable])
+
+tuple是不可变的sequence类型，几种常用来生成tuple的方法：
+\begin{itemize}
+\item ()
+\item a, or (a,)
+\item a, b, c or (a, b, c)
+\item tuple() or tuple(iterable)
+\end{itemize}
+\subsection{Range}
+class range(stop)
+
+class range(start, stop[, step])
+
+我却傻傻的想着有两个构造函数，而且第一个参数不一样，想查出来怎么实现两个\_\_init\_\_方法，难道python有重载。这其实不就是js里常用的技巧么，判断一下第二个参数是不是等于默认值None，如果等于默认值，就将第一个参数的值赋给第二个参数。
+
+为了证实一下我的想法，我写了个case。 结果证实我的猜想是错误的！！！！！！！
+
+
+当step是正数时，range的取值为 r[i] = start + i*step, i >= 0, r[i] < stop
+
+当setp是负数时，range的取值为 r[i] = start + i*step, i>=0, r[i] > stop
+
+如果r[0]的取值不符合上面的条件，则为空range。
+
+range只使用固定大小的memory，因为他只保存start，stop，step。在需要的时候计算单独的值或者子range。
+
+\subsection{Set}
+set和Java中的set有相同的作用，无序，不包含相同，采用hash来定位是否包含需要的元素.
+
+有两个内建的set，set和frozenset。set是可变的，frozenset是不可变的。
+
+
+\subsection{Map Type}
+dict类型，类似Java的Map。
+
+\subsection{String}
+String是sequence类型，所以一般的sequence操作也适用于String
+
+Python没有char类型。 使用index来取得的元素是长度为1的string
+
+string是不可变类型，为了高效处理string，可以使用str.join(iterable),或者io.StringIO
+
+
+
+\section{Standard Lib}
+
+\subsection{Path}
+
+
+\section{Class}
+\subsection{Scopes And Namespaces}
+namespace是从名字到object的映射。Python中大多数的namespace是通过Python的dictionaries来实现的。
+
+在Module中定义的全局名字对应module对象的attribute。这里的attribute是"module."后面所接的名字。
+
+对于module的attribute我们可以赋值，也可以用del关键词删除掉他。
+
+Namespace的生命周期
+\begin{itemize}
+\item 对于built-in名字，在Python解释器启动的时候创建。
+\item 对于module的全局名字，在module读入的时候创建。
+\item 顶层调用语句定义的名字，都定义在在module "\_\_name\_\_"中。
+\item 函数中的局部namespace在函数调用时创建。
+\end{itemize}
+
+scope
+\begin{itemize}
+\item 最里面的一层scope
+\item 包裹这层最里层的scope的函数的scope
+\item module的全局名字
+\item built-in名字
+\end{itemize}
+
+\section{Protocol}
+
+\section{Concurrency}
+\subsection{Thread}
+
+\subsection{Process}
+
