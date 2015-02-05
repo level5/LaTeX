@@ -284,6 +284,9 @@ console.log(typeof doSomething);            // "function"
 \section{Object}
 
 \subsection{Object literal}
+
+\subsubsection{Property初始化的简写}
+
 \begin{JavaScript}[ecma5的写法，重复输入]
 function createPerson(name, age) {
     return {
@@ -302,5 +305,114 @@ function createPerson(name, age) {
 }
 \end{JavaScript}
 如果property字面量只有一个名字，JavaScript引擎会查找包含他的scope来查找名字相同的变量，如果找到了，就将变量的值赋予这个对象对应的属性名。
-When a property in an object literal only has a name and no value, the JavaScript engine looks into the surrounding scope for a variable of the same name. If found, that value is assigned to the same name on the object literal. 
+
+\subsubsection{Method初始化的简写}
+\begin{JavaScript}[ecma5]
+var person = {
+    name: "Nicholas",
+    sayName: function() {
+        console.log(this.name);
+    }
+};
+\end{JavaScript} 
+
+\begin{JavaScript}[ecma6]
+var person = {
+    name: "Nicholas",
+    sayName() {
+        console.log(this.name);
+    }
+};
+\end{JavaScript}
+
+\subsubsection{Computed Property Names}
+在ECMA5中，可以使用引号将带空格的字面常量定义为Property名，但是如果是变量引用的字面常量的话，就没有办法在literal Object中定义了。
+\begin{JavaScript}
+var person = {
+    "first name": "Nicholas"
+};
+
+console.log(person["first name"]);   
+\end{JavaScript}
+
+\begin{JavaScript}[ecma6中，可以引用变量中的带空白字符串]
+var lastName = "last name";
+
+var person = {
+    "first name": "Nicholas",
+    [lastName]: "Zakas"
+};
+
+console.log(person["first name"]);      // "Nicholas"
+console.log(person[lastName]);          // "Zakas"
+\end{JavaScript}
+ 
+\begin{JavaScript}[ecma6]
+var suffix = " name";
+
+var person = {
+    ["first" + suffix]: "Nicholas",
+    ["last" + suffix]: "Zakas"
+};
+
+console.log(person["first name"]);      // "Nicholas"
+console.log(person["last name"]);       // "Zakas"
+\end{JavaScript}
+ 
+所有可以放入方括号的符号都可以放在Computed Property Names中。
+
+\subsubsection{get set}
+这个ECMA5中就可以使用，只是我不知道而已
+\begin{JavaScript}
+var foo = {
+	set bar(value){
+		this.x = value;
+	},
+	get bar() {
+		return this.x;
+	}
+};
+foo.bar = 100;
+
+console.log(foo.bar); // 100
+console.log(foo.x);   // 100
+
+\end{JavaScript}
+ 
+
+\subsection{Object.assign()}
+
+\subsubsection{mixins} 
+
+\begin{JavaScript}
+unction mixin(receiver, supplier) {
+    Object.keys(supplier).forEach(function(key) {
+        receiver[key] = supplier[key];
+    });
+
+    return receiver;
+}
+\end{JavaScript}
+
+是的receiver不通过继承来获取新的行为。
+
+
+ECMA6添加的Object.assign()方法就是实现mixin的。不同之处是通过名字来反映了真正发生了什么操作，因为是通过=号来拷贝属性的，所以accessor properties没办法被当做accessor属性拷贝过去。
+
+\begin{JavaScript}
+//此处应该有代码
+\end{JavaScript}
+
+\subsubsection{Duplicate Object Literal Properties}
+在ECMA5的strict模式下，如果有重复的property名字的时候，会抛出异常。而这一行为在ECMA6的strict模式下被移除掉了。
+
+\subsubsection{改变Prototype}
+ECMA5中添加了方法来获取Prototype，Object.getPrototypeOf(),而在ECMA6中，与之对应的Object.setPrototypeOf()被添加了进来。
+\begin{JavaScript}
+//此处应该有代码
+\end{JavaScript}
+
+In ECMAScript 6 engines, `Object.prototype.__proto__` is defined as an accessor property whose `get` method calls `Object.getPrototypeOf()` and whose `set` method calls `Object.setPrototypeOf()`. This means that there is no real difference between using `__proto__` and the other methods except that `__proto__` allows you to set the prototype of an object literal directly.
+
+ 
 \section{Symbol}
