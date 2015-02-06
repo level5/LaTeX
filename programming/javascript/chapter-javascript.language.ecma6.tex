@@ -1,1 +1,418 @@
-\chapter{ECMA 6 Basic}
+\chapter{ECMA 6}
+
+\section{Basic}
+
+\subsection{Better Unicode Support}
+
+\subsubsection{code point}
+
+\subsection{new methods for string}
+
+\subsubsection{Object.is}
+
+\subsection{Regex}
+
+\subsubsection{u}
+
+\subsubsection{y}
+
+\subsection{let}
+
+\subsubsection{var}
+
+\subsubsection{let in block scope}
+
+\subsubsection{let in loop}
+
+\subsubsection{let Vs. var}
+
+\subsubsection{Global let declaration}
+
+\subsubsection{constant declarations}
+\begin{itemize}
+\item Constants are also block-level declarations, similar to 'let'.
+\item Constants are destroyed once execution flow out of the block
+\item declarations are hoisted to the top of block.
+\end{itemize}
+
+\subsubsection{caution about const}
+
+\subsubsection{Number}
+
+
+\section{Function}
+
+
+\subsection{Default Parameters}
+
+\begin{JavaScript}[ecma 5实现默认参数的方式]
+function makeRequest(url, timeout, callback) {
+
+    timeout = timeout || 2000;
+    callback = callback || function() {};
+
+    // the rest of the function
+
+}
+\end{JavaScript}
+
+此处一个小小的问题是如果timeout是0也会导致timeout被替换成2000.另外一个方式是通过arguments.length来判断参数的个数。
+
+\begin{JavaScript}[ecma 6的方式]
+function makeRequest(url, timeout = 2000, callback = function() {}) {
+
+    // the rest of the function
+
+}
+\end{JavaScript}
+
+设置默认参数不需要一定是在方法的最后
+\begin{JavaScript}[这样也是可以的]
+function makeRequest(url, timeout = 2000, callback) {
+
+    // the rest of the function
+
+}
+\end{JavaScript}
+
+这个时候，要使用默认参数，可以只带一个参数，或者第二个参数显示的指定为undefined
+\begin{JavaScript}[第一和第二个调用使用默认参数，第三个不使用默认参数]
+// uses default timeout
+makeRequest("/foo", undefined, function(body) {
+    doSomething(body);
+});
+
+// uses default timeout
+makeRequest("/foo");
+
+// doesn't use default timeout
+makeRequest("/foo", null, function(body) {
+    doSomething(body);
+});
+\end{JavaScript}
+
+哈哈，默认参数不是必须是基本类型，甚至可以是返回函数的一个函数调用。
+\begin{JavaScript}[函数调用返回函数的默认值]
+function getCallback() {
+    return function() {
+        // some code
+    };
+}
+
+function makeRequest(url, timeout = 2000, callback = getCallback()) {
+
+    // the rest of the function
+
+}
+\end{JavaScript}
+
+每次当最后一个参数不传入的时候，getCallback都将会被调用一次。
+
+\begin{JavaScript}
+// 此处应该加代码来证明这一点。
+\end{JavaScript}
+
+\subsection{Rest parameters}
+
+Can't have a named parameter after rest parameters.
+
+\subsection{Destructured Parameters}
+\begin{JavaScript}
+function setCookie(name, value, options) {
+
+    options = options || {};
+
+    var secure = options.secure,
+        path = options.path,
+        domain = options.domain,
+        expires = options.expires;
+
+    // ...
+}
+
+setCookie("type", "js", {
+    secure: true,
+    expires: 60000
+});
+\end{JavaScript}
+上面的代码采用Destructured Parameters的话，是下面这样的：
+\begin{JavaScript}
+function setCookie(name, value, { secure, path, domain, expires }) {
+
+    // ...
+}
+
+setCookie("type", "js", {
+    secure: true,
+    expires: 60000
+});
+\end{JavaScript}
+
+One quirk of this pattern is that the destructured parameters throw an error when the argument isn't provided.
+因为编译器实际上是产生下面这样的代码
+\begin{JavaScript}
+function setCookie(name, value, options) {
+
+    var { secure, path, domain, expires } = options;
+
+    // ...
+}
+\end{JavaScript} 
+
+Since destructuring assignment throws an error when the right side expression evaluates to `null` or `undefined`, the same is true when the third argument isn't passed.
+
+可以通过提供一个默认参数来避免上面的情况
+\begin{JavaScript}
+function setCookie(name, value, { secure, path, domain, expires } = {}) {
+
+    // ...
+}
+\end{JavaScript}
+
+It's recommended to always provide the default value for destructured parameters to avoid all errors that are unique to their usage.
+
+
+\subparagraph{The Spread Operator}
+
+\begin{JavaScript}
+let values = [25, 50, 75, 100]
+
+// equivalent to
+// console.log(Math.max(25, 50, 75, 100));
+console.log(Math.max(...values));           // 100
+\end{JavaScript}
+
+可以和其他参数混合使用
+\begin{JavaScript}
+let values = [-25, -50, -75, -100]
+
+console.log(Math.max(...values, 0));        // 0
+\end{JavaScript}
+
+\subsection{name property}
+每个function都有一个name property。会在函数创建时生成。他的writable属性是false.
+
+\subsection{Block-Level Functions}
+
+\begin{JavaScript}[ecma 5 stric mode下，在block中定义函数会抛错]
+"use strict";
+
+if (true) {
+
+    // Throws a syntax error in ES5, not so in ES6
+    function doSomething() {
+        // ...
+    }
+}
+\end{JavaScript}
+
+因为各个浏览器在非strict模式下，定义函数的行为不统一，应该尽量避免在block中申明函数，而是采用function expression.
+
+而在ecma 6中，Block-Level function是合法的。
+\begin{JavaScript}[ecma6中]
+"use strict";
+
+if (true) {
+
+    console.log(typeof doSomething);        // "function"
+
+    function doSomething() {
+        // ...
+    }
+
+    doSomething();
+}
+
+console.log(typeof doSomething);            // "undefined"
+\end{JavaScript}
+
+这个时候，块级别的函数申明会被提升到块的开头。而在块结束之后，对应的变量就不存在了。 和let有一点类似，唯一的不同是let不会将定义提升到代码块的最开始。
+
+\begin{JavaScript}
+"use strict";
+
+if (true) {
+
+    console.log(typeof doSomething);        // "function"
+
+    function doSomething() {
+        // ...
+    }
+
+    doSomething();
+}
+
+console.log(typeof doSomething);            // "undefined"
+\end{JavaScript}
+
+\begin{JavaScript}[let不会提升定义到代码块的最前面，所以下面是会报错的]
+"use strict";
+
+if (true) {
+
+    console.log(typeof doSomething);        // throws error
+
+    let doSomething = function () {
+        // ...
+    }
+
+    doSomething();
+}
+
+console.log(typeof doSomething);
+\end{JavaScript}
+
+在非严格模式下，函数声明会被提升到全局或者包含函数中。
+
+\begin{JavaScript}
+// ECMAScript 6 behavior
+if (true) {
+
+    console.log(typeof doSomething);        // "function"
+
+    function doSomething() {
+        // ...
+    }
+
+    doSomething();
+}
+
+console.log(typeof doSomething);            // "function"
+\end{JavaScript}
+
+
+\section{Object}
+
+\subsection{Object literal}
+
+\subsubsection{Property初始化的简写}
+
+\begin{JavaScript}[ecma5的写法，重复输入]
+function createPerson(name, age) {
+    return {
+        name: name,
+        age: age
+    };
+}
+\end{JavaScript}
+
+\begin{JavaScript}[ecma6的写法，省略重复输入]
+function createPerson(name, age) {
+    return {
+        name,
+        age
+    };
+}
+\end{JavaScript}
+如果property字面量只有一个名字，JavaScript引擎会查找包含他的scope来查找名字相同的变量，如果找到了，就将变量的值赋予这个对象对应的属性名。
+
+\subsubsection{Method初始化的简写}
+\begin{JavaScript}[ecma5]
+var person = {
+    name: "Nicholas",
+    sayName: function() {
+        console.log(this.name);
+    }
+};
+\end{JavaScript} 
+
+\begin{JavaScript}[ecma6]
+var person = {
+    name: "Nicholas",
+    sayName() {
+        console.log(this.name);
+    }
+};
+\end{JavaScript}
+
+\subsubsection{Computed Property Names}
+在ECMA5中，可以使用引号将带空格的字面常量定义为Property名，但是如果是变量引用的字面常量的话，就没有办法在literal Object中定义了。
+\begin{JavaScript}
+var person = {
+    "first name": "Nicholas"
+};
+
+console.log(person["first name"]);   
+\end{JavaScript}
+
+\begin{JavaScript}[ecma6中，可以引用变量中的带空白字符串]
+var lastName = "last name";
+
+var person = {
+    "first name": "Nicholas",
+    [lastName]: "Zakas"
+};
+
+console.log(person["first name"]);      // "Nicholas"
+console.log(person[lastName]);          // "Zakas"
+\end{JavaScript}
+ 
+\begin{JavaScript}[ecma6]
+var suffix = " name";
+
+var person = {
+    ["first" + suffix]: "Nicholas",
+    ["last" + suffix]: "Zakas"
+};
+
+console.log(person["first name"]);      // "Nicholas"
+console.log(person["last name"]);       // "Zakas"
+\end{JavaScript}
+ 
+所有可以放入方括号的符号都可以放在Computed Property Names中。
+
+\subsubsection{get set}
+这个ECMA5中就可以使用，只是我不知道而已
+\begin{JavaScript}
+var foo = {
+	set bar(value){
+		this.x = value;
+	},
+	get bar() {
+		return this.x;
+	}
+};
+foo.bar = 100;
+
+console.log(foo.bar); // 100
+console.log(foo.x);   // 100
+
+\end{JavaScript}
+ 
+
+\subsection{Object.assign()}
+
+\subsubsection{mixins} 
+
+\begin{JavaScript}
+unction mixin(receiver, supplier) {
+    Object.keys(supplier).forEach(function(key) {
+        receiver[key] = supplier[key];
+    });
+
+    return receiver;
+}
+\end{JavaScript}
+
+是的receiver不通过继承来获取新的行为。
+
+
+ECMA6添加的Object.assign()方法就是实现mixin的。不同之处是通过名字来反映了真正发生了什么操作，因为是通过=号来拷贝属性的，所以accessor properties没办法被当做accessor属性拷贝过去。
+
+\begin{JavaScript}
+//此处应该有代码
+\end{JavaScript}
+
+\subsubsection{Duplicate Object Literal Properties}
+在ECMA5的strict模式下，如果有重复的property名字的时候，会抛出异常。而这一行为在ECMA6的strict模式下被移除掉了。
+
+\subsubsection{改变Prototype}
+ECMA5中添加了方法来获取Prototype，Object.getPrototypeOf(),而在ECMA6中，与之对应的Object.setPrototypeOf()被添加了进来。
+\begin{JavaScript}
+//此处应该有代码
+\end{JavaScript}
+
+In ECMAScript 6 engines, `Object.prototype.__proto__` is defined as an accessor property whose `get` method calls `Object.getPrototypeOf()` and whose `set` method calls `Object.setPrototypeOf()`. This means that there is no real difference between using `__proto__` and the other methods except that `__proto__` allows you to set the prototype of an object literal directly.
+
+ 
+\section{Symbol}
