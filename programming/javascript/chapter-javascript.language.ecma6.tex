@@ -412,7 +412,154 @@ ECMA5中添加了方法来获取Prototype，Object.getPrototypeOf(),而在ECMA6�
 //此处应该有代码
 \end{JavaScript}
 
-In ECMAScript 6 engines, `Object.prototype.__proto__` is defined as an accessor property whose `get` method calls `Object.getPrototypeOf()` and whose `set` method calls `Object.setPrototypeOf()`. This means that there is no real difference between using `__proto__` and the other methods except that `__proto__` allows you to set the prototype of an object literal directly.
+%In ECMAScript 6 engines, `Object.prototype.__proto__` is defined as an accessor property whose `get` method calls `Object.getPrototypeOf()` and whose `set` method calls `Object.setPrototypeOf()`. This means that there is no real difference between using `__proto__` and the other methods except that `__proto__` allows you to set the prototype of an object literal directly.
 
- 
+\begin{JavaScript}
+//此处应该有代码
+\end{JavaScript}
+
+对于\lstinline$__proto__$来说，有一些特别之处
+\begin{itemize}
+\item 只能在字面对象定义中出现一次\lstinline$__proto__$属性，出现两次将报错。
+\item 使用Computed form \lstinline$['__proto__']$的话，定义的是一般的property。不会影响对象的\lstinline$[[prototype]]$。（这一点是为什么需要查文档来看看原因是什么）
+\end{itemize}
+
+\subsection{super 关键字}
+通过super来引用对象的\lstinline$[[prototype]]$。
+\begin{JavaScript}
+let person = {
+    getGreeting() {
+        return "Hello";
+    }
+};
+
+let dog = {
+    getGreeting() {
+        return "Woof";
+    }
+};
+
+// prototype is person
+let friend = {
+    __proto__: person,
+    getGreeting() {
+        // same as this.__proto__.getGreeting.call(this)
+        return Object.getPrototypeOf(this).getGreeting.call(this) + ", hi!";
+    }
+};
+
+console.log(friend.getGreeting());                      // "Hello, hi!"
+console.log(Object.getPrototypeOf(friend) === person);  // true
+console.log(friend.__proto__ === person);               // true
+
+// set prototype to dog
+friend.__proto__ = dog;
+console.log(friend.getGreeting());                      // "Woof, hi!"
+console.log(friend.__proto__ === dog);                  // true
+console.log(Object.getPrototypeOf(friend) === dog);     // true
+\end{JavaScript}
+
+在这个代码中，需要注意的是通过\lstinline$Object.getPrototypeOf()$来获取\lstinline$[[prototype]]$，通过\lstinline$call(this)$来保证方法执行时this能够被正确的设定，这个时候的this是当前对象而不是他的原型。
+
+\begin{JavaScript}[ecma6中简单的使用super就可以达到上面的效果了]
+let friend = {
+    __proto__: person,
+    getGreeting() {
+        // same as Object.getPrototypeOf(this).getGreeting.call(this)
+        // or this.__proto__.getGreeting.call(this)
+        return super.getGreeting() + ", hi!";
+    }
+};
+\end{JavaScript}
+
+调用\lstinline$super.getGreeting.call(this)$的效果和调用\lstinline$Object.getPrototypeOf(this).getGreeting.call(this)$与\lstinline$this.__proto__.getGreeting.call(this)$的效果是一样的. 
+
+如果调用的方法的名字是一样的，那么可以直接使用\lstinline$super()$来调用。
+
+\begin{JavaScript}
+let friend = {
+    __proto__: person,
+    getGreeting() {
+        // same as Object.getPrototypeOf(this).getGreeting.call(this)
+        // or this.__proto__.getGreeting.call(this)
+        // or super.getGreeting()
+        return super() + ", hi!";
+    }
+};
+\end{JavaScript}
+
+实际效果是\lstinline$super()$使用containing function的name属性作为名字来查找正确的方法。
+
+\begin{JavaScript}
+//此处应该有代码来说明上面的观点.
+\end{JavaScript}
+
+super只能在function内使用,而不能在全局范围使用.
+
+
+\subsection{Method}
+
+ECMA6之前是没有method的正式概念的，method就是对象的属性的值是一个function。而在ECMA6中正式定义了method，method就是有\lstinline$[[HomeObject]]$的function，这个属性的值是method的拥有者。
+
+\begin{JavaScript}
+let person = {
+
+    // method
+    getGreeting() {
+        return "Hello";
+    }
+};
+
+// not a method
+function shareGreeting() {
+    return "Hi!";
+}
+\end{JavaScript}
+
+\lstinline$[[HomeObject]]$和super有着密切的关系，super使用\lstinline$[[HomeObject]]$来决定怎么做，第一步，对\lstinline$[[HomeObject]]$调用\lstinline$Object.getPrototypeOf()$来获取原型的引用，接着，使用executing function的名字来找到对应的要被执行的function.接着设定this并执行method。
+
+\begin{JavaScript}
+let person = {
+    getGreeting() {
+        return "Hello";
+    }
+};
+
+// prototype is person
+let friend = {
+    __proto__: person,
+    getGreeting() {
+        return super() + ", hi!";
+    }
+};
+
+function getGlobalGreeting() {
+    return super.getGreeting() + ", yo!";
+}
+
+console.log(friend.getGreeting());  // "Hello, hi!"
+
+getGlobalGreeting();                      // throws error
+\end{JavaScript}
+
+\begin{JavaScript}
+//这里需要大量代码来说明上面的问题。
+\end{JavaScript}
+
+每个function都有一个\lstinline$toMethod()$的方法来生成一个相同版本的function，他的\lstinline$[[HomeObject]]$被指定为新的对象。
+(此处需要读文档，看看是是不是新创建了一个function，他的\lstinline$[[Code]]$和原来function一样,\lstinline$[[Scope]]$和原来的function一样，这样就保证了代码和Scope Chain是一样的。）
+\begin{JavaScript}
+// 也许需要代码来说明
+\end{JavaScript}
+
+这里可以看到this和super有一个很大的区别，this是在运行时决定他的取值，而super是在function被创建的时候就决定好了。\lstinline$[[HomeObject]]$在创建之后就不能被改变了。所以对于super的使用，如果function被传递来传递去的话，很难搞清楚这个是super到底是什么值了。因此最好不要再对象被创建之后在上面删除或者添加方法。如果一定要这么做，可以使用\lstinline$toMethod()$方法来指定新的\lstinline$[[HomeObject]]$.
+
+\begin{JavaScript}
+//需不需要代码带说明一下呢？
+\end{JavaScript}
+
 \section{Symbol}
+
+
+
+
