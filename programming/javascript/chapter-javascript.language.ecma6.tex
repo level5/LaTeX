@@ -561,5 +561,86 @@ getGlobalGreeting();                      // throws error
 \section{Symbol}
 
 
+\section{Collections}
 
+\subsection{Set}
+
+\begin{JavaScript}
+
+var set = new Set([1,2,3,4,5]);
+
+set.add(1);
+
+set.add("1");
+
+set.delete(1);
+
+set.has("1");
+
+var array = Array.from(set);
+
+\end{JavaScript}
+
+
+\subsection{Map}
+
+\begin{JavaScript}
+
+    // 二维数组作为参数
+    var map = new Map([["name", "Nicholas"], ["title", "Author"]]);
+
+    for (let key of map.keys()) {
+        console.log("Key: %s", key);
+    }
+
+    for (let value of map.values()) {
+        console.log("Value: %s", value);
+    }
+
+    for (let item of map.entries()) {
+        console.log("Key: %s, Value: %s", item[0], item[1]);
+    }
+
+    // same as using map.entries()
+    for (let item of map) {
+        console.log("Key: %s, Value: %s", item[0], item[1]);
+    }
+    
+    map.forEach(function(value, key, map)) {
+        console.log("Key: %s, Value: %s", key, value);
+    });
+    
+    // 可以绑定this
+    var reporter = {
+        report: function(key, value) {
+            console.log("Key: %s, Value: %s", key, value);
+        }
+    };
+
+    map.forEach(function(value, key, map) {
+        this.report(key, value);
+    }, reporter);
+
+\end{JavaScript}
+
+
+\begin{JavaScript}[如果使用对象，需要过滤掉prototype上的属性以及method]
+    for (let key in object) {
+
+        // make sure it's not from the prototype or a function!
+        if (object.hasOwnProperty(key) && typeof object[key] !== "function") {
+            console.log("Key: %s, Value: %s", key, object[key]);
+        }
+
+    }
+\end{JavaScript}
+
+
+\subsection{Weakmaps}
+
+A weakmap holds only a weak reference to a key, which means the reference inside of the weakmap doesn't prevent garbage collection of that object. When the object is destroyed by the garbage collector, the weakmap automatically removes the key-value pair identified by that object. 
+
+\begin{JavaScript}
+
+\end{JavaScript}
 
