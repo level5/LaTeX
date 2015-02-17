@@ -1,0 +1,90 @@
+\section{Toturial}
+
+\subsection{bootstrap}
+
+\begin{HTML5}[app/index.html]
+<!doctype html>
+<html lang="en" ng-app>
+<head>
+  <meta charset="utf-8">
+  <title>My HTML File</title>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="bower_components/angular/angular.js"></script>
+</head>
+<body>
+
+  <p>Nothing here {{'yet' + '!'}}</p>
+
+</body>
+</html>
+\end{HTML5}
+
+
+\subsubsection{directive}
+
+\begin{HTML5}[ng-app]
+<html ng-app>
+\end{HTML5}
+
+The ng-app attribute represents an Angular directive named ngApp (Angular uses spinal-case for its custom attributes and camelCase for the corresponding directives which implement them). This directive is used to flag the html element that Angular should consider to be the root element of our application. This gives application developers the freedom to tell Angular if the entire html page or only a portion of it should be treated as the Angular application.
+
+
+ng-app对应名字为ngApp的directive(spinal-case对应camelCase).
+
+告诉AngularJs这个节点应该被当做应用的root element。
+
+\subsubsection{angular.js}
+
+\begin{HTML5}[ng-app]
+<script src="bower_components/angular/angular.js">
+\end{HTML5}
+
+This code downloads the angular.js script and registers a callback that will be executed by the browser when the containing HTML page is fully downloaded. When the callback is executed, Angular looks for the ngApp directive. If Angular finds the directive, it will bootstrap the application with the root of the application DOM being the element on which the ngApp directive was defined.
+
+
+
+\subsubsection{expresson}
+
+\begin{HTML5}[ng-app]
+Nothing here {{'yet' + '!'}}
+\end{HTML5}
+
+表达式，每次值发生变化的时候都会改变。
+
+
+\subsubsection{bootstrap}
+
+Bootstrapping AngularJS apps automatically using the ngApp directive is very easy and suitable for most cases. In advanced cases, such as when using script loaders, you can use imperative / manual way to bootstrap the app.
+
+
+There are 3 important things that happen during the app bootstrap:
+
+\begin{itemize}
+
+\item The injector that will be used for dependency injection is created.
+
+\item The injector will then create the root scope that will become the context for the model of our application.
+
+\item Angular will then "compile" the DOM starting at the ngApp root element, processing any directives and bindings found along the way.
+
+\end{itemize}
+
+
+
+Once an application is bootstrapped, it will then wait for incoming browser events (such as mouse click, key press or incoming HTTP response) that might change the model. Once such an event occurs, Angular detects if it caused any model changes and if changes are found, Angular will reflect them in the view by updating all of the affected bindings.
+
+The structure of our application is currently very simple. The template contains just one directive and one static binding, and our model is empty. That will soon change!
+
+
+在bootstrap的过程中发生的3个重要的事情:
+\begin{itemize}
+\item injector会被创建，用来对依赖关系的注入。
+\item injector会创建root scope， 用作我们应用的model的上下文。
+\item Angular会编译ngApp的DOM，处理所有的directives和bindings
+\end{itemize}
+
+一旦App启动之后，他将等待所有的browser events，一旦这些事件发生，Angular会检测这些事件是否导致model发生变化。一旦发生变化，Angular会将这些变化反映到有效的绑定上。
+
+
+
