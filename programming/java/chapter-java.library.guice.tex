@@ -1,0 +1,306 @@
+\chapter{Guice}
+
+\section{动机}
+
+\subsection{直接构建}
+
+先通过一个例子来说明一下为啥要用DI。这里是一个Pizza订购的网站服务。
+
+\begin{Java}[服务接口定义]
+public interface BillingService {
+
+  /**
+   * Attempts to charge the order to the credit card. Both successful and
+   * failed transactions will be recorded.
+   *
+   * @return a receipt of the transaction. If the charge was successful, the
+   *      receipt will be successful. Otherwise, the receipt will contain a
+   *      decline note describing why the charge failed.
+   */
+  Receipt chargeOrder(PizzaOrder order, CreditCard creditCard);
+}
+\end{Java}
+
+\begin{Java}[服务接口的具体实现]
+public class RealBillingService implements BillingService {
+  public Receipt chargeOrder(PizzaOrder order, CreditCard creditCard) {
+    CreditCardProcessor processor = new PaypalCreditCardProcessor();
+    TransactionLog transactionLog = new DatabaseTransactionLog();
+
+    try {
+      ChargeResult result = processor.charge(creditCard, order.getAmount());
+      transactionLog.logChargeResult(result);
+
+      return result.wasSuccessful()
+          ? Receipt.forSuccessfulCharge(order.getAmount())
+          : Receipt.forDeclinedCharge(result.getDeclineMessage());
+     } catch (UnreachableException e) {
+      transactionLog.logConnectException(e);
+      return Receipt.forSystemFailure(e.getMessage());
+    }
+  }
+}
+\end{Java}
+
+这个时候整个代码是无法测试的。
+
+\subsection{工厂}
+
+如果我们该用Factory模式来重构上面的代码。加入一个Factory类。
+
+\begin{Java}[CreditCardProcessor的工厂]
+public class CreditCardProcessorFactory {
+
+  private static CreditCardProcessor instance;
+
+  public static void setInstance(CreditCardProcessor processor) {
+    instance = processor;
+  }
+
+  public static CreditCardProcessor getInstance() {
+    if (instance == null) {
+      return new SquareCreditCardProcessor();
+    }
+
+    return instance;
+  }
+}
+\end{Java}
+
+\begin{Java}[使用Factory的服务实现]
+public class RealBillingService implements BillingService {
+  public Receipt chargeOrder(PizzaOrder order, CreditCard creditCard) {
+    CreditCardProcessor processor = CreditCardProcessorFactory.getInstance();
+    TransactionLog transactionLog = TransactionLogFactory.getInstance();
+
+    try {
+      ChargeResult result = processor.charge(creditCard, order.getAmount());
+      transactionLog.logChargeResult(result);
+
+      return result.wasSuccessful()
+          ? Receipt.forSuccessfulCharge(order.getAmount())
+          : Receipt.forDeclinedCharge(result.getDeclineMessage());
+     } catch (UnreachableException e) {
+      transactionLog.logConnectException(e);
+      return Receipt.forSystemFailure(e.getMessage());
+    }
+  }
+}
+\end{Java}
+
+此时，我们能够添加相应的测试代码了。
+
+\begin{Java}[单元测试]
+public class RealBillingServiceTest extends TestCase {
+
+  private final PizzaOrder order = new PizzaOrder(100);
+  private final CreditCard creditCard = new CreditCard("1234", 11, 2010);
+
+  private final InMemoryTransactionLog transactionLog = new InMemoryTransactionLog();
+  private final FakeCreditCardProcessor processor = new FakeCreditCardProcessor();
+
+  @Override public void setUp() {
+    TransactionLogFactory.setInstance(transactionLog);
+    CreditCardProcessorFactory.setInstance(processor);
+  }
+
+  @Override public void tearDown() {
+    TransactionLogFactory.setInstance(null);
+    CreditCardProcessorFactory.setInstance(null);
+  }
+
+  public void testSuccessfulCharge() {
+    RealBillingService billingService = new RealBillingService();
+    Receipt receipt = billingService.chargeOrder(order, creditCard);
+
+    assertTrue(receipt.hasSuccessfulCharge());
+    assertEquals(100, receipt.getAmountOfCharge());
+    assertEquals(creditCard, processor.getCardOfOnlyCharge());
+    assertEquals(100, processor.getAmountOfOnlyCharge());
+    assertTrue(transactionLog.wasSuccessLogged());
+  }
+}
+\end{Java}
+
+同样，这个代码其实是很有问题的，我们必须特别小心的setting和tearing down。如果teardown失败了。全局变量会保留在这个地方设定的值。而且使用全局变量的没有办法多测试并行运行。
+
+But the biggest problem is that the dependencies are hidden in the code. If we add a dependency on a CreditCardFraudTracker, we have to re-run the tests to find out which ones will break. Should we forget to initialize a factory for a production service, we don't find out until a charge is attempted. As the application grows, babysitting factories becomes a growing drain on productivity.
+
+
+\subsection{依赖注入}
+
+\begin{Java}[服务的具体实现不再负责对象的依赖]
+public class RealBillingService implements BillingService {
+  private final CreditCardProcessor processor;
+  private final TransactionLog transactionLog;
+
+  public RealBillingService(CreditCardProcessor processor, 
+      TransactionLog transactionLog) {
+    this.processor = processor;
+    this.transactionLog = transactionLog;
+  }
+
+  public Receipt chargeOrder(PizzaOrder order, CreditCard creditCard) {
+    try {
+      ChargeResult result = processor.charge(creditCard, order.getAmount());
+      transactionLog.logChargeResult(result);
+
+      return result.wasSuccessful()
+          ? Receipt.forSuccessfulCharge(order.getAmount())
+          : Receipt.forDeclinedCharge(result.getDeclineMessage());
+     } catch (UnreachableException e) {
+      transactionLog.logConnectException(e);
+      return Receipt.forSystemFailure(e.getMessage());
+    }
+  }
+}
+\end{Java}
+
+\begin{Java}[我们不再需要工厂了]
+public class RealBillingServiceTest extends TestCase {
+
+  private final PizzaOrder order = new PizzaOrder(100);
+  private final CreditCard creditCard = new CreditCard("1234", 11, 2010);
+
+  private final InMemoryTransactionLog transactionLog = new InMemoryTransactionLog();
+  private final FakeCreditCardProcessor processor = new FakeCreditCardProcessor();
+
+  public void testSuccessfulCharge() {
+    RealBillingService billingService
+        = new RealBillingService(processor, transactionLog);
+    Receipt receipt = billingService.chargeOrder(order, creditCard);
+
+    assertTrue(receipt.hasSuccessfulCharge());
+    assertEquals(100, receipt.getAmountOfCharge());
+    assertEquals(creditCard, processor.getCardOfOnlyCharge());
+    assertEquals(100, processor.getAmountOfOnlyCharge());
+    assertTrue(transactionLog.wasSuccessLogged());
+  }
+}
+\end{Java}
+
+\begin{Java}[问题出现了，我们需要在顶级代码中处理依赖]
+  public static void main(String[] args) {
+    CreditCardProcessor processor = new PaypalCreditCardProcessor();
+    TransactionLog transactionLog = new DatabaseTransactionLog();
+    BillingService billingService
+        = new RealBillingService(processor, transactionLog);
+    ...
+  }
+\end{Java}
+
+\subsection{使用Guice进行依赖注入}
+
+这个时候可以使用Guice来完成这部分的工作。
+
+\begin{Java}[通过configure来指定如果生成对象]
+public class BillingModule extends AbstractModule {
+  @Override 
+  protected void configure() {
+    bind(TransactionLog.class).to(DatabaseTransactionLog.class);
+    bind(CreditCardProcessor.class).to(PaypalCreditCardProcessor.class);
+    bind(BillingService.class).to(RealBillingService.class);
+  }
+}
+\end{Java}
+
+
+\begin{Java}[然后可以这样来实现依赖注入，使用@Inject注解]
+public class RealBillingService implements BillingService {
+  private final CreditCardProcessor processor;
+  private final TransactionLog transactionLog;
+
+  @Inject
+  public RealBillingService(CreditCardProcessor processor,
+      TransactionLog transactionLog) {
+    this.processor = processor;
+    this.transactionLog = transactionLog;
+  }
+
+  public Receipt chargeOrder(PizzaOrder order, CreditCard creditCard) {
+    try {
+      ChargeResult result = processor.charge(creditCard, order.getAmount());
+      transactionLog.logChargeResult(result);
+
+      return result.wasSuccessful()
+          ? Receipt.forSuccessfulCharge(order.getAmount())
+          : Receipt.forDeclinedCharge(result.getDeclineMessage());
+     } catch (UnreachableException e) {
+      transactionLog.logConnectException(e);
+      return Receipt.forSystemFailure(e.getMessage());
+    }
+  }
+}
+\end{Java}
+
+\begin{Java}[这样在顶层只需要这样]
+  public static void main(String[] args) {
+    Injector injector = Guice.createInjector(new BillingModule());
+    BillingService billingService = injector.getInstance(BillingService.class);
+    ...
+  }
+\end{Java}
+
+
+\section{Getting Started}
+
+\subsubsection{object graph}
+通过构造函数来接受依赖，那么在构造对象之前，需要先构造他所依赖的对象，而在构造他所依赖的对象之前，又需要将依赖对象所依赖的对象先构建。这样就需要构建一个对象图（Object Graph）.
+
+\subsubsection{使用}
+
+\begin{Java}[使用@Inject来告诉Guice通过构造函数构造]
+class BillingService {
+  private final CreditCardProcessor processor;
+  private final TransactionLog transactionLog;
+
+  @Inject
+  BillingService(CreditCardProcessor processor, 
+      TransactionLog transactionLog) {
+    this.processor = processor;
+    this.transactionLog = transactionLog;
+  }
+
+  public Receipt chargeOrder(PizzaOrder order, CreditCard creditCard) {
+    ...
+  }
+}
+\end{Java}
+
+\begin{Java}[通过AbstractModule的子类来配置binding]
+public class BillingModule extends AbstractModule {
+  @Override 
+  protected void configure() {
+
+     /*
+      * This tells Guice that whenever it sees a dependency on a TransactionLog,
+      * it should satisfy the dependency using a DatabaseTransactionLog.
+      */
+    bind(TransactionLog.class).to(DatabaseTransactionLog.class);
+
+     /*
+      * Similarly, this binding tells Guice that when CreditCardProcessor is used in
+      * a dependency, that should be satisfied with a PaypalCreditCardProcessor.
+      */
+    bind(CreditCardProcessor.class).to(PaypalCreditCardProcessor.class);
+  }
+}
+\end{Java}
+
+\begin{Java}[获取Guice的Object-Graph Builder]
+ public static void main(String[] args) {
+    /*
+     * Guice.createInjector() takes your Modules, and returns a new Injector
+     * instance. Most applications will call this method exactly once, in their
+     * main() method.
+     */
+    Injector injector = Guice.createInjector(new BillingModule());
+
+    /*
+     * Now that we've got the injector, we can build objects.
+     */
+    BillingService billingService = injector.getInstance(BillingService.class);
+    ...
+  }
+\end{Java}
+
