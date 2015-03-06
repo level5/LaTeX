@@ -1,5 +1,9 @@
 \chapter{Guice}
 
+\section{准备知识}
+
+\subsection{annotation}
+
 \section{动机}
 
 \subsection{直接构建}
@@ -303,4 +307,234 @@ public class BillingModule extends AbstractModule {
     ...
   }
 \end{Java}
+
+\section{Bindings}
+
+\subsection{linked bindings}
+
+\begin{Java}[map一个接口到他的实现]
+public class BillingModule extends AbstractModule {
+  @Override 
+  protected void configure() {
+    bind(TransactionLog.class).to(DatabaseTransactionLog.class);
+  }
+}
+\end{Java}
+
+
+\begin{Java}[可以link一个类型的实例或者他的子类型]
+bind(DatabaseTransactionLog.class).to(MySqlDatabaseTransactionLog.class);
+\end{Java}
+
+
+\begin{Java}[link可以chain]
+public class BillingModule extends AbstractModule {
+  @Override 
+  protected void configure() {
+    bind(TransactionLog.class).to(DatabaseTransactionLog.class);
+    bind(DatabaseTransactionLog.class).to(MySqlDatabaseTransactionLog.class);
+  }
+}
+\end{Java}
+这个例子中TransactionLog绑定到DatabaseTransactionLog， DatabaseTransactionLog又绑定到MySqlDatabaseTransactionLog。这样取得TransactionLog时，得到的是一个MySqlDatabaseTransactionLog的实例。
+
+
+\subsection{BindingAnnotations}
+
+\subsubsection{Binding Annotation}
+当想将多个绑定到一个类型是，我们可以这么做。
+
+\begin{Java}[声明一个annotation]
+package example.pizza;
+
+import com.google.inject.BindingAnnotation;
+import java.lang.annotation.Target;
+import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+
+@BindingAnnotation @Target({ FIELD, PARAMETER, METHOD }) @Retention(RUNTIME)
+public @interface PayPal {}
+\end{Java}
+
+这其中：
+\begin{itemize}
+\item @BindingAnnotation 告诉Guice这是一个binding annotation，这样当多个biding应用到同一个成员，Guice可以抛错
+\item @Target({FIELD, PARAMETER, METHOD})阻止@PayPal被使用到不正确的地方
+\item @Retention(RUNTIME) 保证@PayPal运行时可用
+\end{itemize}
+
+\begin{Java}[接着可以这样注入]
+public class RealBillingService implements BillingService {
+
+  @Inject
+  public RealBillingService(@PayPal CreditCardProcessor processor,
+      TransactionLog transactionLog) {
+    ...
+  }
+\end{Java}
+
+\begin{Java}[应该这样来binding]
+    bind(CreditCardProcessor.class)
+        .annotatedWith(PayPal.class)
+        .to(PayPalCreditCardProcessor.class);
+\end{Java}
+
+\subsubsection{@Named}
+内建binding annotation @Named
+\begin{Java}
+public class RealBillingService implements BillingService {
+
+  @Inject
+  public RealBillingService(@Named("Checkout") CreditCardProcessor processor,
+      TransactionLog transactionLog) {
+    ...
+  }
+\end{Java}
+
+\begin{Java}
+    bind(CreditCardProcessor.class)
+        .annotatedWith(Names.named("Checkout"))
+        .to(CheckoutCreditCardProcessor.class);
+\end{Java}
+
+\subsection{instance bindings}
+一般用于绑定自身没有依赖的值类型对象
+
+\begin{Java}
+    bind(String.class)
+        .annotatedWith(Names.named("JDBC URL"))
+        .toInstance("jdbc:mysql://localhost/pizza");
+    bind(Integer.class)
+        .annotatedWith(Names.named("login timeout seconds"))
+        .toInstance(10);
+\end{Java}
+
+不要使用toInstance来创建复杂的对象，这样会导致应用启动缓慢。如果要创建复杂对象，应该使用@provides来代替。
+
+
+\subsection{@Provides Method}
+
+当你需要使用代码来创建对象时，使用@Provides方法，这个方法必须定义在一个module里面，而且他必须有一个@Proivdes的注解。方法的返回类型就是约束类型。当injector需要一个这个类型的实例是，就会调用这个方法。
+
+\begin{Java}
+public class BillingModule extends AbstractModule {
+  @Override
+  protected void configure() {
+    ...
+  }
+
+  @Provides
+  TransactionLog provideTransactionLog() {
+    DatabaseTransactionLog transactionLog = new DatabaseTransactionLog();
+    transactionLog.setJdbcUrl("jdbc:mysql://localhost/pizza");
+    transactionLog.setThreadPoolSize(30);
+    return transactionLog;
+  }
+}
+\end{Java}
+
+
+\begin{Java}[同样可以使用binding annotation和依赖注入]
+  @Provides @PayPal
+  CreditCardProcessor providePayPalCreditCardProcessor(
+      @Named("PayPal API key") String apiKey) {
+    PayPalCreditCardProcessor processor = new PayPalCreditCardProcessor();
+    processor.setApiKey(apiKey);
+    return processor;
+  }
+\end{Java}
+
+
+Guice does not allow exceptions to be thrown from Providers.
+
+\subsection{Provider}
+
+\begin{Java}[Provider接口]
+public interface Provider<T> {
+  T get();
+}
+\end{Java}
+
+当@Provides变得复杂起来。可以移出来到独立的类中，实现Provider接口。
+
+
+\begin{Java}[Provider可以通过Inject构造函数来注入依赖]
+public class DatabaseTransactionLogProvider implements Provider<TransactionLog> {
+  private final Connection connection;
+
+  @Inject
+  public DatabaseTransactionLogProvider(Connection connection) {
+    this.connection = connection;
+  }
+
+  public TransactionLog get() {
+    DatabaseTransactionLog transactionLog = new DatabaseTransactionLog();
+    transactionLog.setConnection(connection);
+    return transactionLog;
+  }
+}
+\end{Java}
+
+\begin{Java}[最后通过toProvider来绑定]
+public class BillingModule extends AbstractModule {
+  @Override
+  protected void configure() {
+    bind(TransactionLog.class)
+        .toProvider(DatabaseTransactionLogProvider.class);
+  }
+\end{Java}
+
+Guice does not allow exceptions to be thrown from Providers. The Provider interface does not allow for checked exception to be thrown. RuntimeExceptions may be wrapped in a ProvisionException or CreationException and may prevent your Injector from being created.
+
+
+\subsection{Just-in-Time Binding}
+
+\begin{Java}[Guice可以为具体的类型创建绑定]
+public class PayPalCreditCardProcessor implements CreditCardProcessor {
+  private final String apiKey;
+
+  @Inject
+  public PayPalCreditCardProcessor(@Named("PayPal API key") String apiKey) {
+    this.apiKey = apiKey;
+  }
+\end{Java}
+
+
+\begin{Java}[使用@ImplementedBy来制定类型的默认实现]
+@ImplementedBy(PayPalCreditCardProcessor.class)
+public interface CreditCardProcessor {
+  ChargeResult charge(String amount, CreditCard creditCard)
+      throws UnreachableException;
+}
+\end{Java}
+
+
+\begin{Java}[上面的代码等价于]
+bind(CreditCardProcessor.class).to(PayPalCreditCardProcessor.class);
+\end{Java}
+
+\begin{Java}[@ProvidedBy来指定类型对应的Provider]
+@ProvidedBy(DatabaseTransactionLogProvider.class)
+public interface TransactionLog {
+  void logConnectException(UnreachableException e);
+  void logChargeResult(ChargeResult result);
+}
+\end{Java}
+
+
+\begin{Java}[上面等价于]
+    bind(TransactionLog.class)
+        .toProvider(DatabaseTransactionLogProvider.class);
+\end{Java}
+
+
+\section{Scope}
+
+\section{Injections}
+
+
+\section{AOP}
 
