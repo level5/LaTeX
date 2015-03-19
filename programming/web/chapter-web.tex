@@ -1,6 +1,6 @@
 \chapter{Web}
 
-\subsubsection{Cookies}
+\section{Cookies}
 
 http://www.nczonline.net/blog/2009/05/05/http-cookies-explained/
 
@@ -95,7 +95,7 @@ httpOnly选项是的javascript无法访问当前这个cookie。
 \item iframe tag包含的html文件
 \end{itemize}
 
-对于第三方server，可以根据请求头中包含的Referer头来判断这个请求是从哪个site过来的。服务器可以使用一个特定的cookie来表示这个请求页面，如果同一个资源从另外一个页面请求过来，cookie也会随着请求一起放松过来。这样第三方服务器就能够知道访问Site A的用户同时也访问了Site B。这是在线广告使用的一种技术。
+对于第三方server，可以根据请求头中包含的Referer头来判断这个请求是从哪个site过来的。服务器可以使用一个特定的cookie来表示这个请求页面，如果同一个资源从另外一个页面请求过来，cookie也会随着请求一起发送过来。这样第三方服务器就能够知道访问Site A的用户同时也访问了Site B。这是在线广告使用的一种技术。
 
 
 \paragraph{Cookie Stealing \& XSS} Cookie偷取 cross-site scripting attack
@@ -138,7 +138,7 @@ CSRF很难track，所以阻止是关键。
 \item Cookies that validate users in systems with sensitive data should have a short expiration time.
 \end{itemize}
 
-\subsubsection{authentication with a REST API}
+\section{authentication with a REST API}
 http://stackoverflow.com/questions/15051712/how-to-do-authentication-with-a-rest-api-right-browser-native-clients
 
 \paragraph{HTTP session Vs. stateless auth token} what's the difference?
@@ -166,6 +166,88 @@ stateless auth token:
 
 \section{SSE} Server-Sent Event(服务端推送事件)
 
+\section{CORS} 跨源资源共享(Cross-Origin Resource Sharing)
+
+使用场景：
+\begin{itemize}
+\item XMLHttpRequest发起跨站HTTP请求
+\item Web字体
+\item WebGL贴图
+\item 使用drawImage API在canvas上画图
+\end{itemize}
 
 
+\subsection{场景}
+
+\subsubsection*{简单请求}
+
+什么是简单请求：
+\begin{itemize}
+\item 只使用 GET, HEAD 或者 POST 请求方法。如果使用 POST 向服务器端传送数据，则数据类型(Content-Type)只能是 application/x-www-form-urlencoded, multipart/form-data 或 text/plain中的一种。
+\item 不会使用自定义请求头（类似于 X-Modified 这种）。
+\end{itemize}
+
+从http://foo.example想要访问 http://bar.other的资源
+
+\begin{JavaScript}
+var invocation = new XMLHttpRequest();
+var url = 'http://bar.other/resources/public-data/';
+   
+function callOtherDomain() {
+  if(invocation) {    
+    invocation.open('GET', url, true);
+    invocation.onreadystatechange = handler;
+    invocation.send(); 
+  }
+}
+\end{JavaScript}
+
+\begin{HTML5}
+GET /resources/public-data/ HTTP/1.1
+Host: bar.other
+User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1b3pre) Gecko/20081130 Minefield/3.1b3pre
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Connection: keep-alive
+Referer: http://foo.example/examples/access-control/simpleXSInvocation.html
+Origin: http://foo.example
+
+
+HTTP/1.1 200 OK
+Date: Mon, 01 Dec 2008 00:23:53 GMT
+Server: Apache/2.0.61 
+Access-Control-Allow-Origin: *
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: application/xml
+
+[XML Data]
+\end{HTML5}
+
+
+\subsubsection{预请求}
+
+预请求必须先发送一个OPTIONS请求给目的站点，来查明这个跨站请求对于目的网站是不是安全可接受的。这么做，是因为跨站请求可能会对目的站点的数据造成破坏。
+
+什么是预请求：
+\begin{itemize}
+\item 请求以 GET, HEAD 或者 POST 以外的方法发起请求。或者，使用 POST，但请求数据为 application/x-www-form-urlencoded, multipart/form-data 或者 text/plain 以外的数据类型。比如说，用 POST 发送数据类型为 application/xml 或者 text/xml 的 XML 数据的请求。
+\item
+\end{itemize}
+
+
+\subsubsection{使得Jersey支持跨域访问}
+
+\begin{itemize}
+\item 对于预请求，需要处理Option Method的请求
+\item 添加对应的HTTP头
+\end{itemize}
+
+
+\subsubsection{No error information provided to onerror handler}
+
+在firefox中，使用XMLHttpRequest的onerror，status等于0， 也无法取得error信息。这是规范定义的。这里我的理解之前有点错误，这里的error是指的OPTIONS请求2XX以外的返回，以及后面正真请求的错误（比如没有提供Access-Control-Allow_Origin header）这种错误才不能够取得。
 
