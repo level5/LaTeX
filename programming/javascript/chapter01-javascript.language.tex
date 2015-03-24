@@ -744,7 +744,12 @@ GetIdentifierReference (lex, name, strict)算法
 
 \subsection{调用函数的过程}
 \subsubsection{函数被调用，关注this的值}
-当解析的reference type的的base是对象，这个对象就被当做this；
+
+这里先会evaluate表达式，得到一个ref，
+
+当ref不是reference type的时候，this被设定为undefined（我的感觉比如匿名函数表达式，返回的就是一个function对象。）
+
+当ref是reference type的时候，解析的reference type的的base是对象，这个对象就被当做this。
 
 当reference type的base是Environment Record，则看看他是不是提供this值，如果提供就传入，否则传入undefined
 

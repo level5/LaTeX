@@ -729,7 +729,7 @@ shim需要注意的内容：
 \begin{itemize}
 \item shim config只是配置了code的关系，为了加载使用shim config的module，需要调用require/define。设置shim不会触发code的加载。
 \item Only use other "shim" modules as dependencies for shimmed scripts, or AMD libraries that have no dependencies and call define() after they also create a global (like jQuery or lodash). Otherwise, if you use an AMD module as a dependency for a shim config module, after a build, that AMD module may not be evaluated until after the shimmed code in the build executes, and an error will occur. The ultimate fix is to upgrade all the shimmed code to have optional AMD define() calls.
-\end{itemize}
+
 \item shimed的script只能依赖shim modules，或者是那些没有依赖，并且盗用define()后创建全局对象。否则如果你使用AMD module作为依赖的话，AMD module可能在你使用shimmed code的时候还没有执行。
 
 \item If it is not possible to upgrade the shimmed code to use AMD define() calls, as of RequireJS 2.1.11, the optimizer has a wrapShim build option that will try to automatically wrap the shimmed code in a define() for a build. This changes the scope of shimmed dependencies, so it is not guaranteed to always work, but, for example, for shimmed dependencies that depend on an AMD version of Backbone, it can be helpful.
@@ -739,7 +739,7 @@ shim需要注意的内容：
 \item Shim config is not supported when running AMD modules in node via RequireJS (it works for optimizer use though). Depending on the module being shimmed, it may fail in Node because Node does not have the same global environment as browsers. As of RequireJS 2.1.7, it will warn you in the console that shim config is not supported, and it may or may not work. If you wish to suppress that message, you can pass requirejs.config({ suppress: { nodeShim: true }});.
 
 
-
+\end{itemize}
 Important optimizer notes for "shim" config:
 \begin{itemize}
 \item You should use the mainConfigFile build option to specify the file where to find the shim config. Otherwise the optimizer will not know of the shim config. The other option is to duplicate the shim config in the build profile.

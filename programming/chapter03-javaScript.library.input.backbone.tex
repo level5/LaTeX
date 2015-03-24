@@ -1,9 +1,8 @@
-   \section{Backbone.js}
-        这是一个轻量级的MVP框架.分析一下源码.
+\section{Backbone.js}
 
-        \subsection{加载}
+\subsection{加载}
         
-        \begin{lstlisting}
+\begin{JavaScript}
 (function(root, factory) {
 
   // Set up Backbone appropriately for the environment. Start with AMD.
@@ -27,16 +26,25 @@
 }(this, function(root, Backbone, _, $) {
     ...
 }));
-        \end{lstlisting}
+\end{JavaScript}
+在这段代码中，给匿名函数传入两个参数，root就是全局对象。传入的是this，js规范中，对于匿名函数的来说this是undefined,所以直接引用了global object。
 
-    在这段代码中，定义的匿名函数是用来在各种不同的情况下加载加载Backbone. 在支持AMD的情况，在Node.js，在browser中。factory这个函数才是定义Backbone的地方。接着让我们看看factory函数。
+定义的匿名函数是用来在各种不同的环境下加载Backbone. 
+\begin{itemize}
+\item 第一个分支，通过define和define.amd属性来判断，在AMD环境下（如requireJS）,这个时候，任然在root上面定义Backbone全局变量。
 
+这里requireJS也是使用CommonJS规范的格式，exports是要导出的module。
 
-    在factory函数的开始，是一些基本的设置，如版本，引用一些常用的方法，解决冲突的noConfilict。
+\item 第二个在Node下，exports也是需要导出的module
 
+\item 第三种情况就是直接在页面引入backbone脚本的方式，定义在global对象上，exports传入的是一个对象。
+\end{itemize}
 
+\subsection{构造}
 
-    \begin{lstlisting}
+\begin{JavaScript}[factory方法]
+(this, function(root, Backbone, _, $) {
+
   // Initial Setup
   // -------------
 
@@ -63,15 +71,60 @@
     root.Backbone = previousBackbone;
     return this;
   };
-    \end{lstlisting}
+  
+  // ...
+}
+\end{JavaScript}
 
+保存原有的Backbone的值，调用noConflict()的时候可以恢复原来的值。
 
-    再继续，就是Backbone的几个重要的模块了。Event，Model，Collection和View。
+保存一些常用Array的方法到local，这样应该是为了减少调用链的查找吧？？
 
-    \subsection{Event}
-    Event模块有几个很常用的方法，on, once, off, trigger. 他们都使用了一个方法eventApi。我们先来看这个方法，然后再去理解上面说到的这些方法。这个方法是用来将key-value形式的name和listener分别调用对应API。或者是空格分割的多个name。如果上述两种情况存在，就返回false，如果什么都没有做，则返回true。
+四个参数，global object和Backbone本身，两个依赖的三方库。underscore和jQuery。
 
-    \begin{lstlisting}
+后面的内容包含了Backbone的几个重要模块。Event，Model，Collection和View
+
+\subsection{Event}
+
+\begin{JavaScript}[Event模块]
+  // Backbone.Events
+  // ---------------
+
+  // A module that can be mixed in to *any object* in order to provide it with
+  // custom events. You may bind with `on` or remove with `off` callback
+  // functions to an event; `trigger`-ing an event fires all callbacks in
+  // succession.
+  //
+  //     var object = {};
+  //     _.extend(object, Backbone.Events);
+  //     object.on('expand', function(){ alert('expanded'); });
+  //     object.trigger('expand');
+  //
+  var Events = Backbone.Events = {
+
+	on: ...
+	
+	once: ...
+	
+	off: ...
+	
+	trigger: ...
+	
+	stopListening: ...
+	
+	...
+  };
+
+\end{JavaScript}
+
+\subsubsection{eventApi}
+
+Event模块有几个很常用的方法，on, once, off, trigger. 他们都使用了一个方法eventApi。这个方法是用来将key-value形式的name和listener分别调用对应API。或者是空格分割的多个name。如果上述两种情况存在，就返回false，如果什么都没有做，则返回true。
+
+\begin{JavaScript}[eventApi]
+  // Regular expression used to split event strings.
+  var eventSplitter = /\s+/;
+
   // Implement fancy features of the Events API such as multiple event
   // names `"change blur"` and jQuery-style event maps `{change: action}`
   // in terms of the existing API.
@@ -97,11 +150,232 @@
 
     return true;
   };
-    \end{lstlisting}
+\end{JavaScript}
 
-  \subsection{Model}
+这个方法是用来分解名字中的多个事件，将他们对某个api做一系列调用的。参数为obj, action, name, rest
+\begin{itemize}
+\item obj是要调用api的对象；
+\item api的名称
+\item name系列的名字的集合
+
+可能是object，那就是名字和listener对。格式为\lstinline${change: action1, blur: action2}$；
+
+可能是字符串，那就是一系列事件名称，用空格隔开，格式为\lstinline$"change blur"$；
+
+\item rest是调用api是其余的参数。
+\end{itemize}
+
+对于上面的两个例子。假设action保存的是字符串\lstinline$"addListener"$
+\begin{itemize}
+\item name是对象时。假设rest是\lstinline$[true]$
+\begin{JavaScript}
+obj.addListener("change", action1, true);
+obj.addListener("blur", action2, true);
+return false;
+\end{JavaScript}
+\item name是字符串的时候，这个时候rest就必须包含一个公用的回调函数，假设是\lstinline$[action, true]$
+\begin{JavaScript}
+obj.addListener("change", action, true);
+obj.addListener("blur", action, true);
+return false;
+\end{JavaScript}
+\end{itemize}
+
+方法的返回值是用来告诉调用函数这个方法时候做了分解为一系列调用的工作，比如如果名字就是单独的一个change，那么就会直接返回true，这个时候调用他的方法就通过返回值来知道是对单个值在做处理，需要自己来完成实际的工作。
+
+\subsubsection{on}
+\begin{JavaScript}
+    // Bind an event to a `callback` function. Passing `"all"` will bind
+    // the callback to all events fired.
+    on: function(name, callback, context) {
+      if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
+      this._events || (this._events = {});
+      var events = this._events[name] || (this._events[name] = []);
+      events.push({callback: callback, context: context, ctx: context || this});
+      return this;
+    },
+\end{JavaScript}
+通过eventApi，将name分割成单个的事件来调用on方法，执行完第2行代码跳出。
+
+当名字时单个的时候，执行第3行及以后的代码代码。
+
+第3行，初始化event列表；
+
+第4行，取得当前注册的事件在事件列表中的值，如果不存在，初始化为一个空数组；
+
+第5行，保存callback，conext和ctx(这个参数的含义不知道为什么，可能前两个只是保存参数，最后一个才是真正使用的。)；
+
+第6行，返回this，这样就可以chain。
+
+\subsubsection{once}
+
+\begin{JavaScript}
+    // Bind an event to only be triggered a single time. After the first time
+    // the callback is invoked, it will be removed.
+    once: function(name, callback, context) {
+      if (!eventsApi(this, 'once', name, [callback, context]) || !callback) return this;
+      var self = this;
+      var once = _.once(function() {
+        self.off(name, once);
+        callback.apply(this, arguments);
+      });
+      once._callback = callback;
+      return this.on(name, once, context);
+    },
+\end{JavaScript}
+
+表示只能被调用一次的回调。
+
+通过underscore的生成只能被调用一次的函数。这个只能调用一次的方法会在调用之前先使用off方法remove掉注册的事件，来保证只被调用一次。
+
+\lstinline$once._callback = callback;$这一部分不知道用意为何，是为了保存一个callback的引用吗？
+
+然后最后使用on方法来注册这个一次性的回调。
+
+\subsubsection{off}
+\begin{JavaScript}
+    // Remove one or many callbacks. If `context` is null, removes all
+    // callbacks with that function. If `callback` is null, removes all
+    // callbacks for the event. If `name` is null, removes all bound
+    // callbacks for all events.
+    off: function(name, callback, context) {
+      var retain, ev, events, names, i, l, j, k;
+      if (!this._events || !eventsApi(this, 'off', name, [callback, context])) return this;
+      if (!name && !callback && !context) {
+        this._events = void 0;
+        return this;
+      }
+      names = name ? [name] : _.keys(this._events);
+      for (i = 0, l = names.length; i < l; i++) {
+        name = names[i];
+        if (events = this._events[name]) {
+          this._events[name] = retain = [];
+          if (callback || context) {
+            for (j = 0, k = events.length; j < k; j++) {
+              ev = events[j];
+              if ((callback && callback !== ev.callback && callback !== ev.callback._callback) ||
+                  (context && context !== ev.context)) {
+                retain.push(ev);
+              }
+            }
+          }
+          if (!retain.length) delete this._events[name];
+        }
+      }
+
+      return this;
+    },
+\end{JavaScript}
+
+同样的道理第8行开始真正处理单个注册的监听名。
+
+第8 ~ 11行开始，表示不带参数的时候直接删除所有注册的监听。void 0表示undefined，这个是因为void expression就是返回undefind。
+
+第12行，生成一个名字列表，如果带了name参数，列表就只包含name，否则，列表将包含已注册的所有名字。
+
+循环下来，15行先取得已注册的callback的列表，保存到局部变量events中；
+
+第16行，如果存在已注册的callback，先清空列表（如果callback和context都不存在，那么就执行完成了）；
+
+第17行，如果有callback或者context存在。则历遍events中的所有callback。
+
+第20 ~ 21行，如果context存在，但context不一样；或者callback存在，callback不等于callback，也不等于\lstinline$_callback$ 时。就将他保存回去。
+
+第26行，如果剩下的callback个数等于0了，就将这个name的列表删除。
+
+
+测试一下，如果用不同的名字，不同的callback，相同context来注册时间，然后在使用\lstinline$event.off(undefined, undefined, context)$来删除，应该不同的callback都要被删除掉。
+
+
+\subsubsection{trigger}
+\begin{JavaScript}
+    // Trigger one or many events, firing all bound callbacks. Callbacks are
+    // passed the same arguments as `trigger` is, apart from the event name
+    // (unless you're listening on `"all"`, which will cause your callback to
+    // receive the true name of the event as the first argument).
+    trigger: function(name) {
+      if (!this._events) return this;
+      var args = slice.call(arguments, 1);
+      if (!eventsApi(this, 'trigger', name, args)) return this;
+      var events = this._events[name];
+      var allEvents = this._events.all;
+      if (events) triggerEvents(events, args);
+      if (allEvents) triggerEvents(allEvents, arguments);
+      return this;
+    },
+\end{JavaScript}
+
+\begin{JavaScript}[优化，根据参数来判断怎么执行，哈哈]
+  // A difficult-to-believe, but optimized internal dispatch function for
+  // triggering events. Tries to keep the usual cases speedy (most internal
+  // Backbone events have 3 arguments).
+  var triggerEvents = function(events, args) {
+    var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
+    switch (args.length) {
+      case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
+      case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
+      case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
+      case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
+      default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args); return;
+    }
+  };
+\end{JavaScript}
+
+没有什么特别的，将参数带上，出发同名以及all的callback。
+
+
+\subsubsection{listenTo \& listenToOnce}
+
+\begin{JavaScript}
+  var listenMethods = {listenTo: 'on', listenToOnce: 'once'};
+
+  // Inversion-of-control versions of `on` and `once`. Tell *this* object to
+  // listen to an event in another object ... keeping track of what it's
+  // listening to.
+  _.each(listenMethods, function(implementation, method) {
+    Events[method] = function(obj, name, callback) {
+      var listeningTo = this._listeningTo || (this._listeningTo = {});
+      var id = obj._listenId || (obj._listenId = _.uniqueId('l'));
+      listeningTo[id] = obj;
+      if (!callback && typeof name === 'object') callback = this;
+      obj[implementation](name, callback, this);
+      return this;
+    };
+  });
+\end{JavaScript}
+
+listenTo和listenToOnce是用来向其他对象注册监听。分别调用其他对象的on和once。
+
+第11行，表示如果name是key-value形式的事件+callback，就将this提前成context。
+
+\subsubsection{bind \& unbind}
+
+\begin{JavaScript}
+  // Aliases for backwards compatibility.
+  Events.bind   = Events.on;
+  Events.unbind = Events.off;
+\end{JavaScript}
+
+
+\begin{JavaScript}[Backbone是个全局的event bus]
+  // Allow the `Backbone` object to serve as a global event bus, for folks who
+  // want global "pubsub" in a convenient place.
+  _.extend(Backbone, Events);
+\end{JavaScript}
+
+\subsection{Model}
   这里，在第四行，给每个Model定义了一个唯一ID。第九行，将属性通过set方法赋值给model。最后，调用initialize方法，这个方法在定义自己的Model的时候可以重写，其他的行暂时不去管它，因为我现在也不知道作用。
-  \begin{lstlisting}
+\begin{JavaScript}
+  // Backbone.Model
+  // --------------
+
+  // Backbone **Models** are the basic data object in the framework --
+  // frequently representing a row in a table in a database on your server.
+  // A discrete chunk of data and a bunch of useful, related methods for
+  // performing computations and transformations on that data.
+
+  // Create a new model with the specified attributes. A client id (`cid`)
+  // is automatically generated and assigned for you.
   var Model = Backbone.Model = function(attributes, options) {
     var attrs = attributes || {};
     options || (options = {});
@@ -114,7 +388,7 @@
     this.changed = {};
     this.initialize.apply(this, arguments);
   };
-  \end{lstlisting}
+\end{JavaScript}
 
   接下来，重点看看set方法。
   \begin{lstlisting}
