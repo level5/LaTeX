@@ -1,5 +1,8 @@
 \section{Backbone.js}
 
+
+\section{例子}
+
 \subsection{加载}
         
 \begin{JavaScript}
@@ -1255,7 +1258,7 @@ reset不会触发add和remove事件，但在结束是会触发reset事件。
     },
 \end{JavaScript}
 
-\subsection{Backbone.sync}
+\subsection{sync}
 
 \begin{JavaScript}
   // Backbone.sync
@@ -1390,3 +1393,72 @@ reset不会触发add和remove事件，但在结束是会触发reset事件。
 \end{JavaScript}
 
 %$
+
+
+\subsection{Router}
+
+\subsubsection{先知道Router的作用}
+
+\subsubsection{extend}
+
+定义action，在某个匹配的URL fragment匹配时被触发。
+
+\begin{JavaScript}
+var Workspace = Backbone.Router.extend({
+
+  routes: {
+    "help":                 "help",    // #help
+    "search/:query":        "search",  // #search/kiwis
+    "search/:query/p:page": "search"   // #search/kiwis/p7
+  },
+
+  help: function() {
+    ...
+  },
+
+  search: function(query, page) {
+    ...
+  }
+
+});
+\end{JavaScript}
+
+\begin{itemize}
+\item 避免使用"/"开始router定义;
+\item 
+\end{itemize}
+
+\begin{JavaScript}
+  // Backbone.Router
+  // ---------------
+
+  // Routers map faux-URLs to actions, and fire events when routes are
+  // matched. Creating a new one sets its `routes` hash, if not set statically.
+  var Router = Backbone.Router = function(options) {
+    options || (options = {});
+    if (options.routes) this.routes = options.routes;
+    this._bindRoutes();
+    this.initialize.apply(this, arguments);
+  };
+\end{JavaScript}
+
+
+主要的逻辑在\lstinline$this._bindRoutes();$
+
+
+\begin{JavaScript}
+    // Bind all defined routes to `Backbone.history`. We have to reverse the
+    // order of the routes here to support behavior where the most general
+    // routes can be defined at the bottom of the route map.
+    _bindRoutes: function() {
+      if (!this.routes) return;
+      this.routes = _.result(this, 'routes');
+      var route, routes = _.keys(this.routes);
+      while ((route = routes.pop()) != null) {
+        this.route(route, this.routes[route]);
+      }
+    },
+\end{JavaScript}
+
+
+\subsection{History}

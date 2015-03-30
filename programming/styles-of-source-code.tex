@@ -122,6 +122,25 @@
   morecomment=[s]{/*}{*/}
 }
 
+\lstnewenvironment{CSS}[1][]
+  {\lstset{
+     language=CSS,
+     backgroundcolor=\color{lightgray},
+     extendedchars=true,
+     basicstyle=\footnotesize\ttfamily,
+     showstringspaces=false,
+     showspaces=false,
+     numbers=left,
+     numberstyle=\footnotesize,
+     numbersep=9pt,
+     tabsize=2,
+     breaklines=true,					 % sets automatic line breaking
+     showtabs=false,
+     captionpos=t,						 % sets the caption-position to top
+     caption=【CSS】#1
+  }}
+  {}
+
 
 
 \lstnewenvironment{HTML}

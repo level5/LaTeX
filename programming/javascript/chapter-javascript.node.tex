@@ -1,0 +1,61 @@
+\chapter{Node}
+
+事件驱动的非阻塞I/O.
+
+\section{模块加载}
+
+\section{异步I/O}
+
+
+\subsubsection{轮询}
+
+轮询技术：
+\begin{itemize}
+\item read 通过重复调用来检查I/O状态。
+
+\item select ？？？ 改进在哪里？？
+
+\item 
+\end{itemize}
+
+
+\subsubsection{异步编程的难点}
+
+\begin{itemize}
+\item 异常处理.
+
+Node在处理异常上形成了一种约定，将异常作为回调函数的第一个实参传回，如果为空值，
+则表明异步调用没有异常抛出
+
+\begin{JavaScript}
+async(function (err, results) {
+// TODO
+});
+\end{JavaScript}
+
+在编写异步方法时，只要将异常正确地传递给用户的回调方法即可，无须过多处理。
+
+
+\item 函数嵌套过深
+
+\item 阻塞代码
+
+\item 多线程编程
+
+child_process是其基础API， cluster模块是更深层次的应用。
+
+\item 异步转同步
+
+对同步需求没有对应的API满足；
+\end{itemize}
+
+
+\subsection{异步编程解决方案}
+
+\begin{itemize}
+\item 事件发布/订阅模式
+\item promise/deffered模式
+\item 流程控制模式
+\end{itemize}
+
+\paragraph{xxx}
