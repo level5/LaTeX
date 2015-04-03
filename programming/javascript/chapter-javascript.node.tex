@@ -42,7 +42,7 @@ async(function (err, results) {
 
 \item 多线程编程
 
-child_process是其基础API， cluster模块是更深层次的应用。
+child\_process是其基础API， cluster模块是更深层次的应用。
 
 \item 异步转同步
 
@@ -57,5 +57,72 @@ child_process是其基础API， cluster模块是更深层次的应用。
 \item promise/deffered模式
 \item 流程控制模式
 \end{itemize}
+
+
+\paragraph{Deferreds}
+
+deferreds，异步调用操作并不会block住调用，而是返回一个promise对象，我们可以往上面注册回调，当调用真正完成的时候，会回调注册的回调函数；
+
+\begin{JavaScript}[伪码类似于这样]
+var promise = callToAPI( arg1, arg2, ...);
+ 
+promise.then(function( futureValue ) {
+ 
+    // Handle futureValue
+ 
+});
+ 
+promise.then(function( futureValue ) {
+ 
+    // Do something else
+ 
+});
+\end{JavaScript}
+
+promise可能以两种方式结束，resolved和rejected
+
+
+\begin{JavaScript}[伪码接受两个回调，处理两种情况]
+promise.then(function( futureValue ) {
+ 
+    // We got a value
+ 
+}, function() {
+ 
+    // Something went wrong
+ 
+});
+\end{JavaScript}
+
+\begin{JavaScript}[当有多个promise的时候，可以注册等待多个promise都结束]
+when(
+    promise1,
+    promise2,
+    ...
+).then(function( futureValue1, futureValue2, ... ) {
+ 
+    // All promises have completed and are resolved
+ 
+});
+\end{JavaScript}
+
+\begin{JavaScript}[比如有多个动画，我们要等待都完成再做其他操作]
+var promise1 = $( "#id1" ).animate().promise();
+var promise2 = $( "#id2" ).animate().promise();
+when(
+    promise1,
+    promise2
+).then(function() {
+ 
+    // Once both animations have completed
+    // we can then run our additional logic
+ 
+});
+\end{JavaScript}
+
+
+\paragraph{Deferreds in jQuery}
+
+jQuery的Deferreds遵循CommonJS Promise/A desgin。
 
 \paragraph{xxx}
