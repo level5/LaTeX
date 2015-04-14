@@ -1,5 +1,64 @@
 \chapter{CSS}
 
+\section{What is CSS}
+
+Cascading Style Sheets (CSS) is a language for specifying how documents are presented to users.
+
+A document is a collection of information that is structured using a markup language.
+
+Presenting a document to a user means converting it into a useable form for your audience.
+
+\begin{HTML5}[demo]
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <title>Sample document</title>
+  </head>
+
+  <body>
+    <p>
+      <strong>C</strong>ascading
+      <strong>S</strong>tyle
+      <strong>S</strong>heets
+    </p>
+  </body>
+</html>
+\end{HTML5}
+
+\section{Why use CSS}
+
+Keeping the styles separate from your HTML content:
+\begin{itemize}
+\item Helps avoid duplication
+\item Makes maintenance easier
+\item Allows you to make a site-wide change in one place
+\end{itemize}
+
+
+\begin{CSS}[style1.css]
+strong {color:red;}
+\end{CSS}
+
+\begin{HTML5}
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <title>Sample document</title>
+  <link rel="stylesheet" type="text/css" href="style1.css">
+  </head>
+
+  <body>
+    <p>
+      <strong>C</strong>ascading
+      <strong>S</strong>tyle
+      <strong>S</strong>heets
+    </p>
+  </body>
+</html>
+\end{HTML5}
+
 \includegraphics[scale=0.75]{css/resources/css-rule.jpg}
 
 \section{Selector}
