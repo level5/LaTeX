@@ -59,6 +59,16 @@ strong {color:red;}
 </html>
 \end{HTML5}
 
+\section{How CSS works}
+
+\begin{itemize}
+\item The browser converts the markup language and the CSS into the DOM (Document Object Model). The DOM represents the document in the computer's memory. It combines the document's content with its style.
+\item The browser displays the contents of the DOM.
+\end{itemize}
+
+
+\section{CSS Rule}
+
 \includegraphics[scale=0.75]{css/resources/css-rule.jpg}
 
 \section{Selector}
@@ -137,6 +147,10 @@ Style sheets may have three different origins: author, user, and user agent.
 
 按上面的顺序来更新对每个标签属性的值，这个检查结束后，再将每个标签以最终设定的样式显示出来。
 
+The CSS cascade assigns a weight to each style rule. When several rules apply, the one with the greatest weight takes precedence. 
+
+By default, rules in author style sheets have more weight than rules in user style sheets. Precedence is reversed, however, for "!important" rules. All user and author rules have more weight than rules in the UA's default style sheet. 
+
 
 最终的层叠规则是：
 \begin{enumerate}
@@ -153,7 +167,34 @@ Style sheets may have three different origins: author, user, and user agent.
 \end{enumerate}
 
 
+
+
+\subsection{CSS Specification}
+
+Once a user agent has parsed a document and constructed a document tree, it must assign, for every element in the tree, a value to every property that applies to the target media type.
+
+The final value of a property is the result of a four-step calculation: the value is determined through specification (the "specified value"), then resolved into a value that is used for inheritance (the "computed value"), then converted into an absolute value if necessary (the "used value"), and finally transformed according to the limitations of the local environment (the "actual value").
+
+%\paragraph{Specified Value}
+\begin{itemize}
+\item If the cascade results in a value, use it.
+\item Otherwise, if the property is inherited and the element is not the root of the document tree, use the computed value of the parent element. 
+\item Otherwise use the property's initial value. The initial value of each property is indicated in the property's definition. 
+\end{itemize}
+
+%\paragraph{Compute Value}
+
+%\paragraph{Used Value}
+
+%\paragraph{Actual Value}
+
+
+
 \section{属性}
+
+\subsection{Property Definition}
+
+
 
 属性值主要分为三类：
 
