@@ -533,7 +533,84 @@ public interface TransactionLog {
 
 \section{Scope}
 
+
+\begin{Java}[注解]
+@Singleton
+public class InMemoryTransactionLog implements TransactionLog {
+  /* everything here should be threadsafe! */
+}
+\end{Java}
+
+\begin{Java}[配置]
+  bind(TransactionLog.class).to(InMemoryTransactionLog.class).in(Singleton.class);
+\end{Java}
+
+\begin{Java}[@Provides使用注解]
+  @Provides @Singleton
+  TransactionLog provideTransactionLog() {
+    ...
+  }
+\end{Java}
+
+类型和bind语句冲突是,使用bind语句设定的scope.
+
+bind的是source,而不是target.这就意味着
+
+\begin{Java}[Bar和Grill各有一个Applebees的实例]
+  bind(Bar.class).to(Applebees.class).in(Singleton.class);
+  bind(Grill.class).to(Applebees.class).in(Singleton.class);
+\end{Java}
+
+\begin{Java}[如果想只产生一个Applebees的实例或者在Class上指定]
+  bind(Applebees.class).in(Singleton.class);
+\end{Java}
+
+in语句中可以使用annotation或者scope实例
+\begin{Java}
+  bind(UserPreferences.class)
+      .toProvider(UserPreferencesProvider.class)
+      .in(ServletScopes.REQUEST);
+\end{Java}
+
+但是推荐使用注解,这样使得module可以在不同类型的应用中被重用.
+
+
+
 \section{Injections}
+
+\subsection{Constructor Injections}
+
+\begin{Java}
+public class RealBillingService implements BillingService {
+  private final CreditCardProcessor processorProvider;
+  private final TransactionLog transactionLogProvider;
+
+  @Inject
+  public RealBillingService(CreditCardProcessor processorProvider,
+      TransactionLog transactionLogProvider) {
+    this.processorProvider = processorProvider;
+    this.transactionLogProvider = transactionLogProvider;
+  }
+\end{Java}
+
+如果没有@Inject注解,Guice会使用公有的,无参的构造函数
+
+\subsection{Method Injections}
+
+\begin{Java}[任意方法名 任意参数]
+public class PayPalCreditCardProcessor implements CreditCardProcessor {
+
+  private static final String DEFAULT_API_KEY = "development-use-only";
+
+  private String apiKey = DEFAULT_API_KEY;
+
+  @Inject
+  public void setApiKey(@Named("PayPal API key") String apiKey) {
+    this.apiKey = apiKey;
+  }
+\end{Java}
+
+
 
 
 \section{AOP}
