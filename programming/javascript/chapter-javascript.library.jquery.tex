@@ -1,0 +1,363 @@
+\section{jQuery Document}
+
+\subsection{Starting}
+
+\begin{HTML5}[创建一个这样的页面]
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Demo</title>
+</head>
+<body>
+    <a href="http://jquery.com/">jQuery</a>
+    <script src="jquery.js"></script>
+    <script>
+ 
+    // Your code goes here.
+ 
+    </script>
+</body>
+</html>
+\end{HTML5}
+
+\begin{JavaScript}[我们经常这样来保证代码在页面加载之后执行]
+window.onload = function() {
+ 
+    alert( "welcome" );
+ 
+};
+\end{JavaScript}
+
+但是，这样会等到浏览器加载完所有的图片文件之后才会执行。
+
+\begin{JavaScript}[为了在Dom加载完之后就马上执行代码 我们可以这样]
+$( document ).ready(function() {
+ 
+    // Your code here.
+ 
+});
+\end{JavaScript}
+
+\begin{HTML5}[完整代码]
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Demo</title>
+</head>
+<body>
+    <a href="http://jquery.com/">jQuery</a>
+    <script src="jquery.js"></script>
+    <script>
+ 
+    $( document ).ready(function() {
+        $( "a" ).click(function( event ) {
+            alert( "The link will no longer take you to jquery.com" );
+            event.preventDefault();
+        });
+    });
+    </script>
+</body>
+</html>
+\end{HTML5}
+
+% $ 用来恢复语法高亮
+\subsection{loading}
+
+截抄自 pro javascript techniques。
+
+浏览器操作的一个大概步骤：
+\begin{itemize}
+\item HTML is Parsed
+\item External scripts/style sheets are loaded
+\item Script are executed as they are parsed in the document.
+\item HTML DOM is fully constructed.
+\item Image and external content are loaded.
+\item The page is finished loading
+\end{itemize}
+
+在DOM构建完成之前执行的js代码将不能访问DOM。想要workaround这个问题，可以采用
+
+\subsubsection{Waiting for the Page to load}
+
+就是等整个页面都加载完成。
+
+\begin{JavaScript}[]
+
+\end{JavaScript}
+
+\subsubsection{Wating for Most of the DOM to load}
+
+\begin{HTML5}[最页面最后的一个节点，当他执行时，页面的DOM已经构造好了]
+<html>
+<head>
+<title>Testing DOM Loading</title>
+<script type="text/javascript">
+function init() {
+	alert( "The DOM is loaded!" );
+	tag("h1")[0].style.border = "4px solid black";
+}
+</script>
+</head>
+<body>
+<h1>Testing DOM Loading</h1>
+<!--Lots of HTML goes here -->
+<script type="text/javascript">init();</script>
+</body>
+</html>
+\end{HTML5}
+\subsubsection{Figuring Out When the DOM is Loaded}
+这个方案比较复杂，但是结合了前面两种方式的优点，这应该也是jQuery实现的原理。
+
+需要check的点：
+\begin{itemize}
+\item document:需要判断DOM document是否存在，如果检查得足够快，document可能是undefined。
+\item document.getElementsByTagName, document.getElementById: 检查这两个常用方法是否可用。当这两个方法准备好是，他们将可用访问。
+\item document.body: 检查body是否已经完全load。
+\end{itemize}
+
+\begin{JavaScript}
+function domReady(f) {
+	// If the DOM is already loaded, execute the function right away.
+	if (domReady.done) return f();
+
+	// If we've already added a function
+	if (domReady.timer) {
+		// Add it to list of functions to execute
+		domReady.ready.push(f);
+	} else {
+		// Attach an event for when the page finishes loading,
+		// just in case it finishes first. Use addEvent
+		addEvent(window, "load", isDOMReady);
+
+		// Initialize the array of function to execute
+		domReady.ready = [f];
+
+		// Check to see if the DOM is ready as quickly as possible
+		domReady.timer = setInterval(isDOMReady, 13);
+	}
+}
+
+// Check to see if DOM is ready for navigation
+function isDOMReady() {
+	// If we already figured out that the page is ready, ignore 
+	if (domReady.done) return false;
+
+	// Check to see if a number of functions and elements are able to be accessed.
+	if (document && document.getElementsByTagName && 
+		document.getElementById && document.body) {
+
+		// If they're ready, we can stop checking
+		clearInterval(domReady.timer);
+		domReady.timer = null;
+
+		for ( var i = 0; i < domReady.ready.length; i++) {
+			domReady.ready[i]();
+		}
+
+		// remember that we're done.
+		domReady.ready = null;
+		domReady.done = true;
+	}
+}
+\end{JavaScript}
+
+\subsection{jQuery Core}
+
+\subsubsection{\$ vs \$()}
+
+\begin{JavaScript}
+$("h1").remove();
+\end{JavaScript}
+
+%$
+
+\begin{itemize}
+\item 在jQuery对象上可以调用的方法都位于\$.fn这个命名空间上，也就是jQuery.prototype。
+\item 而在\$命名空间上的方法一般都是工具方法。
+\end{itemize}
+
+\subsubsection{\$( document ).ready()}
+
+\$( document ).ready() 当DOM准备好时执行. \$( window ).load(function() { ... }) 当整个页面加载好执行(所有的images or iframes).
+
+\begin{JavaScript}
+// A $( document ).ready() block.
+$( document ).ready(function() {
+    console.log( "ready!" );
+});
+
+
+// Shorthand for $( document ).ready()
+$(function() {
+    console.log( "ready!" );
+});
+
+// Passing a named function instead of an anonymous function.
+ 
+function readyFn( jQuery ) {
+    // Code to run when the document is ready.
+}
+ 
+$( document ).ready( readyFn );
+// or:
+$( window ).load( readyFn );
+
+\end{JavaScript}
+
+\subsubsection{避免和其他库冲突}
+
+\begin{JavaScript}
+<script src="prototype.js"></script>
+<script src="jquery.js"></script>
+<script>
+ 
+// Give $ back to prototype.js; create new alias to jQuery.
+var $jq = jQuery.noConflict();
+ 
+</script>
+\end{JavaScript}
+
+\begin{JavaScript}
+<!-- Using the $ inside an immediately-invoked function expression. -->
+<script src="prototype.js"></script>
+<script src="jquery.js"></script>
+<script>
+ 
+jQuery.noConflict();
+ 
+(function( $ ) {
+    // Your jQuery code here, using the $
+})( jQuery );
+ 
+</script>
+\end{JavaScript}
+
+\begin{JavaScript}
+<script src="jquery.js"></script>
+<script src="prototype.js"></script>
+<script>
+ 
+jQuery(document).ready(function( $ ) {
+    // Your jQuery code here, using $ to refer to jQuery.
+});
+ 
+</script>
+
+\end{JavaScript}
+
+\begin{JavaScript}
+<script src="jquery.js"></script>
+<script src="prototype.js"></script>
+<script>
+ 
+jQuery(function($){
+    // Your jQuery code here, using the $
+});
+ 
+</script>
+\end{JavaScript}
+
+%$
+
+\subsubsection{attributes}
+
+\lstinline$.attr()$ as a setter:
+\begin{JavaScript}
+$( "a" ).attr( "href", "allMyHrefsAreTheSameNow.html" );
+ 
+$( "a" ).attr({
+    title: "all titles are the same too!",
+    href: "somethingNew.html"
+});
+\end{JavaScript}
+\lstinline$.attr()$ as a getter:
+\begin{JavaScript}
+$( "a" ).attr( "href" ); // Returns the href for the first a element in the document
+\end{JavaScript}
+
+%$
+
+\subsubsection{Selecting Elements}
+\begin{JavaScript}
+
+\\ Selecting Elements by ID
+$( "#myId" ); // Note IDs must be unique per page.
+
+\\ Selecting Elements by Class Name
+$( ".myClass" );
+
+\\ Selecting Elements by Attribute
+$( "input[name='first_name']" ); // Beware, this can be very slow in older browsers
+
+
+\\ Selecting Elements by Compound CSS Selector
+$( "#contents ul.people li" );
+
+\\ Pseudo-Selectors
+
+
+\end{JavaScript}
+
+
+A selection only fetches the elements that are on the page at the time the selection is made. If elements are added to the page later, you'll have to repeat the selection or otherwise add them to the selection stored in the variable. Stored selections don't magically update when the DOM changes.
+
+
+\begin{JavaScript}
+// Refining selections.
+$( "div.foo" ).has( "p" );         // div.foo elements that contain <p> tags
+$( "h1" ).not( ".bar" );           // h1 elements that don't have a class of bar
+$( "ul li" ).filter( ".current" ); // unordered list items with class of current
+$( "ul li" ).first();              // just the first unordered list item
+$( "ul li" ).eq( 5 );              // the sixth
+\end{JavaScript}
+
+%$
+
+\subsubsection{Working with Selections}
+
+
+
+
+\begin{JavaScript}[getter \& setter 使用相同的方法名]
+// The .html() method used as a setter:
+$( "h1" ).html( "hello world" );
+
+// The .html() method used as a getter:
+$( "h1" ).html();
+\end{JavaScript}
+
+
+\begin{JavaScript}[Chaining]
+$( "#content" ).find( "h3" ).eq( 2 ).html( "new text for the third h3!" );
+\end{JavaScript}
+
+\begin{JavaScript}[可读性更好]
+$( "#content" )
+    .find( "h3" )
+    .eq( 2 )
+    .html( "new text for the third h3!" );
+\end{JavaScript}
+
+\begin{JavaScript}[end()方法]
+$( "#content" )
+    .find( "h3" )
+    .eq( 2 )
+        .html( "new text for the third h3!" )
+        .end() // Restores the selection to all h3s in #content
+    .eq( 0 )
+        .html( "new text for the first h3!" );
+\end{JavaScript}
+
+%$
+
+
+
+
+
+
+
+
+
+

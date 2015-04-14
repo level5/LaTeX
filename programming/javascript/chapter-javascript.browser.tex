@@ -1,0 +1,146 @@
+\chapter{JavaScript in Browser}
+
+
+
+\section{History}
+
+\begin{itemize}
+\item he new parts in HTML5 include a way to add entries to the browser history, 
+\item to visibly change the URL in the browser location bar (without triggering a page refresh), 
+\item and an event that fires when those entries are removed from the stack by the user pressing the browser’s back button.
+\end{itemize}
+
+
+
+The HTML5 history API is actually designed to ensure that URLs continue to be useful in script-heavy web applications. 
+
+
+如果改变URL，那么浏览器会刷新页面，即使新访问的页面和当前页面基本相同，浏览器还是会重新下载所有的东西。
+
+
+HTML5 History API可以用来代替刷新整个页面，可以使用脚本来下载一部分页面。假设有A，B两个页面，基本相同，只有10\%的内容不一样，如果用户从A页面跳转到页面B.可以中断请求，并且
+
+\begin{itemize}
+\item 下载那10\%不同的内容（可能使用XMLHttpRequest来完成）。This will require some server-side changes to your web application. You will need to write code to return just the 10\% of page B that is different from page A. This can be a hidden URL or query parameter that the end user would not normally see. 
+
+\item 交换改变的内容（使用innerHTML或者DOM methods）。You may also need to reset any event handlers on elements within the swapped-in content. 
+
+\item 修改浏览器的地址栏到页面B。 using a particular method from the HTML5 history API that I’ll show you in a moment. 
+\end{itemize}
+
+
+
+\begin{JavaScript}
+history.pushState(null, null, link.href);
+\end{JavaScript}
+
+\begin{JavaScript}
+\item state 任何JSON格式的对象，他会被传递给popstate event hander.
+\item title 任何string, 这个参数当前没有被主流的浏览器使用，如果要使用，可以再state中设定好，然后在popstate回调中手动设定。
+\item url ,任何url，想要在地址栏显示url。
+\end{JavaScript}
+
+调用\lstinline$history.pushState$会马上改变地址栏的url。
+
+在这之后，还需要fake向
+
+\begin{JavaScript}
+window.addEventListener("popstate", function(e) {
+    swapPhoto(location.pathname);
+});
+\end{JavaScript}
+
+\section{面试}
+
+\subsection{浏览器兼容性问题}
+* png24位的图片在iE6浏览器上出现背景，解决方案是做成PNG8.也可以引用一段脚本处理.
+
+* 浏览器默认的margin和padding不同。解决方案是加一个全局的*{margin:0;padding:0;}来统一。
+
+* IE6双边距bug:块属性标签float后，又有横行的margin情况下，在ie6显示margin比设置的大。 
+
+* 浮动ie产生的双倍距离（IE6双边距问题：在IE6下，如果对元素设置了浮动，同时又设置了margin-left或margin-right，margin值会加倍。）
+  #box{ float:left; width:10px; margin:0 0 0 100px;} 
+
+ 这种情况之下IE会产生20px的距离，解决方案是在float的标签样式控制中加入 ——_display:inline;将其转化为行内属性。(_这个符号只有ie6会识别)
+
+*  渐进识别的方式，从总体中逐渐排除局部。 
+
+  首先，巧妙的使用“\9”这一标记，将IE游览器从所有情况中分离出来。 
+  接着，再次使用“+”将IE8和IE7、IE6分离开来，这样IE8已经独立识别。
+
+  css
+      .bb{
+       background-color:#f1ee18;/*所有识别*/
+      .background-color:#00deff\9; /*IE6、7、8识别*/
+      +background-color:#a200ff;/*IE6、7识别*/
+      _background-color:#1e0bd1;/*IE6识别*/ 
+      } 
+
+*  IE下,可以使用获取常规属性的方法来获取自定义属性,
+   也可以使用getAttribute()获取自定义属性;
+   Firefox下,只能使用getAttribute()获取自定义属性. 
+   解决方法:统一通过getAttribute()获取自定义属性.
+
+* IE下,event对象有x,y属性,但是没有pageX,pageY属性; 
+  Firefox下,event对象有pageX,pageY属性,但是没有x,y属性.
+
+* 解决方法：（条件注释）缺点是在IE浏览器下可能会增加额外的HTTP请求数。
+
+* Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示, 
+  可通过加入 CSS 属性 -webkit-text-size-adjust: none; 解决.
+
+* 超链接访问过后hover样式就不出现了 被点击访问过的超链接样式不在具有hover和active了解决方法是改变CSS属性的排列顺序:
+L-V-H-A :  a:link {} a:visited {} a:hover {} a:active {}
+
+* 怪异模式问题：漏写DTD声明，Firefox仍然会按照标准模式来解析网页，但在IE中会触发怪异模式。为避免怪异模式给我们带来不必要的麻烦，最好养成书写DTD声明的好习惯。现在可以使用[html5](http://www.w3.org/TR/html5/single-page.html)推荐的写法：`<doctype html>`
+
+* 上下margin重合问题
+ie和ff都存在，相邻的两个div的margin-left和margin-right不会重合，但是margin-top和margin-bottom却会发生重合。
+解决方法，养成良好的代码编写习惯，同时采用margin-top或者同时采用margin-bottom。
+* ie6对png图片格式支持不好(引用一段脚本处理)
+
+
+\subsection{减少加载时间}
+ 1.优化图片 
+ 
+ 2.图像格式的选择（GIF：提供的颜色较少，可用在一些对颜色要求不高的地方）
+  
+ 3.优化CSS（压缩合并css，如margin-top,margin-left...) 
+ 
+ 4.网址后加斜杠（如www.campr.com/目录，会判断这个“目录是什么文件类型，或者是目录。） 
+ 
+ 5.标明高度和宽度（如果浏览器没有找到这两个参数，它需要一边下载图片一边计算大小，如果图片很多，浏览器需要不断地调整页面。这不但影响速度，也影响浏览体验。 
+ 
+当浏览器知道了高度和宽度参数后，即使图片暂时无法显示，页面上也会腾出图片的空位，然后继续加载后面的内容。从而加载时间快了，浏览体验也更好了。） 
+
+6.减少http请求（合并文件，合并图片）。
+
+
+期待的解决方案包括：
+
+ 文件合并
+ 
+ 文件最小化/文件压缩
+ 
+ 使用 CDN 托管
+ 
+ 缓存的使用（多个域名来提供缓存）
+ 
+ 其他
+ 
+ 
+ \subsection{你都使用哪些工具来测试代码的性能？}
+
+Profiler, JSPerf（http://jsperf.com/nexttick-vs-setzerotimeout-vs-settimeout）, Dromaeo
+
+
+
+\subsection{HTTP缓存相关头}
+
+
+\subsection{推送}
+
+\subsection{Cookies}
+
+\subsection{•}
