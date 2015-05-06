@@ -1,0 +1,106 @@
+\chapter{Maven}
+
+\section{Install}
+
+\subsection{安装java和配置JAVA\_HOME}
+
+Linux中安装java的时候，将java加入PATH中，以及配置JAVA\_HOME的话，可以配置脚本为用户修改这两个环境变量。
+
+我是在\lstinline$~/.bashrc$文件中加入的。这部分再看看Linux就是这个范来补充一下。
+
+\begin{Bash}[假设java安装在/opt/java中]
+export JAVA_HOME=/opt/java
+export PATH=$JAVA_HOME/bin:$PATH
+\end{Bash}
+
+\subsection{安装Maven}
+
+安装Maven，配置环境变量M2\_HOME为Maven的安装目录，PATH中加入M2\_HOME/bin.由于Maven是Java程序，所以可以配置JVM参数，这部分不建议修改mvn脚本，而是添加MAVEN\_OPTS环境变量。这样的话，就方便升级。
+
+\begin{Bash}
+export MAVEN_OPTS="Xms128m -Xmx512m"
+\end{Bash}
+
+\subsection{settings.xml}
+
+将settings.xml配置在\lstinline$~/.m2$目录中，这样为用户级别进行配置，而且方便升级。
+
+
+\subsection{配置代理}
+
+
+在settings.xml中配置代理。
+
+\begin{XML}
+
+<settings>
+
+	<proxies>
+		<proxy>
+			<id>my-proxy</id>
+			<active>true</active>
+			<protocol>http</protocol>
+			<host>218.14.227.197</host>
+			<port>3128</port>
+			<!--
+			<username></username>
+			<password></password>
+			<nonProxyHosts>www.a.com|*.google.com</nonProxyHosts>
+			-->
+		</proxy>
+	</proxies>
+
+</settings>
+
+\end{XML}
+
+可以配置多个proxy元素，默认情况下第一个被激活的proxy会生效（active为true表示被激活）。
+
+nonProxyHosts可以使用“|”来间隔区分多个主机名，也可以使用通配符"*"。
+
+
+\subsection{IDE内嵌Maven}
+
+IDE一般内嵌了一个Maven，这往往导致命令行和IDE中使用的不是同一个Maven。容易导致IDE和命令行行为不一致。
+
+Preferences -> Maven -> Installation
+
+这里会有一个 Embeded Maven，选择Add来添加安装的Maven，然后选择这个外部Maven。
+
+\section{快速入门}
+
+
+\subsection{编写POM}
+
+创建hello-world目录，在其中添加pom.xml文件。
+
+\begin{XML}[pom.xml]
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.level.maven</groupId>
+	<artifactId>hello-world</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<name>Maven Hello World Project</name>
+</project>
+\end{XML}
+
+Maven2, 3都必须使用POM4.0
+
+然后最重要的三个元素groupId， artifactId和version，这三个元素定义了一个项目在Maven中基本坐标。
+
+\section{坐标和依赖}
+
+Maven的坐标：
+\begin{itemize}
+\item groupId Maven项目隶属的实际项目，groupId不应该对应项目隶属的组织或者公司。因为一个组织下会有很多项目。groupId和报名表示方法类似，与域名反向意义对应。
+\item artifactId 定义实际项目中的一个Maven项目（模块）。推荐做法是使用实际项目名作为前缀，例如nexus-indexer。 
+\item version 定义Maven项目当前所处版本。SNAPSHOT表示当前版本还不是稳定的，每天会做更新。
+\item packaging Maven项目打包方式，默认是jar，对于jar和war，打包会使用不同的命令。但是并不一定就是对应扩展名。
+\item classifier 定义构建输出的一些附属构件。。。。这个没看得太懂。
+\end{itemize}
+
+
+项目构件的文件名与坐标相对应，一般是artifactId-version[-classifier].packaging,
+

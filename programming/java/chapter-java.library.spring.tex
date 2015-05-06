@@ -1,0 +1,23 @@
+\chapter{Spring}
+
+\section{声明bean}
+
+
+ref属性来引用其他bean
+
+factory-method属性来通过静态工厂创建bean
+
+spring bean默认都是单例，可以通过scope来声明一个作用域。 spring的单例是保证在spring应用上下文中只有一个bean的实例，并不能阻止你使用传统方法来创建bean实例。
+
+使用init-method和destroy-method属性来初始化和销毁bean。（也可以实现特定的两个接口，InitializingBean和DisposableBean，这样就无需额外配置了）
+如果很多bean有相同的方法，则可以在beans上配置default-init-method和default-destroy-method属性。
+
+内部bean的注入，setter或者constructor args。内部bean仅被使用一次，而且不能被其他bean使用。
+
+
+
+
+
+
+
+
