@@ -1,0 +1,100 @@
+\chapter{cocos2d}
+
+\section{Concept}
+
+\subsection{Scenes}
+游戏中独立的一个场景，比如说菜单，关卡1，关卡2。
+
+\subsection{Director}
+控制各个scene之间切换的组件。
+
+\subsection{Layers}
+用来在Z轴上组织scene的的各层。比如：
+\begin{itemize}
+\item 背景：背景风景
+\item 远景：装饰的树和鸟
+\item 中景：平台
+\item 近景：玩家，敌人，金币
+\item HUD：Heads Up Desiplay。游戏状态，比如血量，经验，敌人状态
+\end{itemize}
+
+Layer是定义行为和外观的地方，所以大部分时间编程都是在和Layer打交道。
+
+Layer是定义事件Handler的地方，Event从最前面的层像最后面的层发出，知道有一层接受了处理了这个事件。
+
+cocos定义好的一些Layers：
+\begin{itemize}
+\item MultiplexLayer, 一组Layers，但是同一时间只有一个Layer可见。
+\item ScrollingManager, ScrollableLayer,用来控制可见区域。
+\item RectMapLayer, HexMapLayer,展现一组title
+\item Menu
+\item ColorLayer,实心的有颜色的矩形
+\item InterpreterLayer, Director控制弹出的可交互控制台，可以在我们的scene中弹出。
+\end{itemize}
+
+Layer是CocosNode的子类，所以他们能够手动或者使用Action来transform。
+
+\subsection{Sprites}
+sprite是一个2D的图片，可以移动，旋转，缩放，动画等。
+
+Sprites 是一组sprite,对sprites做transform，所有的孩子都会被transform。
+
+sprite是CocosNode的子类。
+
+\subsection{Events}
+cocos2d使用  The pyglet Event Framework来处理事件。
+
+\begin{itemize}
+\item emitters, 发射器。pyglet.event.EventDispatcher
+\item 每一个emitter可以注册自己想要的事件。通过一个事件名称字符串来标识
+\item Example emitter:
+\begin{Python}
+class Bunker(pyglet.event.EventDispatcher):
+    ...
+    def building_update(self, dt):
+        ...
+    if self.elapsed_time>self.building_time:
+        self.dispatch_event('on_building_complete', self)
+
+def take_damage(self, damage):
+    self.dispatch_event('on_building_under_attack', self)
+    self.life -= damage
+    if self.life<0:
+        self.dispatch_event('on_building_destroyed', self)
+
+# following lines register the events that Bunker instances can emit
+Bunker.register_event_type('on_building_complete')
+Bunker.register_event_type('on_building_under_attack')
+Bunker.register_event_type('on_building_destroyed')
+\end{Python}
+\item Example Listener:
+\begin{Python}
+class Commander(object):
+    def __init__(self, ...):
+        self.buildings = []
+        ...
+
+    def invest_resources(self):
+        ...
+        bunker = Bunker(...)
+        # register to receive all events from object bunker
+        bunker.push_handlers(self)
+        self.buildings.append(bunker)
+        ...
+
+    # handlers for the events
+
+    def on_building_complete(self, building):
+        ...
+
+    def on_building_under_attack(self, building):
+        ...
+
+    def on_building_destroyed(self, building):
+        ...
+\end{Python}
+\item 当想要移除listener的时候，可以使用:
+\begin{Python}
+emitter.remove_handlers(...) # params as in push_handlers
+\end{Python}
+\end{itemize}

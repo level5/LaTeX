@@ -258,3 +258,243 @@ public class CachedFactorizer extends AbstractFactorizer implements Servlet {
 \subsubsection{性能问题}
 
 \section{对象的共享}
+
+\subsection{可见性}
+
+synchronized的作用
+\begin{itemize}
+\item 实现原子性，确定临界区。防止某个线程在使用对象状态时，其他线程修改对象的状态。
+\item 内存可见性。确保一个线程修改了对象状态后，其他线程能够看到发生的变化。
+\end{itemize}
+
+\begin{Java}
+public class NoVisibility {
+	private static boolean ready;
+	private static int number;
+	
+	private static class ReaderThread extends Thread {
+		public void run() {
+			while(!ready){
+				Thread.yield();
+			}
+			System.out.println(number);
+		}
+	}
+	
+	public static void main(String[] args) {
+		new ReaderThread().start();
+		number = 42;
+		ready = true;
+	}
+}
+\end{Java}
+
+上面的代码的结果没办法保证，也许是42，也可能输出0，也可能没办法终止。
+
+在没有同步的情况下，编译器，处理器以及运行时等都有可能对操作的执行顺序进行一些意想不到的调整。避免这种情况的办法是在多线程共享数据时，正确的使用同步。
+
+
+没有同步访问value是非线程安全的。
+
+
+\subsubsection{失效数据}
+
+\begin{Java}
+@NotThreadSafe
+public class MutableInteger {
+	private int value;
+	
+	public int get() {return value;}
+	public void set(int value) { this.value = value;}
+} 
+\end{Java}
+
+
+\begin{Java}[get和set必须同时设定为同步才能保证可见性]
+@ThreadSafe
+public class SynchronizedInteger {
+	@GuardedBy("this") private int value;
+	
+	public synchronized int get() {return value;}
+	public synchronized void set(int value) { this.value = value;}
+}
+\end{Java}
+
+
+\subsubsection{非原子的64位操作}
+
+非volatile的64为数值变量的读写操作分解为两个32位操作。
+
+\subsubsection{加锁和可见性}
+
+AB两个线程，内置锁可以保证当B线程执行所保护的同步代码块的时候，可以看到线程A之前在同一个锁保护的同步代码块中所有操作结果。
+
+要求访问某个变量的所有线程在同一个锁上同步，就是确保某个写入该变量的值对于其他线程是可见的。
+
+加锁的含义是互斥和内存可见。
+
+\subsubsection{volatile变量}
+
+volatile声明的变量，编译器与运行时会注意到该变量是共享的，不会将对该变量的操作与其他内存操作一起重排序，volatile变量不会被缓存在存储器或者对其他处理器不可见的地方，因此在读取volatile类型的变量时总会返回最新写入的值。
+
+
+volatile对可见性的影响。
+
+A线程首先写入一个volatile变量，然后线程B读取该变量。在写入volatile变量之前对A可见的所有变量的值，在B读取了volatile变量后，对B也是可见的。
+
+
+volatile变量只能保证可见性，不能保证原子性。
+
+
+\subsection{发布与逸出}
+
+发布就是使对象能够在当前作用于之外的代码中使用。
+
+逸出就是本不该被发布的对象被发布了。
+
+安全的对象构造过程：不要在构造过程中使this引用逸出。
+
+常见的错误是：在构造函数中启动一个线程，this引用被新创建的线程共享。
+
+\subsection{线程封闭}
+
+线程封闭就是不共享数据，这样就不需要同步了。
+
+\subsubsection{Ad-hoc线程封闭}
+
+线程封闭的职责完全由程序实现来承担。这种方式非常脆弱，因为没有一种语言特性能将对象封闭到目标线程。
+
+实现比如在volatile变量上，只有一个特定的线程对volatile变量进行写入操作，其他线程都只执行读取操作。这样就避免了竞争条件。而volatile又保证了变量的可见性。
+
+\subsubsection{栈封闭}
+
+线程封闭的一个特例，只有局部变量才能访问对象。程序员要做的就是要确保被引用的对象不会逸出。
+
+\subsubsection{ThreadLocal类}
+
+ThreadLocal保证了每个线程中只有一个对象。类似于全局变量，但是如果滥用会导致程序耦合，和使用全局变量导致耦合一样。
+
+
+\subsection{不变性}
+
+不可变对象一定是线程安全的。对于不便对象，失效数据，丢失更新操作或者观察到对象处于不一致的状态，对于不变对象来说，都是不存在的。
+
+这里说的这些问题，是说的不便对象本身的属性的访问。如果另外一个对象有一个不变对象的引用，这个引用没有同步还是存在可见性问题。
+
+满足什么条件对象才是不可变的：
+\begin{itemize}
+\item 对象创建以后其状态就不能修改；这一点，说明final引用的对象也是不可变的或者是基本类型（我的理解）
+\item 对象的所有域都是final类型；
+\item 对象是正确创建的（对象在创建期间，this引用没有逸出）
+\end{itemize}
+
+
+\subsubsection{Final}
+
+final除了表示不能修改之外，还能保证初始化过程的安全性。从而可以不受限制的访问不变对象。
+
+这里说的应该是final引用，但是final引用的对象不是正确发布或者不变对象的话，访问这个对象的状态还是可能存在问题。
+
+
+使用volatile类型来发布不可变对象。这里使用volatile类型就是说明引用还是要自己保证可见性，而不变对象自身是安全的。
+
+\begin{Java}
+//补充代码
+\end{Java}
+
+\subsection{安全发布}
+
+对于共享对象，最开始要保证的问题就是确保对象能够被安全的发布。只是将对象保存在公有域中，不能安全的发布对象。
+
+\begin{Java}
+public class Publish {
+
+	public Holder holder;
+	
+	public void initialize() {
+		holder = new Holder(42);
+	}
+}
+
+public class Holder {
+	
+	private int n;
+
+	public Holder(int i) {
+		this.n = i;
+	}
+
+	public void assertSanity() {
+		if (n != n) {
+			throw new AssertionError("This statment is false.");
+		}
+	}
+}
+\end{Java}
+
+这里的问题有几个
+\begin{itemize}
+\item 引用的可见性，其他线程可能看不到这个发布的对象的引用。
+\item 由于holder未被正确的发布，holder的状态是失效的，即使对象发布后没有修改过，可能某个线程会看到对象处于不一致的状态，然后对象状态突然发生变化。这个线程调用assertSanity时会抛出异常。
+\end{itemize}
+
+\subsubsection{不可变对象与初始化安全性}
+
+即使某个对象的引用对于其他线程是可见的，也并不意味着对象状态对于使用该独享的线程来说一定是可见的。
+
+为了确保对象状态能呈现一致的视图，就必须使用同步。
+
+对于不变对象的引用时没有使用同步，也仍然可以安全的访问该对象。不变对象状态不可变这点很重要，说明final域所指向的也是不变对象。
+
+如果final域所指向的是可变对象，那么访问这些域所指向的对象的状态时仍然需要同步。
+
+\subsubsection{安全发布}
+
+安全发布一个对象，对象的引用和对象的状态必须同时对其他线程可见。
+\begin{itemize}
+\item 在静态初始化函数中初始化一个对象引用；？？？
+\item 将对象的引用保存到volatile类型的域或者AtomicReference对象中；
+\item 将对象的引用保存到某个正确构造对象的final类型域中；
+\item 将对象的引用保存到一个由锁保护的域中。
+\end{itemize}
+
+发布一个静态构造的对象，最简单和最安全的方式是使用静态的初始化器：
+\begin{Java}
+public static Holder holder = new Holder(42);
+\end{Java}
+
+\subsubsection{事实不可变对象}
+就是对象发布后不会被修改。这种情况下，安全发布就足够了。
+
+\subsubsection{可变对象}
+
+可变对象除了要安全发布之外，还必须保证后续访问使用同步来确保可见性。
+
+\subsection{并发程序共享对象的策略}
+\begin{itemize}
+\item 线程封闭
+\item 只读共享，包括不可变对象和实事不可变对象。
+\item 线程安全共享 线程安全的对象在其内部实现同步，多个线程可以通过对象的公有接口来进行访问而不需要在做同步
+\item 保护对象 安全发布和通过特定的锁来访问。
+\end{itemize}
+
+
+\section{对象的组合}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
