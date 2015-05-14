@@ -64,6 +64,22 @@ CDN（Content Delivery Network），最主要用途就是将内容部署到全�
 \item 吞吐量由当前拥塞窗口的大小控制。
 \end{itemize}
 
+服务器对应的优化手段
+\begin{itemize}
+\item 增大TCP的初始拥塞窗口
+
+\item 连接空闲时禁用慢启动，可以改善瞬时发送数据的长TCP连接的性能
+\item 窗口缩放，增大最大接收窗口大小，可以让高延时的连接达到更好的吞吐量
+
+\end{itemize}
+
+应用程序行为的优化
+\begin{itemize}
+\item 能少发就少发
+\item 缩短传输的距离
+\item 重用TCP连接
+\end{itemize}
+
 \section{UDP}
 
 \section{Wireless}
