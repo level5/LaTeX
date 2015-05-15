@@ -11,6 +11,8 @@ web服务器通过HTTP header：Set-Cookie来告诉浏览器保存cookie。
 Set-Cookie: value[; expires=date][; domain=domain][; path=path][; secure]
 \end{HTML5}
 
+\subsection{Value}
+
 第一部分value一般来说是一个字符串，他的格式是name=value.
 
 当cookie存在，而规则准许的情况下，cookie会在后面的请求被发送到服务器。
@@ -26,6 +28,8 @@ Cookie: value
 Cookie: value1; value2; name1=value1
 \end{HTML5}
 
+\subsection{Expires}
+
 每一个选项通过分号和空格隔开。
 
 第一个是expires，说明什么时候cookie不需要再发送给web服务器，并且可能被浏览器删除掉，这个选项的值是一个Date
@@ -34,15 +38,30 @@ Set-Cookie: name=Nicholas; expires=Sat, 02 May 2009 23:38:25 GMT
 \end{HTML5}
 如果没有定义expires，cookie的生命周期是单个的session。session的结束定义为浏览器关闭。这也是为什么每次登陆都有一个选框问是不是要保存登陆记录。如果expires的时间是一个过去的时间，那么他将被删除掉。
 
-domain选项，指定cookie改发送到哪个domain。默认情况下，domain被设定为当前页面的host name。自己设定的domain只能是设定cookie页面的host name的一部分。
+\subsection{Domain}
 
-path和domain的功能类似，发送cookie前先要判断path在发送的页面中。
+domain选项，指定cookie改发送到哪个domain。默认情况下，domain被设定为当前页面的host name。
+
+比如说访问（http://www.nczonline.net/blog/2009/05/05/http-cookies-explained/）的时候，domain会被默认设定为（www.nczonline.net）。
+
+自己设定的domain只能是设定cookie页面的host name的一部分（感觉应该是说是最后的那部分）。比如，我们不能在上面的那个网页中将domain设定为（google.com）无效的domain会被自动忽略掉。
+
+比如说yahoo有很多格式如name.yahoo.com的网站（my.yahoo.com, finance.yahoo.com）,如果将domain设定为(yahoo.com)的话，访问所有这些网站的时候都会带上这个cookie。
+
+\begin{HTML5}
+Set-Cookie: name=Nicholas; domain=nczonline.net
+\end{HTML5}
+
+\subsection{Path}
+path和domain的功能类似，发送cookie前先要判断path是否包含在发送的页面中。这个时候就是从路径的开始一个字符一个字符的匹配。
 
 \begin{HTML5}
 Set-Cookie: name=Nicholas; path=/blog
 \end{HTML5}
+所有/blog开始的都是合法的，比如/blog,/blogroll
+\subsection{Secure}
 
-最后是secure， 这个没有值。如果有这个选项，则cookie只有在SSL或者是HTTPS的时候才会发送。cookie通过HTTPS设定的时候，自动被加上secure选项。
+最后是secure，这个没有值。如果有这个选项，则cookie只有在SSL或者是HTTPS的时候才会发送。cookie通过HTTPS设定的时候，自动被加上secure选项。
 
 当cookie设定时，可以使用任意的选项
 \begin{HTML5}
