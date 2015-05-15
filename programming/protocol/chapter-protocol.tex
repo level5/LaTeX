@@ -217,3 +217,22 @@ RIP报文包含在UDP数据报中，常用的UDP端口为520.
 \item 服务器发送一个FIN，客服端响应一个ACK，确认需要为服务器的序号+1
 \end{enumerate}
 
+\subsubsection{延时确认}
+
+在收到消息时，不会马上确认，而会延时200ms看看是否有数据要随ACK一起发送。
+
+ACK是累计的，不必每条数据都需要ACK，ACK表示ACK - 1的字节都已收到。
+
+\subsubsection{窗口}
+
+窗口更新
+
+窗口滑动
+
+\subsubsection{慢启动}
+
+拥塞窗口（congestion window）,cwnd
+
+
+
+
