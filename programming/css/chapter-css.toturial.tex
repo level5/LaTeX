@@ -1,12 +1,12 @@
-\chapter{CSS}
+\chapter{CSS Selector}
 
 \section{What is CSS}
 
-Cascading Style Sheets (CSS) is a language for specifying how documents are presented to users.
+CSS是一种用来指定文档怎么呈现给用户的语言.
 
-A document is a collection of information that is structured using a markup language.
+文档是一系列使用标记语言组织的信息.
 
-Presenting a document to a user means converting it into a useable form for your audience.
+呈现文档的意思是将文档转化为一种对观众有用的格式.
 
 \begin{HTML5}[demo]
 <!DOCTYPE html>
@@ -28,13 +28,12 @@ Presenting a document to a user means converting it into a useable form for your
 
 \section{Why use CSS}
 
-Keeping the styles separate from your HTML content:
+使得样式和HTML分离
 \begin{itemize}
-\item Helps avoid duplication
-\item Makes maintenance easier
-\item Allows you to make a site-wide change in one place
+\item 避免重复
+\item 更容易维护
+\item 在一个地方就可以改变整个网站的样式
 \end{itemize}
-
 
 \begin{CSS}[style1.css]
 strong {color:red;}
@@ -62,10 +61,9 @@ strong {color:red;}
 \section{How CSS works}
 
 \begin{itemize}
-\item The browser converts the markup language and the CSS into the DOM (Document Object Model). The DOM represents the document in the computer's memory. It combines the document's content with its style.
-\item The browser displays the contents of the DOM.
+\item 浏览器将标记语言和CSS转换为DOM.
+\item 浏览器展现DOM的内容
 \end{itemize}
-
 
 \section{CSS Rule}
 
@@ -75,20 +73,44 @@ strong {color:red;}
 
 A selector is a chain of one or more sequences of simple selectors separated by combinators.
 
-A sequence of simple selectors is a chain of simple selectors that are not separated by a combinator.
+selector是通过combinator分割开的sequence selector组合起来的。
+
+A sequence of simple selectors is a chain of simple selectors that are not separated by a combinator. It aways begins with a type selector or universal selector. No other type selector or universal selector is allowed in the sequence.
+
+sequence selector是一系列简单选择器他们之间没有被combinator分开。他总是以type selector 或者universal selector开始,然后type selector和universal selector在sequence中不能再出现.
+
+A simple selector is either a type selector, universal selector, attribute selector, class selector, ID selector, content selector, or pseudo-class. One pseudo-element may be appended to the last sequence of simple selectors.
 
 
+simple selector是一个type selector， universal selector， attribute selector， class selector， ID selector， content selector， pseudo class。 而一个pesudo element可能出现在简单选择器的最后（？？？这个时候是简单选择器，还是一系列选择器？？）。
 
-选择器是通过combinator分割开的一系列选择器组合起来的。
 
-而一系列选择器是一系列简单选择器他们之间没有被combinator分开。
+Combinators are: white space, greater-than sign, plus sign, tilde
 
-简单选择器是一个type selector， universal selector， attribute selector， class selector， ID selector， content selector， pseudo class。 而一个pesudo element可能出现在简单选择器的最后（？？？这个时候是简单选择器，还是一系列选择器？？）。
+\subsection{Groups of selector}
 
+当多个selector共享同一个declaration时,他们能够被组合成一个使用逗号分开的列表
+
+\begin{CSS}
+h1 { font-family: sans-serif }
+h2 { font-family: sans-serif }
+h3 { font-family: sans-serif }
+\end{CSS}
+
+等价于
+
+\begin{CSS}
+
+h1, h2, h3 { font-family: sans-serif }
+
+\end{CSS}
+
+
+唯一不同的是,当其中有一个selector不生效的时候,上面那种情况只有一条规则不会生效,而后面那种情况,整个这一条规则都将不生效.
 
 \subsection{Simple selector}
 
-A simple selector is either a type selector, universal selector, attribute selector, class selector, ID selector, content selector, or pseudo-class. One pseudo-element may be appended to the last sequence of simple selectors.
+
 
 \subsubsection{Type selector}
 
@@ -107,11 +129,46 @@ div {border:1px; border-style:solid;}
 <div>third line</div>
 \end{CSS}
 
+可以使用namespace,参看specification.
 
 \subsubsection{Universal Selector}
 
+*,用来匹配文档中任何一个标签.
+
+\subsubsection{Attribute Selector}
+
+
 
 \subsection{Pseudo-Class \& Pseudo-Element}
+
+\subsubsection{Pseudo-classes}
+
+The pseudo-class concept is introduced to permit selection based on information that lies outside of the document tree or that cannot be expressed using the other simple selectors.
+
+\begin{itemize}
+\item Pseudo-classes are allowed in all sequences of simple selectors contained in a selector. 
+\item Pseudo-classes are allowed anywhere in sequences of simple selectors, after the leading type selector or universal selector (possibly omitted). 
+\item Pseudo-class names are case-insensitive. Some pseudo-classes are mutually exclusive, while others can be applied simultaneously to the same element. 
+\item Pseudo-classes may be dynamic, in the sense that an element may acquire or lose a pseudo-class while a user interacts with the document.
+\end{itemize}
+
+
+\begin{itemize}
+\item :link
+\item :visited
+\item :hover
+\item :active
+\item :focus
+\end{itemize}
+
+
+:target
+
+
+:lang
+
+
+
 
 %\paragraph{:first-child}
 
