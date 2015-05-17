@@ -17,6 +17,93 @@ spring bean默认都是单例，可以通过scope来声明一个作用域。 spr
 
 \subsection{bean注入}
 
+\subsubsection{采用setter注入属性}
+\begin{itemize}
+\item property标签，使用value属性注入基本类型和string类型
+\item property标签，采用ref属性来引用其他在spring中配置的bean
+\item property标签，嵌入内部的bean标签。
+\end{itemize}
+
+\subsubsection{采用构造函数参数来注入属性}
+采用构造函数参数来注入属性，采用constructor-arg标签。
+
+
+\subsubsection{p命名空间}
+
+采用p命名空间，这样就在bean标签中加属性来注入值。
+
+
+\subsubsection{装配集合}
+
+\begin{itemize}
+\item <list>，成员可以是<ref>,<value>,<bean>,<null/>,<list> 
+\item <set>
+
+如果属性是java.util.Collection类型是，这两个配置元素在使用时几乎可以完全互换。
+
+\item <map> 对应jva.util.Map
+
+成员entry的属性可以是key，key-ref, value, value-ref
+
+\item <props> 对应java.util.Properties,键值都必须是String。
+
+成员prop的属性是key，值是标签中的文本。
+
+\end{itemize}
+
+\subsubsection{装配空值}
+
+使用<null/>
+
+\subsubsection{使用SpEL装配}
+
+使用\#\{\}界定符
+
+\begin{itemize}
+\item 字面量
+\item 引用其他Bean,一个用途就是如果一个属性配置为另一个bean的属性的时候。
+
+\item \lstinline$#{songSelector.selectSon()?.toUpperCase()}$ 类似于swift的方式。
+
+\item \lstinline$T(java.lang.Math).PI$取得静态变量或者调用静态方法。\lstinline$T(java.lang.Math)$取得class类
+
+\item 运算符 \lstinline$#{counter.total + 42}$
+
+
+\end{itemize}
+
+\subsection{自动装配bean}
+
+对应明显的装配场景，可以自动装配这种类型（autowiring）。比如整个Context只有一个某种类型的时候。在bean标签中加入autowire属性，取下面的四个值。
+
+\begin{itemize}
+\item byName 与bean属性具有相同名字（或者ID）的bean自动装配到bean的对应属性。
+\item byType 与bean的属性具有相同类型的其他bean自动装配到bean的对应属性
+\item constructor 与bean的构造器入参具有相同类型的其他bean自动装配到bean构造器的对应入参
+\item autodetect 现场时constructor自动转配，如果失败，在尝试byType的方式。
+\end{itemize}
+
+可以在beans标签上设定一个default-autowire属性，为所有的bean给定默认的配置。默认情况下，default-autowire被设定为none。
+
+
+\subsection{annotation装配}
+
+在xml中加入\lstinline$<context:annotation-config />$来开启注解配置。
+
+\begin{itemize}
+\item @Autowired，使用byType方式。
+
+只能有一个构造函数的注解required能够被设置为true，@Autowired(required=true)
+
+使用@Autowired标注多个构造函数式，如果都满足，Spring会挑一个入参最多的构造函数。
+
+当有多个bean合适是，可以使用@Qualifier("name")注解来指定ID为name的bean。或者直接在xml配置中加入qualifier标签。
+
+
+
+\item @Inject
+\item @Resource
+\end{itemize}
 
 
 
