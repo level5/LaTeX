@@ -77,6 +77,7 @@ spring bean默认都是单例，可以通过scope来声明一个作用域。 spr
 对应明显的装配场景，可以自动装配这种类型（autowiring）。比如整个Context只有一个某种类型的时候。在bean标签中加入autowire属性，取下面的四个值。
 
 \begin{itemize}
+\item no 不自动装配。
 \item byName 与bean属性具有相同名字（或者ID）的bean自动装配到bean的对应属性。
 \item byType 与bean的属性具有相同类型的其他bean自动装配到bean的对应属性
 \item constructor 与bean的构造器入参具有相同类型的其他bean自动装配到bean构造器的对应入参
@@ -98,7 +99,6 @@ spring bean默认都是单例，可以通过scope来声明一个作用域。 spr
 使用@Autowired标注多个构造函数式，如果都满足，Spring会挑一个入参最多的构造函数。
 
 当有多个bean合适是，可以使用@Qualifier("name")注解来指定ID为name的bean。或者直接在xml配置中加入qualifier标签。
-
 
 
 \item @Inject
