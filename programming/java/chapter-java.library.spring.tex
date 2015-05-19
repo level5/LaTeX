@@ -106,4 +106,32 @@ spring bean默认都是单例，可以通过scope来声明一个作用域。 spr
 \end{itemize}
 
 
+\subsection{自动检测Bean}
+
+\lstinline$<context:annotation-config />$可以消除property和constructor-arg标签，但是还是需要显示配置bean标签。\lstinline$<context:component-scan>$除了完成上面标签做的事，还允许Spring自动检查Bean和定义Bean，需要使用属性base-package来制定扫描的包机器子包。
+
+%补充配置文件
+
+
+如果在\lstinline$<context:component-scan>$中配置子元素\lstinline$<context:include-filter>$或者\lstinline$<context:exclude-filter>$，我们可以调整扫描行为。
+
+%补充配置文件。
+
+
+
+自动检查的标注
+\begin{itemize}
+\item @Component 通用构造型注解，标识该类为Spring组件。
+
+使用@Component标注的类自动注册为Spring Bean，Bean的ID默认为无限定类名，比如类x.y.z.Guitar的Bean ID就是guitar。如果采用@Component("name")的形式的话，Bean ID就是name了。
+
+
+\item @Controller Spring MVC Controller
+
+\item @Repository 数据仓库
+
+\item @Service 标识该类定义为服务。····
+\end{itemize}
+
+
 
