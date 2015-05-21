@@ -1,0 +1,29 @@
+\chapter{Shell Commands}
+
+\section{基本知识}
+
+\subsection{执行}
+
+\begin{Bash}[开头告诉shell使用什么bash]
+#！/bin/bash
+\end{Bash}
+
+
+执行脚本：
+
+\begin{itemize}
+\item 脚本作为参数的方式
+\begin{Bash}
+bash script.sh   #脚本位于工作目录（当前目录）
+\end{Bash}
+
+\item 修改脚本成可执行文件
+
+\begin{Bash}[内核会读取首行来确定执行的bash]
+chmod a+x script.sh
+./script.sh
+\end{Bash}
+
+\end{itemize}
+
+\subsection{双引号和单引号}

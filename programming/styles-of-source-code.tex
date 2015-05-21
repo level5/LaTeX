@@ -24,26 +24,6 @@
 \usepackage{graphicx}
 \usepackage{epstopdf}
 
-% style for XML
-\lstnewenvironment{XML}[1][]
-{\lstset{language=XML,
-  morekeywords={encoding,
-    xs:schema,xs:element,xs:complexType,xs:sequence,xs:attribute}
-  showspaces=false,
-  showtabs=false,
-  breaklines=true,
-  showstringspaces=false,
-  breakatwhitespace=true,
-  escapeinside={(*@}{@*)},
-  commentstyle=\color{greencomments},
-  keywordstyle=\color{bluekeywords},
-  stringstyle=\color{redstrings},
-  basicstyle=\ttfamily,
-  captionpos=t, 
-  caption=【XML】#1
-}}
-{}
-
 
 % style for C#
 \lstnewenvironment{CSharp}[1][]

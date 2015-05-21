@@ -32,3 +32,39 @@ ln file link # 默认创建硬链接
 \begin{Bash}
 
 \end{Bash}
+
+\subsection{判断当前脚本是否是以root用户来执行}
+
+
+\$(..)看做`..`的另外一种形式。将一条或多条命令的output重新分配。
+
+
+
+\begin{Bash}[old way]
+#!/bin/bash
+# Init
+FILE="/tmp/out.$$"
+GREP="/bin/grep"
+#....
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+# ...
+\end{Bash}
+
+
+\begin{Bash}[new way]
+#!/bin/bash
+# Init
+FILE="/tmp/out.$$"
+GREP="/bin/grep"
+#....
+# Make sure only root can run our script
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+# ...
+\end{Bash}
