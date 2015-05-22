@@ -26,4 +26,19 @@ chmod a+x script.sh
 
 \end{itemize}
 
-\subsection{双引号和单引号}
+\subsection{变量}
+
+变量名就是一个他引用的value的占位符。需要区分变量名，和变量名引用的值。如果variable1是变量名的话。\$variable1是变量名引用的值
+
+变量不需要使用前置\$的场景：
+\begin{itemize}
+\item 声明和赋值的时候；
+\item \lstinline$unset$和\lstinline$export$的时候；
+\item 数学表达式((...))
+\item loop的头中
+\item ...
+\end{itemize}
+
+\subsection{String}
+
+\subsection{exit和exit的状态}
