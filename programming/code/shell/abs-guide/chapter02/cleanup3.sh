@@ -17,6 +17,8 @@ if [ "$UID" -ne "$ROOT_UID" ]
     exit $E_NOTROOT
 fi
 
+# -n return true if string is not null. Best Practice: always quote a test string.
+# -z return true if string is null.
 if [ -n "$1"]
 # Test wether command-line argument is present (non-empty)
   then
