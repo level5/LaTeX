@@ -64,3 +64,14 @@ IFS='\'    # IFS
 
 echo $var         # '(] {}$"
 echo "$var"       # '(]\{}$"
+
+
+
+
+# Escape a space can prevent word splitting in a command's argument list
+
+
+
+
+
+
