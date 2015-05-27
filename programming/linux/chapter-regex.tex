@@ -1,0 +1,37 @@
+\chapter{Regex}
+
+
+\section{我大概知道的基础}
+
+\begin{itemize}
+\item \lstinline$\d$ 和 \lstinline$\D$
+
+匹配数字： \lstinline$\d$, \lstinline$[0-9]$
+
+匹配非数字： \lstinline$\D$, \lstinline$[^0-9]$, \lstinline$[^\d]$
+
+\item \lstinline$\w$, \lstinline$\W$
+
+匹配所有的单词字符,在英语环境中，等同于\lstinline$[_a-zA-Z0-9]$
+
+同样的\lstinline$\W$就是\lstinline$[^\w]$,或者\lstinline$[^_a-zA-Z0-9]$
+
+\item \lstinline$\s$, \lstinline$\S$
+
+\lstinline$\s$,就是\lstinline$[ \r\n\t]$,空格，回车，换行，制表符。
+
+同理，\lstinline$\S$就是 \lstinline$[^ \r\n\t]$,或者\lstinline$[^\s]$
+
+\item 单词边界\lstinline$\b$,匹配单词边界，不消耗任何字符。
+
+\item .
+
+匹配\lstinline$[^\n]$, 或者\lstinline$[^\r\n]$
+
+.号通常不会匹配折行符（比如换行和回车）
+
+\item 分组和引用
+
+\item 
+
+\end{itemize}
