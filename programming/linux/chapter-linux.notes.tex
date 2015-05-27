@@ -1,6 +1,153 @@
 \chapter{Notes}
 
-\section{学习Maven时所碰到的问题}
+\section{每天一条命令}
+命令列表：
+dd, find, grep, wc, iptables, \$((...)) 
+
+
+
+\subsection{find}
+
+find列出指定目录及其子目录的文件和文件夹
+
+\begin{Bash}[查找当前目录及子目录的文件和文件夹]
+find .
+\end{Bash}
+
+
+\subsubsection{-print, -print0}
+\lstinline$-print$, 打印出查找到的文件和文件夹，'\\n'作为文件名的间隔。默认情况下不输入-print也会打印出文件夹和文件名。
+
+但是'\\n'是文件名的合法字符，所以这样可能导致错误的文件名。这个时候可以使用\lstinline$-print0$,这个时候改用'\\0'作为间隔。
+
+\subsubsection{-name, -iname}
+
+\lstinline$-name$指定了文件名必须匹配的字符串，可以含有通配符。\lstinline$-iname$作用和\lstinline$-name$一样，但是不区分大小写。
+
+\begin{Bash}[名字匹配指定的字符串]
+
+find . -name 'Lib'
+
+find . -iname 'LIB'
+
+\end{Bash}
+
+
+\subsubsection{ -path, -regex, -iregex}
+
+
+而\lstinline$-path$则是匹配路径（包含文件名）是否匹配给定字符串, \lstinline$-regex$和\lstinline$-path$类似，不过是基于正则表达式来匹配路径的。
+
+这部分需要加强，已将《学习正则表达式》加入日程之中。
+
+
+\subsubsection{否定参数 ！}
+
+\begin{Bash}[名字不以.txt结尾的文件]
+
+find . ! -name "*.txt"
+
+\end{Bash}
+
+
+\subsubsection{基于深度查询 -maxdepth, -mindepth}
+
+\begin{Bash}[查找第二层目录的所有文件]
+
+find . -maxdepth 2 -mindepth 2
+
+\end{Bash}
+
+\begin{Bash}[深度为0的文件就是查找的目录]
+
+find . -maxdepth 0
+
+find /root -maxdepth 0
+
+\end{Bash}
+
+\subsubsection{-type 文件类型}
+
+\begin{Bash}
+
+find . -type f 
+
+find . -type d
+
+\end{Bash}
+
+
+% 这里使用表格， 今天回家搞定
+
+文件		f
+
+目录		d
+
+符号链接	l
+
+...
+
+
+\subsubsection{按文件时间}
+
+
+\begin{itemize}
+\item 访问时间 -atime(access time) 最近一次访问时间
+\item 修改时间 -mtime(modify time) 文件内容最后一次修改时间
+\item 变化时间 -ctime(change time) 文件元数据(权限或者所有权)最后一次改变时间
+\end{itemize}
+
+
+\begin{Bash}[单位是天， 当前为0]
+
+find . -atime -7  # 最近7天访问过的
+
+find . -atime 7	  # 刚好7天前访问过
+
+find . -atime +7  # 访问时间超过7天
+
+\end{Bash}
+
+
+\subsubsection{-size 基于文件大小}
+
+
+\begin{Bash}
+
+find . -type f -size +2k 		# 大于2KB的文件
+
+find . -type f -size 2k			# 等于2KB的文件
+
+find . -type f -size -2k		# 小于2KB的文件
+\end{Bash}
+
+
+\subsubsection{-perm 权限}
+
+\subsubsection{-delete}
+
+\begin{Bash}[删除匹配的文件]
+
+find . -type f -perm 644 -delete
+
+
+\end{Bash}
+
+\subsubsection{-exec 将查找的文件当做输入执行命令}
+
+\subsubsection{多个条件}
+
+\subsubsection{跳过特定目录}
+
+\begin{Bash}[]
+
+find devel/source_path \( -name ".git" -prune \) -o \( -type -f -print \)
+
+\end{Bash}
+
+\subsubsection{结合xargs}
+
+
 
 
 \subsection{解压命令 tar}
@@ -68,3 +215,24 @@ if [[ $EUID -ne 0 ]]; then
 fi
 # ...
 \end{Bash}
+
+\section{shell中我感到疑惑或者不知道的东西}
+
+
+\subsection{subprocess Vs. subshell}
+
+
+\section{我记不太清楚的操作符}
+
+
+\subsection{(...)}
+
+\subsubsection{命令组}
+
+命令组，会启动一个子shell(subsehll).
+
+\subsubsection{数组初始化}
+
+
+
+
