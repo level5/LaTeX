@@ -2,7 +2,7 @@
 
 \section{每天一条命令}
 命令列表：
-dd, find, grep, wc, iptables, \$((...)) 
+dd, find, grep, wc, iptables, \$((...)) , head
 
 
 
@@ -253,5 +253,105 @@ fi
 \subsubsection{数组初始化}
 
 
+\section{收集进程资料}
+
+
+
+常用的几条命令，ps，top, pgrep.
+
+\subsubsection{ps}
+
+ps不带任何参数，收集当前终端相关的进程。
+
+\begin{itemize}
+
+\item -f， full，包含更多列信息。
+
+\item -e, every，系统上运行的所有信息，-ax（all）也可以达到同样效果。
+
+%查一下a和x的含义
+
+\item -o,指定想显示的列，用逗号作为限定符，分隔的参数之间没有空格。
+
+\begin{itemize}
+\item pcpu
+\item pid
+\item ppid
+\item pmem
+\item com, 可执行文件名
+\item cmd
+\item user
+\item nice, 优先级
+\item time, 累计CPU时间
+\item etime, 启动后流逝的时间
+\item tty
+\item euid,有效用户ID
+\item stat, 进程状态
+\end{itemize}
+
+参数后面加上=号，表示移除列名，不是说移除这一列。
+
+% -o使用的过滤器是什么？查一下。
+
+% u呢，是什么啊？
+
+% -f呢？
+
+% ps aux 是怎么说？？
+
+\item --sort，对命令进行排序，格式是
+
+\begin{Bash}[参数前的+-表示升序或者降序]
+ps [OPTIONS] --sort -parameter1,+parameter2,parameter3
+\end{Bash}
+
+
+\item -C,这里是大写C，指定命令名称.这里是要全称，如果使用pgrep就会好一些，只需要一部分名称就可以了。
+
+%是要全称吗？？如果是要全称，那这个不太好用啊。 pgrep是否更好用
+
+\item -t，指定终端
+
+\item -L，线程相关，这里先不关心了。
+
+\item 原来f，u，w是一些制定好输出格式的选项。
+
+
+
+
+
+\end{itemize}
+
+\subsubsection{pgrep}
+
+-d,指定定界符
+
+-u，指定用户（拥有者）列表
+
+-u和-U，小写是有效用户，大写是真实用户
+
+%最后还是提醒我需要查看用户这部分的知识啊。
+
+
+
+\subsubsection{top}
+
+top
+
+\subsubsection{which, whereis, file, whatis}
+
+\paragraph{which} 找出某个命令的位置
+
+\paragraph{whereis} 和which类似，但不仅返回命令的路径，还能够打印出其对应的命令手册的位置以及命令源代码的路径。
+
+\paragraph{file} 可以用来确定文件的类型，这条命令会打印出该文件类型相关的细节信息。
+
+
+
+\subsection{杀死进程及发送或者相应信号}
+
+kill可以用来发送信号，trap用来处理所接受的信号
+
+%这部分作为明天的内容算了，睡觉。
 
 
