@@ -147,6 +147,25 @@ find devel/source_path \( -name ".git" -prune \) -o \( -type -f -print \)
 
 \subsubsection{结合xargs}
 
+\paragraph{xgrgs的使用}
+
+什么命令都不带时，默认使用的是\lstinline$\bin\echo$.
+
+-d, 输入的截断符号
+
+\begin{Bash}[第一次后面有空行是因为截断符是：，所以最后的换行得到了保留]
+
+[root@192 Development]# echo "args1:args2" | xargs -d :
+args1 args2
+
+[root@192 Development]# echo -n "args1:args2" | xargs -d :
+args1 args2
+[root@192 Development]# 
+
+\end{Bash}
+
+而 -0 则表示使用\lstinline$\0$来截断输入。这样可以配合find命令的\lstinline$-print0$来使用，可以在文件名中有换行的情况下安全使用。
+
 
 
 
