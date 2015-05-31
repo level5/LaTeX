@@ -4,7 +4,7 @@
 命令列表：
 dd, find, grep, wc, iptables, \$((...)) , head， gzip, wc
 
-curl
+curl, cut
 
 
 
@@ -353,6 +353,389 @@ kill可以用来发送信号，trap用来处理所接受的信号
 
 \section{我记不太清楚的操作符}
 
+\section{Linux中文件和文件权限问题}
+
+\subsection{用户和用户组}
+
+这个没什么好多说的，文件对应的三组权限就是User, Group和Others.
+
+\subsection{文件属性}
+
+\begin{Bash}
+[root@192 Development]# ls -l
+total 4
+-rw-r--r--. 1 root root 54 May 28 01:32 foo.txt
+\end{Bash}
+
+文件类型：
+
+% use table to hold other environment, and allows to add a caption to our table. data is contained in tabular environment
+\begin{table}
+% use center to put table in the center of page
+%\begin{center}
+\caption{文件类型}    % Caption
+%\label{tab：文件属性}  % ？？
+
+\begin{tabular}{|l|l|} 
+% l,c,r: content align
+% |: vertical lines
+
+% ampersands & as column seperators and newline symbols \\ as row seperators.
+
+\hline % row line
+- & 文件\\
+\hline
+d & 目录\\
+\hline
+l & 连接文件\\
+\hline
+b & block，可供存储的接口设备\\
+\hline
+c & char， 串行端口设备\\
+\hline
+
+\end{tabular}
+
+%\end{center}
+
+\end{table}
+
+权限:顺序是rwx。
+ 
+r, read读权限，对应的数字是4；w，write写权限，对应的数字是2；x， execute执行权限，对应的数字是1。（这里数字二进制表示的话，分别是第三位，第二位，第一位，这样就可以将所有权限组合起来用1个Byte表示）
+ 
+三组分别代表User,Group,Other的这三者的权限。
+
+第二栏是i-node的数量，3,4栏是User和Group。
+
+\paragraph{i-node}
+
+% 补充...
+
+\paragraph{chgrp, chown}
+
+\begin{Bash}
+
+chgrp -R usersgroup install.log 	# -R进行递归的持续更改
+
+chown users install.log
+
+chown users:usersgroup install.log  # 修改User和Group
+
+chown :usersgroup install.log 		# 只修改Group
+
+\end{Bash}
+
+
+\paragraph{chmod}
+
+\begin{Bash}
+
+chmod 777 filename # 三个分组的权限都定义为rwx
+
+chmod a+x filename
+chmod a-x filename
+chmod a=x filename
+
+chmod u=x filename
+chmod g=x filename
+chomd o=x filename
+
+\end{Bash}
+
+
+\paragraph{权限对于文件}这个很好理解。
+
+\paragraph{权限对于目录}
+
+\begin{itemize}
+\item r(read contents in directory),可以读取目录的结构，表示可以查看该目录下面的文件名数据，所以可以使用命令显示目录的内容列表。
+\item w(modify contents of directory),表示可以修改该目录结构列表的权限。
+	\begin{itemize}
+	\item 建立新的文件和目录；
+	\item 删除已存在的文件和目录，不论改文件的权限是什么；
+	\item 重命名已存在的文件和目录；
+	\item 转移该目录内的文件，目录位置。
+	\end{itemize}
+\item x(access directory), x表示用户能否进入该目录成为工作目录。
+\end{itemize}
+
+
+\subsubsection{测试一下}
+
+用户相关文件，/etc/passwd,/etc/shadow,/etc/group
+\begin{Bash}
+[root@192 Development]# cat /etc/passwd | head -n 4
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+[root@192 Development]# 
+[root@192 Development]# cat /etc/shadow | head -n 4
+root:$6$/5.c2ZG9GmbRe4ot$KbfkB.hduc6He0qNkWqpniGWoBCPMrymx9/qkkGcN0zy4oQgbvyFIO.mzbt1H4zR9Blo01ROWixMjJrfLL5RS1:16541:0:99999:7:::
+bin:*:16231:0:99999:7:::
+daemon:*:16231:0:99999:7:::
+adm:*:16231:0:99999:7:::
+[root@192 Development]# 
+[root@192 Development]# cat /etc/group | head -n 4
+root:x:0:
+bin:x:1:
+daemon:x:2:
+sys:x:3:
+\end{Bash}
+
+%$
+
+显示所有用户，操作/etc/passwd文件
+\begin{Bash}[显示所有用户]
+
+[root@192 Development]# cut -d: -f1 /etc/passwd
+
+\end{Bash}
+
+% 学一下这个命令啊
+
+\begin{Bash}[用户组也是同样吧]
+
+[root@192 Development]# cut -d: -f1 /etc/group
+
+\end{Bash}
+
+\begin{Bash}[查看用户组]
+[root@192 Development]# groups
+root
+[root@192 Development]# groups root
+root : root
+[root@192 Development]# groups shifeng
+shifeng : shifeng wheel
+\end{Bash}
+
+\begin{Bash}[创建用户，使用命令useradd]
+[root@192 Development]# useradd huang
+[root@192 Development]# ll -d /home/huang/
+drwx------. 3 huang huang 87 May 31 10:27 /home/huang/
+[root@192 Development]# grep huang /etc/passwd /etc/shadow /etc/group
+/etc/passwd:huang:x:1001:1001::/home/huang:/bin/bash
+/etc/shadow:huang:!!:16586:0:99999:7:::
+/etc/group:huang:x:1001:
+[root@192 Development]# 
+\end{Bash}
+创建一个用户，系统会给我们生成很多默认是这
+\begin{itemize}
+\item /etc/passwd里面创建一行和账号相关的数据，包括创建UID/GID/主文件夹
+\item /etc/shadow里面加入账号密码相关数据，现在还没有密码
+\item /etc/group里面加入一个和账号相同的用户组
+\item /home下生成一个账号同名的目录，权限是700
+\end{itemize}
+
+\begin{Bash}[当前用户还是不能使用，需要先设置密码，使用passwd]
+[root@192 Development]# passwd huang
+Changing password for user huang.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+\end{Bash}
+
+\begin{Bash}[一般用户只能修改自己的密码，而且还需要确认旧密码]
+[root@192 Development]# su huang
+[huang@192 Development]$ passwd
+Changing password for user huang.
+Changing password for huang.
+(current) UNIX password: 
+New password: 
+\end{Bash}
+%$
+
+% usermod, change命令就先不管了
+
+\begin{Bash}[创建测试文件]
+[root@192 Development]# mkdir test-directory
+[root@192 Development]# ll
+total 4
+-rwxrwxrwx. 1 root root 54 May 28 01:32 foo.txt
+drwxr-xr-x. 2 root root  6 May 31 10:42 test-directory
+[root@192 Development]# 
+[root@192 Development]# cd test-directory/
+[root@192 test-directory]# 
+[root@192 test-directory]# 
+[root@192 test-directory]# touch empty-file
+[root@192 test-directory]# ll
+total 0
+-rw-r--r--. 1 root root 0 May 31 10:53 empty-file
+[root@192 test-directory]# ll >directory-content
+[root@192 test-directory]# ll
+total 4
+-rw-r--r--. 1 root root 115 May 31 10:54 directory-content
+-rw-r--r--. 1 root root   0 May 31 10:53 empty-file
+[root@192 test-directory]# vi execute.sh
+[root@192 test-directory]# ll
+total 8
+-rw-r--r--. 1 root root 115 May 31 10:54 directory-content
+-rw-r--r--. 1 root root   0 May 31 10:53 empty-file
+-rw-r--r--. 1 root root  43 May 31 10:55 execute.sh
+[root@192 test-directory]# 
+
+\end{Bash}
+
+有三种方式从bash来创建文件：
+\begin{itemize}
+\item touch命令创建空文件
+\item 重定向命令行的标准输出或者出错输出
+\item 通过vi等打开一个不存在的文件
+\end{itemize}
+
+这个时候创建的文件默认都是644的权限。这是因为通过umask和默认权限来控制。
+
+\begin{Bash}
+[root@192 test-directory]# umask
+0022
+[root@192 test-directory]# umask -S
+u=rwx,g=rx,o=rx
+\end{Bash}
+
+umask表示在创建文件的时候，需要削减的权限，而默认的权限，对文件来说是666，没有执行权限；对于目录来说则是777.
+
+这样先不管第一组(和下一节相关)，则unmask是022，文件666-022是644，和上面文件符合。
+
+\begin{Bash}[测试一下umask]
+[root@192 test-directory]# umask 000
+[root@192 test-directory]# umask
+0000
+[root@192 test-directory]# touch test
+[root@192 test-directory]# ll test
+-rw-rw-rw-. 1 root root 0 May 31 11:12 test
+\end{Bash}
+
+接着创建其他用户的文件
+\begin{Bash}
+[root@192 test-directory]# vi huang-execute.sh
+[root@192 test-directory]# 
+[root@192 test-directory]# chown huang:huang huang-execute.sh 
+[root@192 test-directory]# ll
+total 12
+-rw-r--r--. 1 root  root  115 May 31 10:54 directory-content
+-rw-r--r--. 1 root  root    0 May 31 10:53 empty-file
+-rwxr-xr-x. 1 root  root   43 May 31 10:55 execute.sh
+-rw-r--r--. 1 huang huang   0 May 31 11:35 huang-epmty-file
+-rw-r--r--. 1 huang huang  37 May 31 11:36 huang-execute.sh
+[root@192 test-directory]# chmod a+x huang-execute.sh 
+[root@192 test-directory]# ll
+total 12
+-rw-r--r--. 1 root  root  115 May 31 10:54 directory-content
+-rw-r--r--. 1 root  root    0 May 31 10:53 empty-file
+-rwxr-xr-x. 1 root  root   43 May 31 10:55 execute.sh
+-rw-r--r--. 1 huang huang   0 May 31 11:35 huang-epmty-file
+-rwxr-xr-x. 1 huang huang  37 May 31 11:36 huang-execute.sh
+[root@192 test-directory]# 
+
+\end{Bash}
+
+先测试只有r的权限的情况
+\begin{Bash}[修改目录权限到r]
+[root@192 test-directory]# cd ..
+[root@192 Development]# chmod o=r test-directory
+[root@192 Development]# ll
+total 8
+-rwxrwxrwx. 1 root root   54 May 28 01:32 foo.txt
+drwxr-xr--. 2 root root 4096 May 31 11:36 test-directory
+[root@192 Development]# 
+
+\end{Bash}
+
+
+\begin{Bash}[切换用户，执行相关操作]
+[root@192 Development]# su huang
+[huang@192 Development]$ 
+[huang@192 Development]$ ll test-directory/
+ls: cannot access test-directory/empty-file: Permission denied
+ls: cannot access test-directory/directory-content: Permission denied
+ls: cannot access test-directory/execute.sh: Permission denied
+ls: cannot access test-directory/huang-epmty-file: Permission denied
+ls: cannot access test-directory/huang-execute.sh: Permission denied
+total 0
+?????????? ? ? ? ?            ? directory-content
+?????????? ? ? ? ?            ? empty-file
+?????????? ? ? ? ?            ? execute.sh
+?????????? ? ? ? ?            ? huang-epmty-file
+?????????? ? ? ? ?            ? huang-execute.sh
+[huang@192 Development]$ cd test-directory
+bash: cd: test-directory: Permission denied
+[huang@192 Development]$ 
+[huang@192 Development]$ touch test-directory/file-name
+touch: cannot touch ‘test-directory/file-name’: Permission denied
+
+\end{Bash}
+
+%$
+
+可以读取目录结构，但是具体文件的信息没办法读取，没办法进入目录，以及创建文件。
+
+然后测试w权限
+
+\begin{Bash}[虽然有w权限，但是没有进入的权限，所以什么都没办法做]
+[root@192 Development]# chmod o=w test-directory
+[root@192 Development]# 
+[root@192 Development]# 
+[root@192 Development]# 
+[root@192 Development]# ll
+total 8
+-rwxrwxrwx. 1 root root   54 May 28 01:32 foo.txt
+drwxr-x-w-. 2 root root 4096 May 31 11:36 test-directory
+[root@192 Development]# 
+[root@192 Development]# su huang
+[huang@192 Development]$ ll test-directory
+ls: cannot open directory test-directory: Permission denied
+[huang@192 Development]$ cd test-directory
+bash: cd: test-directory: Permission denied
+[huang@192 Development]$ 
+[huang@192 Development]$ touch test-directory/file-name
+touch: cannot touch ‘test-directory/file-name’: Permission denied
+
+\end{Bash}
+
+所以和我开始假想的还不太一样，我以为在外面操作，不切换城工作目录就可以使用，看来是错误的。所以感觉说没有x就只是不能切换成工作目录应该是不对的吧。应该是就没办法进入操作了。
+
+
+然后测试x权限
+\begin{Bash}[虽然可以进入目录，其他操作做不了，但是如果知道文件名，而且自己有权限的话，是可以访问的]
+-rwxrwxrwx. 1 root root   54 May 28 01:32 foo.txt
+drwxr-x--x. 2 root root 4096 May 31 11:36 test-directory
+[root@192 Development]# su huang
+[huang@192 Development]$ 
+[huang@192 Development]$ ll test-directory
+ls: cannot open directory test-directory: Permission denied
+[huang@192 Development]$ cd test-directory/
+[huang@192 test-directory]$ ll
+ls: cannot open directory .: Permission denied
+[huang@192 test-directory]$ touch test-file
+touch: cannot touch ‘test-file’: Permission denied
+[huang@192 test-directory]$
+[huang@192 Development]$ cat ./test-directory/huang-empty-file
+cat: ./test-directory/huang-empty-file: No such file or directory
+[huang@192 Development]$ cat ./test-directory/huang-epmty-file 
+[huang@192 Development]$ 
+\end{Bash}
+
+\begin{Bash}[w和x，可以创建文件，但是没办法看到自己创建的文件]
+[root@192 Development]# su huang
+[huang@192 Development]$ ll
+total 8
+-rwxrwxrwx. 1 root root   54 May 28 01:32 foo.txt
+drwxr-x-wx. 2 root root 4096 May 31 11:55 test-directory
+[huang@192 Development]$ 
+[huang@192 Development]$ ls test-directory/
+ls: cannot open directory test-directory/: Permission denied
+[huang@192 Development]$ 
+[huang@192 Development]$ touch test-directory/test-file
+[huang@192 Development]$ 
+
+\end{Bash}
+
+\subsection{特殊文件属性}
+
+\subsubsection{文件隐藏属性 chattr, lsattr}
+
+\subsubsection{文件特殊权限，SUID，SGID，SBIT}
 
 \subsection{(...)}
 
@@ -361,5 +744,8 @@ kill可以用来发送信号，trap用来处理所接受的信号
 命令组，会启动一个子shell(subsehll).
 
 \subsubsection{数组初始化}
+
+
+
 
 
