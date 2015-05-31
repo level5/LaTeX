@@ -2,7 +2,9 @@
 
 \section{每天一条命令}
 命令列表：
-dd, find, grep, wc, iptables, \$((...)) , head
+dd, find, grep, wc, iptables, \$((...)) , head， gzip, wc
+
+curl
 
 
 
@@ -167,6 +169,7 @@ args1 args2
 而 -0 则表示使用\lstinline$\0$来截断输入。这样可以配合find命令的\lstinline$-print0$来使用，可以在文件名中有换行的情况下安全使用。
 
 
+-n, 如果参数超出指定的数量，则每次最多使用多少个参数来多次执行命令。如果-x也只指定了，那么如果参数超出就会退出了。
 
 
 \subsection{解压命令 tar}
@@ -180,6 +183,9 @@ tar -xjvf xx.tar.bz2 # -j解压tar.bz2
 # -x 解压
 # -f 不知道
 \end{Bash}
+
+
+%gzip这条命令也看看吧。
 
 
 \subsection{创建链接命令 ln}
@@ -235,25 +241,7 @@ fi
 # ...
 \end{Bash}
 
-\section{shell中我感到疑惑或者不知道的东西}
-
-
-\subsection{subprocess Vs. subshell}
-
-
-\section{我记不太清楚的操作符}
-
-
-\subsection{(...)}
-
-\subsubsection{命令组}
-
-命令组，会启动一个子shell(subsehll).
-
-\subsubsection{数组初始化}
-
-
-\section{收集进程资料}
+\subsection{收集进程资料}
 
 
 
@@ -353,5 +341,25 @@ top
 kill可以用来发送信号，trap用来处理所接受的信号
 
 %这部分作为明天的内容算了，睡觉。
+
+\subsection{curl命令}
+
+
+\section{shell中我感到疑惑或者不知道的东西}
+
+
+\subsection{subprocess Vs. subshell}
+
+
+\section{我记不太清楚的操作符}
+
+
+\subsection{(...)}
+
+\subsubsection{命令组}
+
+命令组，会启动一个子shell(subsehll).
+
+\subsubsection{数组初始化}
 
 
