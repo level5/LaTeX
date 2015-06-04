@@ -2,7 +2,10 @@
 
 \section{每天一条命令}
 命令列表：
-dd, find, grep, wc, iptables, \$((...)) , head， gzip, wc
+
+find, wc
+
+dd, grep, iptables, \$((...)) , head， gzip, wc
 
 curl, cut
 
@@ -354,6 +357,65 @@ kill可以用来发送信号，trap用来处理所接受的信号
 %这部分作为明天的内容算了，睡觉。
 
 \subsection{curl命令}
+
+\begin{itemize}
+\item -# --progress-bar
+\item 1-6
+	\begin{itemize}
+	\item -4
+	\item -6
+	\end{itemize}
+\item -A --user-agent
+\item --anyauth
+	\begin{itemize}
+	\item --basic
+	\item --digest
+	\item --ntlm ??
+	\item --negotiate
+	\end{itemize}	
+\item -b --cookie
+\begin{Bash}
+curl -b "NAME1=VALUE1;NAME2=VALUE2" "http://www.google.com"
+\end{Bash}	
+\item -j --junk-session-cookies
+
+\item -e --referer
+\item -E --cert
+\item -F --form
+
+\item -G --get
+\item -H --header
+
+\item -I --head
+
+\item --interface
+
+\item -k --insecure
+
+\item --socks4a
+\item --socks5
+
+\item -T --upload-file
+
+\item --trace
+
+\item -u --user
+\item -U --proxy-user
+
+\item --url
+
+\item -x --proxy
+
+\item -X --request
+
+
+\item -d --data
+If  you  start  the data with the letter @, the rest should be a file name to read the data from, or - if you want curl  to  read the  data  from stdin.  The contents of the file must already be URL-encoded. 
+\item -c --cookie-jar
+\item -D --dump-header
+\item -o --output
+
+\end{itemize}
 
 
 \section{shell中我感到疑惑或者不知道的东西}
