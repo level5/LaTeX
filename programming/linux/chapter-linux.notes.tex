@@ -772,7 +772,46 @@ ls: cannot open directory test-directory/: Permission denied
 
 \subsubsection{进一步解释这个执行时的权限}
 
+\subsection{对文件操作的说明}
 
+和进程相关的ID有
+
+\begin{table}
+\begin{tabular}{|l|l|}
+\hline
+实际用户ID & 我们实际上是谁\\
+实际用户组 & \\
+\hline
+有效用户ID & 用于文件访问权限检查\\
+有效组ID & \\
+附加组ID & \\
+\hline
+保存的设置用户ID & 由exec函数保存\\
+保存的设置组ID & \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{itemize}
+\item 实际用户ID和实际组ID就是是以谁来登陆的。
+\item 有效用户ID和有效组ID及附加组ID决定我们的文件访问权限。
+\item 保存的设置用户ID和保存的设置组ID在执行一个程序时包含了有效用户ID和有效组ID的副本。
+\end{itemize}
+
+当对一个文件进行打开，创建或者删除操作时：
+\begin{enumerate}
+\item 若进程的有效用户ID是0（超级用户），则允许访问；
+\item 若进程的有效用户ID等于文件的所有者ID，所有者恰当的权限被设置，则允许访问，否则拒绝访问；
+\item 若进程的有效组ID或者附加组ID等于文件的有效组ID，若组恰当的权限被设置，则允许访问，否则拒绝访问；
+\item 若其他用户恰当的权限被设置，则允许访问，否则拒绝访问。
+\end{enumerate}
+
+创建文件，新文件的组ID将是：
+\begin{itemize}
+\item ...
+\item ...
+\end{itemize}
 
 \subsection{(...)}
 
