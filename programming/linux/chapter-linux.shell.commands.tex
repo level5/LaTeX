@@ -45,6 +45,51 @@ chmod a+x script.sh
 
 \subsection{测试}
 
+\subsubsection{if, else}
+
+对于ifelse,其实就是判断条件的exit status来看执行哪个分支，0表示真，1表示false，因为在Unix中，0状态码表示success。
+
+\subsubsection{test}
+
+test的参数被当做comparison expression或者file test。根据比较结果来返回exit status，0为true，1为false。
+
+\lstinline$[$是built-in命令；
+
+
+
+test有\lstinline$[$和\lstinline$[[$
+
+\subsubsection{let \& ((...))}
+
+((...)) and let construct return an exit status, according to whether the arithmetic expressions they evaluate expand to a non-zero value.
+
+\begin{Command-Line}
+[root@192 tmp]# ((0 && 1))
+[root@192 tmp]# echo $?
+1
+[root@192 tmp]# let "num = ((0 && 1))"
+[root@192 tmp]# echo $num
+0
+[root@192 tmp]# let "num = ((0 && 1))"
+[root@192 tmp]# echo $?
+1
+[root@192 tmp]# ((200 || 11))
+[root@192 tmp]# echo $?
+0
+[root@192 tmp]# let "num = ((200 && 1))"
+[root@192 tmp]# echo $num
+1
+[root@192 tmp]# let "num = ((200 && 1))"
+[root@192 tmp]# echo $?
+0
+\end{Command-Line}
+
+这里结果都很明确，搞清楚数学表达式的值和let及\lstinline$((...))$exit status的关系就可以了。
+
+数学表达式的值非零的话，let和\lstinline$((...))$的exit status就是0，数学表达式的值为零的时候，exit status就为1.
+
+然后就是在各种语言中\lstinline$num=2+1$的值就是num的值3，比如说c语言中经常出现的语句\lstinline$if((c=getchar()) != EOF){...}$
+
 \subsection{运算符}
 
 
