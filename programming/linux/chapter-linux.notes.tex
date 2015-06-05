@@ -3,12 +3,12 @@
 \section{每天一条命令}
 命令列表：
 
+
 find, wc
 
-dd, grep, iptables, \$((...)) , head， gzip, wc
+dd, grep, iptables, \$((...)) , head， gzip, wc, curl, cut
 
-curl, cut
-
+sed和awk
 
 
 \subsection{find}
@@ -358,6 +358,7 @@ kill可以用来发送信号，trap用来处理所接受的信号
 
 \subsection{curl命令}
 
+
 \begin{itemize}
 \item -# --progress-bar
 \item 1-6
@@ -416,6 +417,23 @@ If  you  start  the data with the letter @, the rest should be a file name to re
 \item -o --output
 
 \end{itemize}
+
+\subsection{dd,生成任意大小的文件}
+
+\begin{Bash}[生成1MB大小的文件，内容为全0]
+
+dd if=/dev/zero of=junk.data bs=1m count=1
+
+\end{Bash}
+
+\subsubsection{/dev/null和/dev/zero}
+
+/dev/zero is an endless source of zeros. It's there to provide a simple raw, data stream of unvarying content. /dev/null is a black hole. Anything sent into it just disappears. It's the programmers trash can.
+
+So /dev/zero is meant as a source of (empty) data, and /dev/null is meant as a destination for (unwanted) data.
+
+/dev/zero产生二进制0的数据；/dev/null是一个黑洞，可以往其中写入数据，都会被丢掉。
+
 
 
 \section{shell中我感到疑惑或者不知道的东西}
@@ -808,9 +826,27 @@ ls: cannot open directory test-directory/: Permission denied
 
 \subsection{特殊文件属性}
 
-\subsubsection{文件隐藏属性 chattr, lsattr}
+%\subsubsection{文件隐藏属性 chattr, lsattr}
+%通过命令添加一些特殊属性，先不看了。
 
 \subsubsection{文件特殊权限，SUID，SGID，SBIT}
+
+\paragraph{setUID}
+
+对二进制执文件有效，需要x权限，仅在执行改程序时有效，执行者具有所有者的权限。
+
+\paragraph{setGID}
+
+对二进制执文件有效，需要x权限，仅在执行改程序时有效，执行者具有改程序用户组的支持。
+
+\paragraph{Sticky Bit}
+
+对目录有效，需要w,x权限（即具有写入的权限），在该目录下创建的文件或者目录，只有root和用户自己才能删除（这里对应上面说的有w，x权限是，可以删除owner不是自己的文件）。
+
+
+\subsubsection{进一步解释这个执行时的权限}
+
+
 
 \subsection{(...)}
 
