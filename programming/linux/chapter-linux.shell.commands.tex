@@ -39,6 +39,19 @@ chmod a+x script.sh
 \item ...
 \end{itemize}
 
+
+\subsubsection{对变量求值}
+
+\lstinline$$$
+
+%$
+
+\lstinline$${...}$
+
+%$
+
+\subsubsection{参数}
+
 \subsection{String}
 
 \subsection{exit和exit的状态}
@@ -51,11 +64,123 @@ chmod a+x script.sh
 
 \subsubsection{test}
 
+\lstinline$test$， \lstinline$[$
+
 test的参数被当做comparison expression或者file test。根据比较结果来返回exit status，0为true，1为false。
 
 \lstinline$[$是built-in命令；
 
+\lstinline$test expr$
 
+\lstinline$[expr]$
+
+\begin{itemize}
+\item !expr
+\item (expr)
+\item expr1 -a expr2
+\item expr1 -o expr2 
+\end{itemize}
+
+expr计算结果按下面的规则根据参数的个数来返回结果
+\begin{itemize}
+\item 0 argument，结果是false
+\item 1 argument，当argument不为null的时候，结果是false
+\item 2 arguments
+
+当第一个参数是！，之后当第二个参数是null的时候结果才为true
+
+\begin{Command-Line}
+
+上面的实例
+
+\end{Command-Line}
+
+当地一个参数是unary操作符，结果就是unary操作的结果；如果第一个参数是个非法的unary，则结果是false。
+
+
+\item 3 arguments 
+
+如果第二个参数是binary操作符，结果就是将第一个参数和第三个参数做为操作数，binary的结果。
+
+如果第一个参数是！，那么结果就是将第二个和第三个参数按上面的描述执行
+
+如果第一个参数是（，第三个参数是），则第二个参数按照一个参数执行方式执行，结果就是他。
+
+否则，表达式结果是false。
+
+\item 4 arguments
+
+如果第一个是！，后面三个就按照三个参数的方式计算，否则按优先级使用上面的规则
+
+\item 5 arguments
+
+按优先级使用上面的规则
+
+\end{itemize} 
+
+
+File test Operators
+
+\begin{itemize}
+\item -e
+\item -a
+
+\item -s file is not zero size.
+
+\item -f
+\item -d
+\item -b
+\item -c
+\item -p
+\item -h
+\item -L
+\item -S
+\item -t
+
+\item -r
+\item -w
+\item -x
+
+\item -g
+\item -u
+\item -k
+
+\item -O you are owner of file.
+\item -G group-id of file same as yours.
+\item -N file modified since it was last read.
+
+\item f1 -nt f2 
+\item f1 -ot f2
+\item f1 -ef f2
+
+\item !
+\end{itemize}
+
+
+Integer comparison
+\begin{itemize}
+\item -eq
+\item -ne
+\item -gt
+\item -ge
+\item -lt
+\item -le
+\end{itemize}
+
+String comparison
+\begin{itemize}
+\item =
+\item ==
+\item !=
+
+\item \lstinline$\<$
+\item \lstinline$\>$
+
+\item -z is null
+\item -n is not null
+\end{itemize}
+
+\lstinline$[$和\lstinline$[[$中=和==不同的场景
 
 test有\lstinline$[$和\lstinline$[[$
 
@@ -89,6 +214,16 @@ test有\lstinline$[$和\lstinline$[[$
 数学表达式的值非零的话，let和\lstinline$((...))$的exit status就是0，数学表达式的值为零的时候，exit status就为1.
 
 然后就是在各种语言中\lstinline$num=2+1$的值就是num的值3，比如说c语言中经常出现的语句\lstinline$if((c=getchar()) != EOF){...}$
+
+
+\lstinline$((...))$的Integer Comparison
+\begin{itemize}
+\item <
+\item <=
+\item >
+\item >=
+\end{itemize}
+
 
 \subsection{运算符}
 
