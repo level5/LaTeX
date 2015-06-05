@@ -24,6 +24,25 @@
 \usepackage{graphicx}
 \usepackage{epstopdf}
 
+% style for command line
+\lstdefinelanguage{Command-Line}{
+}
+\lstnewenvironment{Command-Line}[1][]
+{\lstset{language=Command-Line,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\ttfamily,
+  captionpos=t, 
+  caption=【Command Line】#1
+}}
+{}
 
 % style for C#
 \lstnewenvironment{CSharp}[1][]
