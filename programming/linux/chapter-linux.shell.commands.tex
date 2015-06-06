@@ -4,25 +4,25 @@
 
 \subsection{执行}
 
-\begin{Bash}[开头告诉shell使用什么bash]
+\begin{Command-Line}[开头告诉shell使用什么bash]
 #！/bin/bash
-\end{Bash}
+\end{Command-Line}
 
 
 执行脚本：
 
 \begin{itemize}
 \item 脚本作为参数的方式
-\begin{Bash}
+\begin{Command-Line}
 bash script.sh   #脚本位于工作目录（当前目录）
-\end{Bash}
+\end{Command-Line}
 
 \item 修改脚本成可执行文件
 
-\begin{Bash}[内核会读取首行来确定执行的bash]
+\begin{Command-Line}[内核会读取首行来确定执行的bash]
 chmod a+x script.sh
 ./script.sh
-\end{Bash}
+\end{Command-Line}
 
 \end{itemize}
 
@@ -42,19 +42,32 @@ chmod a+x script.sh
 
 \subsubsection{对变量求值}
 
-\lstinline$$$
 
-%$
-
-\lstinline$${...}$
-
-%$
 
 \subsubsection{参数}
+
+\begin{itemize}
+\item \$0, \$1, \$2, ... \${10}, \${11}, etc!,对应位置的参数，\$0表示的是命令名，参数是从\$1开始。
+\item \$\#参数个数。
+\item \$* 所有参数，但是是当做一个参数
+\item \$@ 所有参数，但是是当做分开的参数
+\item \lstinline$shift$ 是的所有参数都往前移动一位，\$1被丢弃。
+\end{itemize}
+
+\begin{Command-Line}[\$*和\$@的区别]
+x
+x
+x
+\end{Command-Line}
 
 \subsection{String}
 
 \subsection{exit和exit的状态}
+
+可以使用\$?来取得最后执行的命令的exit status的值，0表示success。
+
+
+在函数中，可以使用return来返回exit status。如果没有返回，则最后执行的一条语句的exit status就是函数的exit status。
 
 \subsection{测试}
 
@@ -84,7 +97,7 @@ test的参数被当做comparison expression或者file test。根据比较结果�
 expr计算结果按下面的规则根据参数的个数来返回结果
 \begin{itemize}
 \item 0 argument，结果是false
-\item 1 argument，当argument不为null的时候，结果是false
+\item 1 argument，当argument不为null的时候，结果是true
 \item 2 arguments
 
 当第一个参数是！，之后当第二个参数是null的时候结果才为true
@@ -122,7 +135,7 @@ expr计算结果按下面的规则根据参数的个数来返回结果
 File test Operators
 
 \begin{itemize}
-\item -e
+\item -e， -a file exist, 判断文件是否存在，-a已经不推荐使用。
 \item -a
 
 \item -s file is not zero size.
