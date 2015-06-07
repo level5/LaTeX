@@ -2,7 +2,7 @@
 
 \section{基本知识}
 
-\subsection{执行}
+\section{执行}
 
 \begin{Command-Line}[开头告诉shell使用什么bash]
 #！/bin/bash
@@ -26,7 +26,7 @@ chmod a+x script.sh
 
 \end{itemize}
 
-\subsection{变量}
+\section{变量}
 
 变量名就是一个他引用的value的占位符。需要区分变量名，和变量名引用的值。如果variable1是变量名的话。\$variable1是变量名引用的值
 
@@ -60,16 +60,16 @@ x
 x
 \end{Command-Line}
 
-\subsection{String}
+\section{String}
 
-\subsection{exit和exit的状态}
+\section{exit和exit的状态}
 
 可以使用\$?来取得最后执行的命令的exit status的值，0表示success。
 
 
 在函数中，可以使用return来返回exit status。如果没有返回，则最后执行的一条语句的exit status就是函数的exit status。
 
-\subsection{测试}
+\section{测试}
 
 \subsubsection{if, else}
 
@@ -238,6 +238,139 @@ test有\lstinline$[$和\lstinline$[[$
 \end{itemize}
 
 
-\subsection{运算符}
+\section{运算符}
+
+
+\section{sed \& awk}
+
+\subsection{基本操作}
+
+sed和awk的共同点：
+\begin{itemize}
+\item 相似的语法来调用。
+\item 面向字符流，都是从文本文件中一次一行的读取输入，并将输出直接送到标准输出端。
+\item 都使用正则表达式进行模式匹配。
+\item 都允许用户在脚本中指定指令。
+\end{itemize}
+
+感觉重点就是第二个，从文本中一次一行的读取输入。
+
+
+命令行的语法：
+\begin{Command-Line}
+command [option] script filename
+\end{Command-Line}
+
+sed和awk也可以从标准输入中读取输入，并将输出发送到标准输出；如果制定了文件名filename，则输入从这个文件中取得。在重定向输出的时候，是不能够指定为输入的同一个文件的。
+
+script指定了要执行的指令，如果是在命令行，假如它包含有可以由shell解释的空格或者任意字符，那么他必须用单括号括起来。
+
+sed和awk都有-f选项可以指定脚本文件的名字。
+
+\begin{Command-Line}
+sed -f scriptfile inputfile
+\end{Command-Line}
+
+sed和awk基本操作是，每次读取一行输入，生成该输入行的备份，并且对该备份执行脚本中指定的指令，因此，对输入行所做的改动不会影响正真的输入文件。
+
+
+\subsubsection{sed处理过程}
+sed和awk的每个指令都包含两部分：模式和过程。模式是由斜杠(/)分割的正则表达式。过程指定一个或者多个将被执行的动作。
+
+当读取输入的每行时，程序赌气脚本中的第一个指令并检测当前行的模式，如果没有没有匹配，过程被忽略，并读取下一条指令；如果有一个匹配，那么执行过程中指定的一个或者多个动作。读取所有的指令，而不只是读取与输入行匹配的第一条指令。
+
+过程sed类似于航编辑器中使用的那些编辑命令组成，而awk中则可以使用程序设计语句和函数组成（过程必须用大括号括起）。
+
+
+\subsubsection{sed示例}
+\begin{Command-Line}[用来被处理的文件]
+[root@192 tmp]# cat list
+John Daggett, 341 King Road, Plymouth MA
+Alice Ford, 22 East Broadway, Richmond VA
+Orville Thomas, 11345 Oak Bridge Road, Tulsa OK
+Terry Kalkas, 402 Lans Road, Beaver Falls PA
+Eric Adams, 20 Post Road Sudbury MA
+Hubert Sims, 328A Brook Road, Roanoke VA
+Amy Wilde, 334 Bayshore Pkwy, Mountain View CA
+Sal Carpenter, 73 6th Street, Boston MA
+\end{Command-Line}
+
+\begin{Command-Line}[将MA替换成Massachusetts]
+[root@192 tmp]# sed 's/MA/Massachusetts/' list
+John Daggett, 341 King Road, Plymouth Massachusetts
+Alice Ford, 22 East Broadway, Richmond VA
+Orville Thomas, 11345 Oak Bridge Road, Tulsa OK
+Terry Kalkas, 402 Lans Road, Beaver Falls PA
+Eric Adams, 20 Post Road Sudbury Massachusetts
+Hubert Sims, 328A Brook Road, Roanoke VA
+Amy Wilde, 334 Bayshore Pkwy, Mountain View CA
+Sal Carpenter, 73 6th Street, Boston Massachusetts
+\end{Command-Line}
+
+这里使用单引号，是因为这样使得对于shell来说是特殊字符的字符表达本身的意思。
+
+\begin{Command-Line}[多条指令的时候的两种方式]
+[root@192 tmp]# sed 's/MA/, Massachusetts/; s/PA/, Pennsylvania/' list
+[root@192 tmp]# sed -e 's/MA/, Massachusetts/' -e 's/PA/, Pennsylvania/' list
+\end{Command-Line}
+
+一种是通过分号，另外一种是使用-e选项。
+
+-f来执行脚本文件是创建长的指令的好的方式。
+
+-n选项可以阻止自动输出，这个时候，如果要输出的指令都必须包含打印命令p(如果不带-n的时候，使用了p指令，那么一个被处理了的行会输出多次)
+
+\begin{Command-Line}
+sed -n 's/MA/Massachusetts/p' list
+\end{Command-Line}
+
+\subsubsection{awk}
+
+基本上命令行和sed类似，读取标准输入或者文件，输出到标准输出；多条指令使用";"隔开；-f读取脚本文件等等。
+
+但是，awk会将每个输入行解释成一条记录，而将一行上的每个单词（由空格或者制表符分隔）解释为每一个字段（这些默认设置可以修改的）。可以在模式或者过程中引用这些字段。\$0代表整个记录。
+
+\begin{Command-Line}[没有指定模式的情况下就是所有行]
+awk '{print $1}' list
+\end{Command-Line}
+%$
+\begin{Command-Line}[指定模式]
+awk '/MA/{print $1}' list
+\end{Command-Line}
+%$
+
+可以使用-F选项来制定分隔符。
+
+\begin{Command-Line}[-F紧跟着指定分隔符]
+awk -F, '/MA/{print $1}' list
+\end{Command-Line}
+%$
+
+\section{sed脚本}
+
+\subsection{sed的基本原理}
+
+理解sed，需要理解的三个基本原理
+\begin{itemize}
+\item 脚本中的所有编辑命令都将依次应用于每个输入行；
+\item 命令应用于所有的行，除非寻址限制了受编辑命令影响的行；
+\item 原始的输入未被改变，编辑命令修改了原始行的备份并且此备份被发送到标准输出。
+\end{itemize}
+
+\subsubsection{所有编辑命令依次应用于每一个输入行}
+
+对已后面的命令，他处理的是前一个命令处理过的行的内容，而不是原始的行的内容。
+
+% 举个例子
+
+\subsubsection{寻址是全局的，对应所有的行}
+
+\subsubsection{原始输入不会改变，结果发送到标准输出}
+
+
+
+
+
+
 
 
