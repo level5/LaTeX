@@ -1,25 +1,25 @@
 
-# function function_name() {
+# function function_name () {
 #   COMMAND
 # }
 
-# function_name() {
+# function_name () {
 #   COMMAND
 # }
 
-# fun(){COMMAND1; COMMAND2;}
+# fun (){COMMAND1; COMMAND2;}
 
 
 # Function declaration must precede call
 
 
-f1()
+f1 ()
 {
   echo "call function f1"
   f2
 }
 
-f2()
+f2 ()
 {
   echo "call function f2"
 }
