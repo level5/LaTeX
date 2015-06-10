@@ -4,7 +4,7 @@
 命令列表：
 
 
-find, wc, dd, head, curl,
+find, wc, dd, head, curl, tr
 
 
 
@@ -12,12 +12,17 @@ find, wc, dd, head, curl,
 
 
 
-grep, iptables, \$((...)) ,  gzip, cut
+grep, iptables, \$((...)) ,  gzip, cut,
+
+more, less
 
 sed和awk
 
 yum, rpm
 
+built-in
+
+keyword
 
 
 
@@ -185,6 +190,18 @@ args1 args2
 -n, 如果参数超出指定的数量，则每次最多使用多少个参数来多次执行命令。如果-x也只指定了，那么如果参数超出就会退出了。
 
 
+\subsection{grep}
+
+\begin{itemize}
+
+\item -r 对文件夹中的文件建递归查找。
+
+--include GLOB, --exclude GLOB
+
+A file-name  glob  can  use  *,  ?,  and  [...]   as wildcards,  and  \lstinline$\$  to  quote  a wildcard or backslash character literally.
+
+
+\end{itemize}
 
 \subsection{wc 统计文件}
 
@@ -264,6 +281,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 # ...
 \end{Bash}
+
+\subsection{对传入参数的判断和处理}
 
 \subsection{收集进程资料}
 
@@ -427,6 +446,38 @@ If  you  start  the data with the letter @, the rest should be a file name to re
 \item -o --output
 
 \end{itemize}
+
+\subsection{tr,替换字符}
+translate or delete characters.
+
+从标准输入读取，输出到标准输出。中间可以替换，删除或者转换字符。
+
+\begin{Command-Line}
+tr [options] SET1 SET2
+\end{Command-Line}
+
+-c， -C, --complement 取SET1的反
+
+-d, --delete 删除SET1中出现的characters
+
+-s, --sequeeze-repeats 将SET1中连续重复出现的character替换成单个。
+
+-t,好像和默认一样，将SET1中出现的character用SET2中对应位置的character替换。
+
+\begin{Command-Line}
+[huang@192 Desktop]$ echo aabbccddeeffgghhii | tr -d abc
+ddeeffgghhii
+[huang@192 Desktop]$ 
+[huang@192 Desktop]$ echo aabbccddeeffgghhii | tr -t abc ABC
+AABBCCddeeffgghhii
+[huang@192 Desktop]$ 
+[huang@192 Desktop]$ echo aabbccddeeffgghhii | tr -s abcdefghi
+abcdefghi
+[huang@192 Desktop]$ 
+[huang@192 Desktop]$ echo aabbccddeeffgghhii | tr -c -d a\\n
+aa
+[huang@192 Desktop]$ 
+\end{Command-Line}
 
 \subsection{dd,生成任意大小的文件}
 
