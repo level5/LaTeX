@@ -4,15 +4,17 @@
 命令列表：
 
 
-find, wc, dd, head, curl, tr
+find, wc, dd, head, curl, tr, cut
 
+tree, pushd, popd
 
+grep
 
 ================================
 
 
 
-grep, iptables, \$((...)) ,  gzip, cut,
+iptables, \$((...)) ,  gzip,
 
 more, less
 
@@ -24,7 +26,7 @@ built-in
 
 keyword
 
-tree, 
+
 
 
 
@@ -196,14 +198,99 @@ args1 args2
 
 \begin{itemize}
 
-\item -r 对文件夹中的文件建递归查找。
+
+\item 同时搜索多个文件；从标准输入读取；
+
+\begin{Command-Line}[同时对多个文件进行搜索]
+grep "pattern" file1 file2 file3
+\end{Command-Line}
+
+
+
+\item -r,-R 对文件夹中的文件建递归查找。
 
 --include GLOB, --exclude GLOB
 
 A file-name  glob  can  use  *,  ?,  and  [...]   as wildcards,  and  \lstinline$\$  to  quote  a wildcard or backslash character literally.
 
+\item -E 使用正则表达式匹配;或者使用egrep。
+
+\item --color,标记查找到的字符串
+
+\item -o 只输出匹配的字符串。
+
+\begin{Command-Line}[一行中有两次匹配，输出到了两行之中]
+[root@192 tmp]# cat xx.sh 
+echo "var in xx:$var"
+[root@192 tmp]# grep var ./xx.sh -o
+var
+var
+[root@192 tmp]# 
+\end{Command-Line}
+%$
+
+\item -v 反转结果，打印匹配结果以外的行。
+
+\item -c 统计匹配的行数
+
+\begin{Command-Line}[这个方式是统计匹配的次数]
+
+[root@192 tmp]# echo -e "1 2 3 4 5 6\n7 8 9" | grep -o [0-9] | wc -l
+9
+[root@192 tmp]# 
+
+\end{Command-Line}
+
+\item -n 打印匹配的行号
+
+\item -l 打印匹配的文件名，-L 打印不匹配的文件名
+
+\item -i 忽略大小写
+
+\item -e 多个模式； -f 从文件读取模式，这个和sed类似啊。
+
+\item -Z 使用0作为终结符。配合xargs的-0使用
+
+\item -q 静默输出，有匹配的话exit status就为0，ke可以使用与if语句之中。
+
+
+\item -A -B -C
+
+-A 打印出结果及其之后n行；
+-B 打印出结果及其之前n行；
+-C 打印出结果及其前后n行。
 
 \end{itemize}
+
+\subsection{cut}
+
+\begin{itemize}
+
+\item -f
+
+-b 字节
+
+-c 字符
+
+-f 字段
+
+\item -d terminal符
+
+\item 
+
+N- N到尾   
+
+N-M N到M
+
+-M 1到M
+
+\end{itemize}
+
+\subsection{目录操作}
+
+pushd, popd, dirs, -, ~
+
+
 
 \subsection{wc 统计文件}
 
@@ -515,6 +602,11 @@ So /dev/zero is meant as a source of (empty) data, and /dev/null is meant as a d
 
 
 \subsection{subprocess Vs. subshell}
+
+% 为什么我没有写下subshell中感觉不同的东西啊....
+
+% 下次一定要记下来啊
+
 
 
 \section{我记不太清楚的操作符}
@@ -945,7 +1037,7 @@ ls: cannot open directory test-directory/: Permission denied
 \begin{itemize}
 \item 实际用户ID和实际组ID就是是以谁来登陆的。
 \item 有效用户ID和有效组ID及附加组ID决定我们的文件访问权限。
-\item 保存的设置用户ID和保存的设置组ID在执行一个程序时包含了有效用户ID和有效组ID的副本。
+\item 保存的设置用户ID和保存的设置组ID在执行一个程序时包含了有效用户ID和有效组ID的副本。(???)
 \end{itemize}
 
 当对一个文件进行打开，创建或者删除操作时：
@@ -961,6 +1053,8 @@ ls: cannot open directory test-directory/: Permission denied
 \item ...
 \item ...
 \end{itemize}
+
+% 今晚把这个搞清楚吧！！！
 
 \subsection{(...)}
 
