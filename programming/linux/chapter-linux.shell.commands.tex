@@ -576,9 +576,22 @@ Exchange & x & 交换保持空间和模式空间的内容\\
 
 \section{awk脚本}
 
-
-
 print没有带参数的话，就是打印出这一行的内容。
+
+\begin{itemize}
+\item \$0, \$1...\$n
+\item ARGC, ARGV
+\item FILENAME
+\item FNR 当前文件的行号
+\item NR 文件的行号，多个文件的时候，表示总得文件行号。
+\item NF 字段数
+\item OFS
+\item FS, 当设置的不止一个字符的时候，这个就会当做正则表达式来匹配。
+\item ORS
+\item RS
+
+\end{itemize}
+
 
 \subsubsection*{BEGIN}
 
@@ -597,3 +610,10 @@ print没有带参数的话，就是打印出这一行的内容。
 \end{Command-Line}
 
 \paragraph{字段}
+
+
+~ 可以用来测试一个匹配；
+
+!~ 反转匹配
+
+\paragraph{字段分隔符} FS
