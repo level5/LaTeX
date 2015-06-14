@@ -1,0 +1,162 @@
+\chapter{System API}
+
+
+\section{进程环境}
+
+\subsection{进程终止}
+
+
+\subsubsection{进程终止方式}
+进程终止方式：
+\begin{itemize}
+\item 正常方式：
+\begin{itemize}
+\item 从\lstinline$main$返回
+\item 调用\lstinline$exit$
+\item 调用\lstinline$_exit$或者\lstinline$_Exit$
+\item 最后一个线程从其启动例程返回
+\item 最后一个线程调用\lstinline$pthread_exit$
+\end{itemize}
+\item 异常方式：
+\begin{itemize}
+\item 调用\lstinline$abort$
+\item 接收到一个信号并终止
+\item 最后一个线程对取消请求作出响应
+\end{itemize}
+\end{itemize}
+
+\subsubsection{exit函数}
+
+\begin{C}
+#include <stdlib.h>
+
+void exit(int status);
+void _Exit(int status);
+\end{C}
+
+\begin{C}
+#include <unistd.h>
+void _exit(int status);
+\end{C}
+
+
+\lstinline$_exit$和\lstinline$_Exit$终止程序之后立即进入内核；\lstinline$exit$函数会先执行一些清理处理，执行个终止处理程序，关闭所有的标准IO流。
+
+
+\subsubsection{atexit函数}
+
+\begin{C}
+#include <stdlib.h>
+
+int atexit(void (*func)(void));
+\end{C}
+
+\begin{C}
+#include "apue.h"
+
+static void my_exit1(void);
+static void my_exit2(void);
+
+void test_atexit(void)
+{
+	if (atexit(my_exit2) != 0)
+		err_sys("cannot register my_exit2");
+	if(atexit(my_exit1) != 0)
+		err_sys("cannot register my_exit1");
+	if(atexit(my_exit1) != 0)
+		err_sys("cannot register my_exit1");
+
+	printf("test_atexit is done\n");
+}
+
+static void my_exit1()
+{
+	printf("first exit handler.\n");
+}
+
+static void my_exit2()
+{
+	printf("second exit handler.\n");
+}
+\end{C}
+
+\begin{Command-Line}[执行结果]
+test_atexit is done
+first exit handler.
+first exit handler.
+second exit handler.
+\end{Command-Line}
+
+
+\subsection{C程序内存布局}
+
+\subsubsection{C程序的存储空间布局}
+
+
+\begin{itemize}
+\item 正文段，CPU执行的机器指令部分；
+\item 初始化数据段，程序中明显的赋初值的变量。
+\begin{C}[出现在任何函数之外的声明]
+int max_count = 99;
+\end{C}
+\item 非初始化数据段，在程序开始之前，内核将此段中的数据初始化为0或者空指针。
+\begin{C}[出现在任何函数外的C声明]
+long sum[1000];
+\end{C}
+\item 栈，自动变量以及每次函数调用时所需要保存的信息放在此段中；
+\item 堆，动态存储分配
+\end{itemize}
+
+\subsubsection{共享库}
+
+\subsubsection{动态存储分配}
+
+\begin{C}
+#include <stdlib.h>
+
+void *malloc(size_t size);
+void *calloc(size_t nobj, size_t size);
+void *realloc(void *ptr, size_t newsize);
+
+void free(void *ptr);
+\end{C}
+
+三个函数返回的都是\lstinline$void *$通用指针。内存要满足最苛刻的对齐要求。
+\begin{itemize}
+\item \lstinline$malloc$,分配指定字节数的存储区，初始值不确定。
+\item \lstinline$calloc$，分配给指定长度的具有指定长度的对象存储空间，每位都初始化为0；
+\item \lstinline$realloc$，增加或者减少一起分配区的长度，当增长长度时，可能需要将以前分配区的内容移动到另外一个足够大的区域，新增区域内的初始值不确定。最后一个参数是存储区的新长度，而不是增加或者减少的长度。
+\end{itemize}
+
+\subsubsection{环境变量}
+
+\begin{C}
+#include <stdlib.h>
+
+char *getenv(const char *name);
+\end{C}
+
+\begin{C}[成功返回0]
+#include <stdlib.h>
+
+int putenv(char *str);
+
+int setenv(const char *name, const char *vlaue, int rewrite);
+int unsetenv(const char *name);
+\end{C}
+
+\begin{itemize}
+\item \lstinline$putenv$参数形式为name = value，如果已存在先删除其原来的定义。
+\item \lstinline$setenv$,若rewrite非0，先铲除现有定义，若rewrite为0，则不修改现有定义，也不报错
+\item \lstinline$unsetenv$，删除定义，没有也不报错。
+\end{itemize}
+
+由于环境变量表和环境变量字符串通常存放在进程存储空间的顶部，所以修改他的过程比较复杂。
+%  以后补充
+\begin{itemize}
+\item 删除,...
+\item 修改，...
+\item 新增,...
+\end{itemize}
+
+\subsection{跨函数跳转 setjmp和longjmp}

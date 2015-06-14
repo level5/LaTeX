@@ -1,0 +1,158 @@
+\chapter{边学Linux边学C语言}
+
+
+\section{C语言编程规范}
+
+先按下划线命名吧。
+
+\section{语法部分}
+
+
+\subsubsection{可变参数列表}
+
+
+\begin{itemize}
+\item 是通过宏来实现的；
+\item 导入\lstinline$stdarg.h$这个头文件，标准库的一部分使用到一个类型\lstinline$va_list$和三个宏:\lstinline$va_start$, \lstinline$va_arg$, \lstinline$va_end$;
+\item 步骤：
+\begin{enumerate}
+\item 函数申明一个\lstinline$va_list$;
+\item 通过调用\lstinline$va_start$来初始化,第一个参数为申明的\lstinline$va_list$，第二个参数为省略号前面最后一个有名字的变量；
+\item 使用\lstinline$va_arg$来访问参数，接收两个参数，第一个是\lstinline$va_list$变量，第二个是参数的类型，这也是为什么\lstinline$printf$可以使用不同的参数，因为根据前面格式化字符串来确定后面对应参数类型；
+\item 最后当访问完最后一个参数之后，需要调用\lstinline$va_end$ 
+\end{enumerate}
+
+\end{itemize}
+
+\begin{C}
+/*
+ * arguments_list.c
+ *
+ *  Created on: Jun 12, 2015
+ *      Author: root
+ */
+
+
+#include <stdarg.h>
+
+float average(int n_values, ...)
+{
+	va_list var_arg;
+	int count;
+	float sum = 0;
+
+	/*
+	 * start to visit var list
+	 */
+	va_start(var_arg, n_values);
+
+	/*
+	 *
+	 */
+	for( count = 0; count < n_values; count +=1 )
+	{
+		sum += va_arg(var_arg, int);
+	}
+
+	/*
+	 *
+	 */
+	va_end(var_arg);
+
+	return sum / n_values;
+}
+
+\end{C}
+
+\subsubsection{指针}
+
+\begin{C}[最好使用的写法是这样]
+int *a;
+\end{C}
+
+\begin{C}[因为这样可能误导以为三个变量都是指针，实际上只有第一个是]
+int* b, c, d;
+\end{C}
+
+\subsubsection{链接属性 external， internal， none}
+
+\begin{itemize}
+\item external，不论声明多少次，位于几个源文件都表示同一个实体；
+\item internal，在同一个源文件内的所有声明都是同一个实体；
+\item none，多个声明被当做不同的实体；
+\end{itemize}
+
+extern和static关键字修改标识符的链接属性，static关键字只对原来是exteranl的属性生效，使其变为internal；extern关键字用于源文件中一个标识符的第一次申明时指定该标识具有external的属性，但是如果它用于该标识的第二次或以后的申明，他并不会改变由第一次申明指定的链接属性。
+
+
+extern只有在声明的时候才是必需的。因为子文件作用域定义的变量就是external的。
+
+\subsubsection{数组变量和指针变量的区别}
+
+\subsubsection{定义字符串常量}
+[http://stackoverflow.com/questions/1431576/how-do-you-declare-string-constants-in-c]
+
+\subsubsection{const在C中和Java中的不同}
+[http://stackoverflow.com/questions/27588918/const-and-pointers-in-c]
+
+\begin{C}[为什么这样会有编译错误呢？]
+const char *str = "abc";
+str[0] = 'd';
+\end{C}
+
+这里是C和指针中的解释：
+
+\begin{C}[这两个是相同的，表示a的值不能修改]
+int const a;
+const int a;
+\end{C}
+
+
+\begin{C}[这个的话，表示指针可以修改，但是指向的值不能修改]
+int const *pci;
+\end{C}
+
+\begin{C}[这个的话，指针是常量，值可以修改]
+int * const cpi;
+\end{C}
+
+\begin{C}[这个指针和值都不能修改]
+int const * const cpci;
+\end{C}
+
+这个按照一篇文章说的来解读变量的定义很方便的，后面找到那个再补充。
+
+
+这样上面的例子就很清楚了，\lstinline$const char *str$的指向的变量的值是不能修改的，而通过下标取值就是求值的意思，所以编译报错了(看这篇问题里面说，通过这个指针来得到的值，编译器认为就是不可变的，也不知道这种说法对不对，感觉有一定道理)。
+
+\subsection{函数指针，怎么感觉函数名和函数的值是一样的啊}
+
+\begin{C}[这是我不能理解的]
+printf("function != &function:%s\n", 
+	output_file == &output_file? "true":"false");
+\end{C}
+
+根据C和指针上面的解释：初始化表达式中的\&操作符是可选的，因为函数名被使用时，总是由编译器把他转换为函数指针的。\&操作符只是显式的说明了编译器将隐式执行的任务。
+
+\subsection{define宏\#是什么？}
+
+这个是创建运算符(\#),以资源名产生字符串的值。
+
+\begin{C}
+#define TEST_NAME 1
+#define p(name) print_name(#name, name)
+
+static void print_name(char *name, int value)
+{
+	printf("value of \"%s\" is %d.\n", name, value);
+}
+
+void test_pound_sign()
+{
+	p(TEST_NAME);
+}
+\end{C}
+
+\begin{Command-Line}[运行结果]
+value of "TEST_NAME" is 1.
+\end{Command-Line}

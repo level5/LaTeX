@@ -64,6 +64,26 @@
 }}
 {}
 
+% style for C#
+\lstnewenvironment{C}[1][]
+{\lstset{language=C,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\ttfamily,
+  captionpos=t, 
+  linewidth=0.9\linewidth,
+  frame=tb,
+  caption=【C语言】#1
+}}
+{}
+
 % style for HTML5
 
 \lstdefinelanguage{HTML5}{

@@ -22,7 +22,7 @@ sed和awk
 
 yum, rpm
 
-built-in
+built-in commands:source   "."
 
 keyword
 
@@ -30,7 +30,14 @@ keyword
 
 
 
+
+
 \subsection{find}
+
+\begin{Command-Line}[find语法，待补全]
+find [path...] [expression]
+\end{Command-Line}
+
 
 find列出指定目录及其子目录的文件和文件夹
 
@@ -262,6 +269,11 @@ var
 
 \end{itemize}
 
+\subsection{BUILTIN COMMANDS}
+
+\subsubsection{. source}
+
+
 \subsection{cut}
 
 \begin{itemize}
@@ -474,7 +486,7 @@ kill可以用来发送信号，trap用来处理所接受的信号
 
 %这部分作为明天的内容算了，睡觉。
 
-\subsection{curl命令}
+\subsection{cURL命令}
 
 
 \begin{itemize}
@@ -1015,7 +1027,11 @@ ls: cannot open directory test-directory/: Permission denied
 
 \subsection{对文件操作的说明}
 
-和进程相关的ID有
+\section{进程相关ID的部分}
+
+
+
+和进程相关的ID有:(还有个session id，感觉这部分还是放在进程里面比较合适吧。)
 
 \begin{table}
 \begin{tabular}{|l|l|}
@@ -1033,6 +1049,25 @@ ls: cannot open directory test-directory/: Permission denied
 \end{tabular}
 \end{table}
 
+
+\begin{itemize}
+
+\item Process ID (PID)
+
+This is an arbitrary number identifying the process. Every process has a unique ID, but after the process exits and the parent process has retrieved the exit status, the process ID is freed to be reused by a new process.
+
+\item Parent Process ID (PPID)
+
+This is just the PID of the process that started the process in question.
+
+\item Process Group ID (PGID)
+
+This is just the PID of the process group leader. If PID == PGID, then this process is a process group leader.
+
+\item Session ID (SID)
+
+This is just the PID of the session leader. If PID == SID, then this process is a session leader.
+\end{itemize}
 
 \begin{itemize}
 \item 实际用户ID和实际组ID就是是以谁来登陆的。
@@ -1055,6 +1090,8 @@ ls: cannot open directory test-directory/: Permission denied
 \end{itemize}
 
 % 今晚把这个搞清楚吧！！！
+
+
 
 \subsection{(...)}
 
