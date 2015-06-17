@@ -76,6 +76,8 @@ int* b, c, d;
 
 \subsubsection{链接属性 external， internal， none}
 
+文件范围的函数，变量定义都是external的；
+
 \begin{itemize}
 \item external，不论声明多少次，位于几个源文件都表示同一个实体；
 \item internal，在同一个源文件内的所有声明都是同一个实体；
@@ -156,3 +158,9 @@ void test_pound_sign()
 \begin{Command-Line}[运行结果]
 value of "TEST_NAME" is 1.
 \end{Command-Line}
+
+\subsection{volatile, register}
+
+
+\subsection{make自动化构建工具}
+
