@@ -164,3 +164,80 @@ value of "TEST_NAME" is 1.
 
 \subsection{make自动化构建工具}
 
+\begin{itemize}
+\item 当目标不具备时，根据条件来生成目标
+\item 当目标具备但是条件发生改变时，重新生成目标
+\item 当目标的条件不具备时，就按照1的方式创造条件
+\end{itemize}
+
+\begin{Command-Line}
+目标1 目标2 目标3... : 条件1 条件2 条件3...
+	命令1
+	命令2
+	命令3
+...
+\end{Command-Line}
+
+如果没有指定条件的话，就只在工作路径下目标所代表的文件不存在时，才会执行相应的命令去生成目标所对应的文件。
+
+因为没有给定条件就无法对比时间戳。但是这种情况下，也不会再命令中生成目标所对应的文件。这样这个目标的命令一直能够被执行。比如clean目标一直都会执行清理工作。
+
+每个命令必须以tab开头。这个是历史遗留问题。
+
+\# 开头的内容会被当做注释
+
+根据时间戳判断哪些文件需要编译就编译；
+
+\subsubsection{目标}
+
+默认目标是：all
+
+\subsubsection{条件}
+
+依赖是一个目标的条件是另外一个目标；
+
+\subsubsection{命令}
+
+\subsubsection{变量}
+
+\begin{table}
+\begin{tabular}{|l|l|}
+\hline
+
+变量名 & 作用 \\
+
+\hline
+
+\lstinline!$@! & 目标的文件名 \\
+
+\hline
+
+\$< & 第一个条件的文件名 \\
+
+\hline
+
+\$? & 时间戳在目标之后的所有条件，并以空格隔开这些条件 \\
+
+\hline
+
+\lstinline@$^@ & 所有条件的文件名，并以空格隔开，且排除了重复的条件 \\
+
+\hline
+
+\$+ & 与\lstinline@$^@ 类似，只是没有排除重复的条件 \\
+
+\hline
+
+\$* & 目标的主文件名，不包含扩展名 \\
+
+\hline
+
+\end{tabular}
+\end{table}
+
+\subsubsection{模式规则}
+
+\subsubsection{假目标}
+
+不生成目标文件的规则中的目标称为假目标。
+
