@@ -22,6 +22,10 @@ Require.js的目的是为了让我门编写模块化的代码，他遵循AMD规�
 	\end{itemize}
 \end{itemize}
 
+% 这个地方可以用tree命令重新写一份。
+
+
+
 \begin{HTML5}[project.html]
 <!DOCTYPE html>
 <html>
@@ -77,7 +81,7 @@ require(['foo'], function(foo) {
 });
 \end{HTML5}
 
-data-main一般用于但入口的应用。如果想使用require()。最好使用下面的方式
+data-main一般用于单入口的应用。如果想使用require()。最好使用下面的方式
 \begin{HTML5}
 <script src="scripts/require.js"></script>
 <script>
@@ -749,6 +753,7 @@ Important optimizer notes for "shim" config:
 \end{itemize}
 
 
+\subsubsection{map}
 
 
 
@@ -827,7 +832,7 @@ define(function(require, exports, module) {
     );
     \end{lstlisting}
 
-    \subsection{Configuration}
+\subsection{Configuration}
 
     有几种方式来调用require.config()，先通过script标签来加载Require.js，然后在下一个script标签中包含对require.config()的调用的代码。
     \begin{lstlisting}
