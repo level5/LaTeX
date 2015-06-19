@@ -162,7 +162,29 @@ value of "TEST_NAME" is 1.
 \subsection{volatile, register}
 
 
-\subsection{make自动化构建工具}
+\section{make自动化构建工具}
+
+
+\subsection{介绍}
+
+首先，需要一个makefile的文件来告诉make需要做什么。
+
+\subsubsection{规则}
+
+\begin{Bash}[一条规则长这样]
+target … : prerequisites …
+	recipe
+	…
+	…
+\end{Bash}
+
+\begin{itemize}
+\item target 目标，一般是一个文件的名字。也可以是一个动作的名字；
+\item prerequisite 条件，一个条件是一个文件的名字，这个文件被当做输入来创建目标，一般一个目标依赖于多个文件
+\item recipe 命令，是make执行的一个动作，一个命令可能包含多条shell command。recipe前面必须插入一个Tab，如果想使用其他字符，可以设置\lstinline$.RECIPEPREFIX$变量来改变他。
+\end{itemize}
+
+
 
 \begin{itemize}
 \item 当目标不具备时，根据条件来生成目标
@@ -239,10 +261,25 @@ value of "TEST_NAME" is 1.
 
 \subsubsection{.PHONY target}
 
-假目标(phony target)的话，不是真正的文件的名字，只是一系列规则(recipe)的名字而已，用来先是的请求这些规则。
+假目标(phony target)的话，不是真正的文件的名字，只是一系列命令(recipe)的名字而已，用来先是的请求这些规则。
+
+\begin{Bash}[因为rm不会创建clean这个文件，所以每次make clean都会执行rm命令]
+clean:
+	rm *.o temp
+\end{Bash}
+
+
+但是如果目录中存在clean这个文件的话，因为没有条件，所以这个clean文件会一直被当做最新的，而导致rm命令不会被执行。
+
+这个时候，可以将clean命令当做\lstinline$.PHONY$的条件，来显示的声明为一个假目标。
+\begin{Bash}[clean目标每次都会被执行，不管有没有clean文件]
+.PHONY: clean
+clean:
+	rm *.o temp
+\end{Bash}
 
 有两个原因使用假目标: 
 \begin{itemize}
 \item 避免和文件名字冲突；
-\item 改善性能
+\item 改善性能；
 \end{itemize}
