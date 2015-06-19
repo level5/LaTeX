@@ -237,7 +237,12 @@ value of "TEST_NAME" is 1.
 
 \subsubsection{模式规则}
 
-\subsubsection{假目标}
+\subsubsection{.PHONY target}
 
-不生成目标文件的规则中的目标称为假目标。
+假目标(phony target)的话，不是真正的文件的名字，只是一系列规则(recipe)的名字而已，用来先是的请求这些规则。
 
+有两个原因使用假目标: 
+\begin{itemize}
+\item 避免和文件名字冲突；
+\item 改善性能
+\end{itemize}
