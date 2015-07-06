@@ -1,0 +1,181 @@
+\chapter{Desgin Pattern with JS}
+
+\section{Constructor}
+
+\section{Module}
+
+\subsection{basic patterns}
+
+\begin{JavaScript}[立刻执行的匿名函数]
+(function () {
+	// ... all vars and functions are in this scope only
+	// still maintains access to all globals
+}());
+\end{JavaScript}
+
+这里，括号是必须的，区别就是函数申明和函数表达式的区别，函数表达式可以直接调用。
+
+
+
+
+在js中，如果是用一个变量名，会沿着作用域链一直往上查找使用var定义这个变量的地方，如果没有找到，会默认这是一个定义在全局对象上的属性。
+
+而给一个没有使用var的变量赋值，如果作用域链上没有定义，那么默认就会在全局变量上面来定义这个属性。
+
+而一个更快，可读性更好的处理全局变量的方式，是将全局变量当做匿名函数的参数传进来。
+
+\begin{JavaScript}
+(function ($, YAHOO) {
+	// now have access to globals jQuery (as $) and YAHOO in this code
+}(jQuery, YAHOO));
+\end{JavaScript}
+
+
+
+\begin{JavaScript}[使用匿名函数的返回值来exporting module]
+var MODULE = (function () {
+	var my = {},
+		privateVariable = 1;
+
+	function privateMethod() {
+		// ...
+	}
+
+	my.moduleProperty = 1;
+	my.moduleMethod = function () {
+		// ...
+	};
+
+	return my;
+}());
+\end{JavaScript}
+
+
+\subsection{advance patterns}
+
+\subsubsection{Augementation 增强}
+
+module必须定义在一个单独的文件中，那么，可以采用下面的方式来分割module到多个文件中。
+
+\begin{JavaScript}[先import模块，然后给模块添加属性和方法，再返回]
+var MODULE = (function (my) {
+	my.anotherMethod = function () {
+		// added method...
+	};
+
+	return my;
+}(MODULE));
+\end{JavaScript}
+
+这里的var不是必须的，仅仅是为了统一。
+
+上面的例子要求初始化模块的文件必须先执行。然后才能进行增强。但是js应用一项很重要的功能就是异步加载，所以，可以使用下面的结构来（loose augmentation）使用任意顺序来加载。
+
+\begin{JavaScript}[每个文件都是用这个结构]
+var MODULE = (function (my) {
+	// add capabilities...
+
+	return my;
+}(MODULE || {}));
+\end{JavaScript}
+这个时候，var就是必须的了，因为不知道那个文件会第一次加载。
+
+While loose augmentation is great, it does place some limitations on your module. Most importantly, you cannot override module properties safely. You also cannot use module properties from other files during initialization (but you can at run-time after intialization). Tight augmentation implies a set loading order, but allows overrides. Here is a simple example (augmenting our original MODULE):
+
+松增强灰常好，但是她没有给模块加上一些限制，最重要的如，你不能够安全的override模块的属性，在初始化的过程中，在其他文件中不能使用你的模块（当然，在初始化完成之后是可以的）。而(Tight augmentation)意味着一定的加载顺序，但是可以重载方法。
+
+\begin{JavaScript}[重载了方法，而且如果需要，可以保留了对原有方法的引用]
+var MODULE = (function (my) {
+	var old_moduleMethod = my.moduleMethod;
+
+	my.moduleMethod = function () {
+		// method override, has access to old through old_moduleMethod...
+	};
+
+	return my;
+}(MODULE));
+
+\end{JavaScript}
+
+
+\begin{JavaScript}[复制和继承]
+var MODULE_TWO = (function (old) {
+	var my = {},
+		key;
+
+	for (key in old) {
+		if (old.hasOwnProperty(key)) {
+			my[key] = old[key];
+		}
+	}
+
+	var super_moduleMethod = old.moduleMethod;
+	my.moduleMethod = function () {
+		// override method on the clone, access to super through super_moduleMethod
+	};
+
+	return my;
+}(MODULE));
+\end{JavaScript}
+
+
+\begin{JavaScript}[跨文件的私有状态]
+var MODULE = (function (my) {
+	var _private = my._private = my._private || {},
+		_seal = my._seal = my._seal || function () {
+			delete my._private;
+			delete my._seal;
+			delete my._unseal;
+		},
+		_unseal = my._unseal = my._unseal || function () {
+			my._private = _private;
+			my._seal = _seal;
+			my._unseal = _unseal;
+		};
+
+	// permanent access to _private, _seal, and _unseal
+
+	return my;
+}(MODULE || {}));
+\end{JavaScript}
+
+
+任意文件都可以访问局部变量\lstinline$_private$上的属性。当模块加载完成之后，应该该使用\lstinline$MODULE._seal()$来阻止外界访问\lstinline$_private$。而如果在运行过程中需要augmentation模块的话，需要模块的某个内部方法在加载新的文件之前来访问\lstinline$_unseal()$，在这之后当然还要再次执行\lstinline$_seal()$。
+
+\begin{JavaScript}[子模块]
+MODULE.sub = (function () {
+	var my = {};
+	// ...
+
+	return my;
+}());
+\end{JavaScript}
+
+
+\begin{JavaScript}[一个子模块动态加载自己到父模块上的例子]
+var UTIL = (function (parent, $) {
+	var my = parent.ajax = parent.ajax || {};
+
+	my.get = function (url, params, callback) {
+		// ok, so I'm cheating a bit :)
+		return $.getJSON(url, params, callback);
+	};
+
+	// etc...
+
+	return parent;
+}(UTIL || {}, jQuery));
+\end{JavaScript}
+
+
+\subsection{Object Literal}
+
+
+\begin{JavaScript}[\{注意使用在statement的开头会被解析成block]
+var myObjectLiteral = {
+    variableKey: variableValue,
+    functionKey: function () {
+        // ...
+    }
+};
+\end{JavaScript}

@@ -12,6 +12,18 @@ describe('object', function(){
 		it('__proto__ of Object.prototype is null', function(){
 			should(Object.prototype.__proto__).be.exactly(null);
 		});
+		describe('prototype of object created by Object.create(null)', function(){
+			it('__proto__ is undefined', function() {
+				should(Object.create(null).__proto__).be.exactly(undefined); // why?
+			});
+			it('but prototype is null', function(){
+				should(Object.getPrototypeOf(Object.create(null))).be.exactly(null);
+			});
+			it('so __proto__ is not euqal to prototype', function() {
+				//...
+				should(Object.create(null).__proto__ === Object.getPrototypeOf(Object.create(null))).not.be.ok;
+			})
+		});
 	});
 
 	describe('#instanceof', function(){
