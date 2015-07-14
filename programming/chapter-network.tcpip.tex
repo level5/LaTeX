@@ -1,0 +1,30 @@
+\chapter{Network}
+
+
+\section{IP 网际协议}
+
+\subsection{IP首部}
+
+
+网络字节序(也就是big endian)在传输4字节32bit时， 0~7bit， 8~16bit, 16~23bit, 24~31bit. 在little endian格式的机器上需要在传输数据之前将首部转换成网络字节序。
+
+\begin{itemize}
+\item 协议版本号， 4（IPv4）
+\item 4位首部长度，包含选项 所以最长首部为60字节
+\item TOS（服务类型）， 3bit优先权子字段， 4bitTOS子字段， 1bit未用位（0）
+
+4bit TOS子字段分别表示
+\begin{itemize}
+\item 最小延时， 
+\item 最大吞吐量， 
+\item 最高可靠性， 
+\item 最小费用
+\end{itemize}
+
+\item 总长度是指IP数据报的长度，以字节为单位。16bit，所以最大为65535字节。
+
+超级通道MTU为65535，其实是意思它使用了最长的IP数据报。 
+\end{itemize}
+
+
+

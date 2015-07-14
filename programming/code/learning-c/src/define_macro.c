@@ -5,6 +5,8 @@
  *      Author: root
  */
 
+#include <stdio.h>
+
 #define TEST_NAME 1
 #define p(name) print_name(#name, name)
 

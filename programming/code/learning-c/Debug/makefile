@@ -28,14 +28,14 @@ all: learning-c
 # Tool invocations
 learning-c: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C Linker'
+	@echo 'Invoking: MacOS X C Linker'
 	gcc  -o "learning-c" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) learning-c
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) learning-c
 	-@echo ' '
 
 .PHONY: all clean dependents

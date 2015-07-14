@@ -1,0 +1,64 @@
+\chapter{Pro Git}
+
+\section{Install}
+这一步没有什么好说的.
+
+\section{Config}
+安装好Git之后,第一步就是要进行配置工作.通过一个叫做Git config的工具.通过命令 git -config来执行.
+
+专门用来配置或读取相应的工作环境变量。而正是由这些环境变量，决定了 Git 在各个环节的具体工作方式和行为。这些变量可以存放在以下三个不同的地方：
+\begin{itemize}
+\item /etc/gitconfig文件：系统中对所有用户都普遍适用的配置。若使用 git config 时用 -{}-system 选项，读写的就是这个文件。
+
+\item \textasciitilde/.gitconfig文件：用户目录下的配置文件只适用于该用户。若使用 git config 时用 -{}-global 选项，读写的就是这个文件。
+
+\item 当前项目的 git 目录中的配置文件（也就是工作目录中的 .git/config 文件）：这里的配置仅仅针对当前项目有效。每一个级别的配置都会覆盖上层的相同配置，所以.git/config 里的配置会覆盖 /etc/gitconfig 中的同名变量。
+
+\end{itemize}
+
+\subsection{用户信息}
+第一个要配置的是你个人的用户名称和电子邮件地址。这两条配置很重要，每次 Git 提交时都会引用这两条信息，说明是谁提交了更新，所以会随更新内容一起被永久纳入历史记录：
+\begin{CMD}
+$ git config --global user.name "John Doe"
+$ git config --global user.email johndoe@example.com
+\end{CMD}
+
+如果用了 --global 选项，那么更改的配置文件就是位于你用户主目录下的那个,如果要在某个特定的项目中使用其他名字或者电邮，只要去掉 -{}-global 选项重新配置即可.
+
+\subsection{文本编辑器}
+Git 需要你输入一些额外消息的时候，会自动调用一个外部文本编辑器给你用。默认会使用操作系统指定的默认编辑器，一般可能会是Vi 或者 Vim。
+\begin{CMD}
+$ git config --global core.editor emacs
+\end{CMD}
+
+\subsection{对比工具}
+
+\begin{CMD}
+$ git config --global merge.tool vimdiff
+\end{CMD}
+
+\subsection{查看配置}
+\begin{CMD}
+$ git config --list
+user.name=Scott Chacon
+user.email=schacon@gmail.com
+color.status=auto
+color.branch=auto
+color.interactive=auto
+color.diff=auto
+$git config user.name
+Scott Chacon
+\end{CMD}
+
+\section{Git 基本操作}
+
+\subsection{取得Git仓库}
+\begin{itemize}
+\item 通过导入所有文件来创建新的 Git 仓库
+\item 从已有的 Git 仓库克隆出一个新的镜像仓库来。
+\end{itemize}
+
+\paragraph{当前目录初始化}
+\begin{CMD}
+git init
+\end{CMD}

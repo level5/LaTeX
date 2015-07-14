@@ -15,7 +15,6 @@
 #include <string.h>
 
 
-
 #define MAX_BUFFER 1024
 
 typedef int Func(int);
@@ -23,7 +22,6 @@ typedef int Func(int);
 void output_file();
 void print_file(char*);
 
-void test_write_eof();
 
 void test_typeof();
 
@@ -33,7 +31,7 @@ int main(void) {
 //	test_write_eof();
 
 //	test_typeof();
-	test_atexit();
+//	test_atexit();
 
 	printf("function != &function:%s\n", output_file == &output_file? "true":"false");
 

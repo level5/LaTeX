@@ -16,3 +16,6 @@ sed 's/pattern1/replace1/; s/pattern2/replace2' filename
 
 # 指令在脚本文件中
 sed -f scriptname filename
+
+
+ 
