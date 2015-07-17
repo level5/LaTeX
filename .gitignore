@@ -3,3 +3,9 @@
 *.gz
 *.dvi
 *.pdf
+*.o
+*.d
+.settings
+.worksheet
+bin
+.cache-main
