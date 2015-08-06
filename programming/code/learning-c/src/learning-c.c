@@ -20,7 +20,10 @@ int main(void) {
 //	input_output();
 
 //	printf("average of 1,2,3,4,5 is %f", average(5, 1, 2, 3, 4, 5));
-	test_pound_sign();
+//	test_pound_sign();
+
+    List l;
+    list_init(&l, free);
 
 	return 0;
 }

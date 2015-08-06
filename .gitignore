@@ -9,3 +9,4 @@
 .worksheet
 bin
 .cache-main
+*.DS_Store

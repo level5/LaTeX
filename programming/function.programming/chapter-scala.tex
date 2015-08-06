@@ -1,13 +1,71 @@
 \chapter{Scala}
 
-\section{Class and Object}
+\section{对我来说快速入门的部分}
 
-\subsection{Class}
+\subsection{变量和函数}
 
-\subsection{Companion Object}
+val定义的是常量,不能重新赋值类似于Java中的final;var定义的是可变的,可以重新赋值.
 
-\subsection{Standalone Object}
+我个人倾向是在熟练使用scala之前尽量使用val.
 
-\subsection{Appliaction entry Point}
+\subsection{命名空间}
+
+\begin{itemize}
+\item Java相同的方式
+\item C++,C\#的方式
+
+这种方式我也不是太清楚,C\#部分补全
+\end{itemize}
+
+\subsection{匿名函数}
+
+\begin{Scala}
+	def sum(f:Int=>Int, a:Int, b:Int):Int = {
+		if (a > b)
+			0
+		else
+			f(a) + sum(f, a+1, b)
+	}                                         //> sum: (f: Int => Int, a: Int, b: Int)Int
+
+	// 使用匿名函数
+	sum((x:Int)=>x, 0, 10)                    //> res0: Int = 55
+
+	// 编译器自动推到类型
+	sum(x=>x, 0, 10)                          //> res1: Int = 55
+
+	//其实匿名函数就是
+	sum({def f(x:Int) = x;f}, 0, 10)          //> res2: Int = 55
+
+	// 使用参数的位置记法
+	sum({_*1}, 0, 10)                         //> res3: Int = 55
+
+	//偏应用函数
+	(sum(_:Int=>Int, 0, 10)){x=>x}            //> res4: Int = 55
+
+
+\end{Scala}
+
+\subsubsection{参数的位置记法}
+
+\subsubsection{偏应用函数}
+
+\subsection{操作符}
+
+===的规则需要好好查查资料,书上说的不完全.
+
+
+
+\section{概念}
+
+\subsection{函数式编程}
+
+\subsubsection{函数是一等公民}
+
+函数和其他值一样,没有什么区别,可以作为函数参数;也可以作为函数返回值;可以在函数中定义;
+
+\subsubsection{函数是map输入到输出}
+
+而不是在函数中改变数据.其实本质就是不可变数据结构;要求函数没有副作用
+
 
 
