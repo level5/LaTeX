@@ -12,7 +12,6 @@ package com.level.scala
     def op2 = println("[Resource] op2 start ...")
     def op3 = println("[Resource] op3 start ...")
       
-      
   }
   
   object Resource {
