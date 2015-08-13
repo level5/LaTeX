@@ -863,7 +863,7 @@ total 8
 u=rwx,g=rx,o=rx
 \end{Bash}
 
-umask表示在创建文件的时候，需要削减的权限，而默认的权限，对文件来说是666，没有执行权限；对于目录来说则是777.
+\textbf{umask表示在创建文件的时候，需要削减的权限，而默认的权限，对文件来说是666，没有执行权限；对于目录来说则是777.}
 
 这样先不管第一组(和下一节相关)，则unmask是022，文件666-022是644，和上面文件符合。
 
@@ -1027,27 +1027,24 @@ ls: cannot open directory test-directory/: Permission denied
 
 \subsection{对文件操作的说明}
 
+
+当对一个文件进行打开，创建或者删除操作时：
+\begin{enumerate}
+\item 若进程的有效用户ID是0（超级用户），则允许访问；
+\item 若进程的有效用户ID等于文件的所有者ID，所有者恰当的权限被设置，则允许访问，否则拒绝访问；
+\item 若进程的有效组ID或者附加组ID等于文件的有效组ID，若组恰当的权限被设置，则允许访问，否则拒绝访问；
+\item 若其他用户恰当的权限被设置，则允许访问，否则拒绝访问。
+\end{enumerate}
+
+创建文件，新文件的组ID将是：
+\begin{itemize}
+\item ...
+\item ...
+\end{itemize}
+
+% 今晚把这个搞清楚吧！！！
+
 \section{进程相关ID的部分}
-
-
-
-和进程相关的ID有:(还有个session id，感觉这部分还是放在进程里面比较合适吧。)
-
-\begin{table}
-\begin{tabular}{|l|l|}
-\hline
-实际用户ID & 我们实际上是谁\\
-实际用户组 & \\
-\hline
-有效用户ID & 用于文件访问权限检查\\
-有效组ID & \\
-附加组ID & \\
-\hline
-保存的设置用户ID & 由exec函数保存\\
-保存的设置组ID & \\
-\hline
-\end{tabular}
-\end{table}
 
 
 \begin{itemize}
@@ -1069,27 +1066,45 @@ This is just the PID of the process group leader. If PID == PGID, then this proc
 This is just the PID of the session leader. If PID == SID, then this process is a session leader.
 \end{itemize}
 
+
+
+\subsection{进程组}
+
+\subsection{Session}
+
+
+\subsection{用户ID}
+
+和进程相关的ID有:(还有个session id，感觉这部分还是放在进程里面比较合适吧。)
+
+\begin{table}
+\begin{tabular}{|l|l|}
+\hline
+实际用户ID & 我们实际上是谁\\
+实际用户组 & \\
+\hline
+有效用户ID & 用于文件访问权限检查\\
+有效组ID & \\
+附加组ID & \\
+\hline
+保存的设置用户ID & 由exec函数保存\\
+保存的设置组ID & \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
 \begin{itemize}
 \item 实际用户ID和实际组ID就是是以谁来登陆的。
 \item 有效用户ID和有效组ID及附加组ID决定我们的文件访问权限。
-\item 保存的设置用户ID和保存的设置组ID在执行一个程序时包含了有效用户ID和有效组ID的副本。(???)
+\item 保存的设置用户ID和保存的设置组ID在执行一个程序时包含了有效用户ID和有效组ID的副本。
+其实就是文件设置了SUID和SGID
 \end{itemize}
 
-当对一个文件进行打开，创建或者删除操作时：
-\begin{enumerate}
-\item 若进程的有效用户ID是0（超级用户），则允许访问；
-\item 若进程的有效用户ID等于文件的所有者ID，所有者恰当的权限被设置，则允许访问，否则拒绝访问；
-\item 若进程的有效组ID或者附加组ID等于文件的有效组ID，若组恰当的权限被设置，则允许访问，否则拒绝访问；
-\item 若其他用户恰当的权限被设置，则允许访问，否则拒绝访问。
-\end{enumerate}
 
-创建文件，新文件的组ID将是：
-\begin{itemize}
-\item ...
-\item ...
-\end{itemize}
 
-% 今晚把这个搞清楚吧！！！
+
 
 
 
