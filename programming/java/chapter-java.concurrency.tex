@@ -3,6 +3,8 @@
 \section{简介}
 \subsection{线程的风险}
 
+
+
 \subsubsection{安全性问题}
 Race Condition 竞争条件
 
@@ -47,7 +49,7 @@ public class Sequence {
 
 当多个线程访问同一个可变的状态变量时没有使用合适的同步，修复这个问题
 \begin{itemize}
-\item 不在现在成之间共享该状态变量
+\item 不在线程之间共享该状态变量
 \item 将状态变量修改成不可变的变量
 \item 在访问变量时使用同步
 \end{itemize}
@@ -265,6 +267,8 @@ synchronized的作用
 \begin{itemize}
 \item 实现原子性，确定临界区。防止某个线程在使用对象状态时，其他线程修改对象的状态。
 \item 内存可见性。确保一个线程修改了对象状态后，其他线程能够看到发生的变化。
+
+假设有锁M,那么线程A在解锁M之前的所有操作,对于任意线程B来说,如果线程B取得了锁M,那么之前A的操作就是可见的.
 \end{itemize}
 
 \begin{Java}
@@ -344,6 +348,9 @@ A线程首先写入一个volatile变量，然后线程B读取该变量。在写�
 
 
 volatile变量只能保证可见性，不能保证原子性。
+
+但是volatile对编译器的优化是有影响的,因为不能和其他内存操作重排序.而且不会被缓存到寄存器或者对其他处理器不可见的地方.
+
 
 
 \subsection{发布与逸出}
@@ -436,6 +443,9 @@ public class Holder {
 \begin{itemize}
 \item 引用的可见性，其他线程可能看不到这个发布的对象的引用。
 \item 由于holder未被正确的发布，holder的状态是失效的，即使对象发布后没有修改过，可能某个线程会看到对象处于不一致的状态，然后对象状态突然发生变化。这个线程调用assertSanity时会抛出异常。
+
+这里就是意思构造函数执行完了,构造函数设置的值未必对其他线程是可见的,可能这个时候n还是初始化的默认值0
+
 \end{itemize}
 
 \subsubsection{不可变对象与初始化安全性}
@@ -452,7 +462,7 @@ public class Holder {
 
 安全发布一个对象，对象的引用和对象的状态必须同时对其他线程可见。
 \begin{itemize}
-\item 在静态初始化函数中初始化一个对象引用；？？？
+\item 在静态初始化函数中初始化一个对象引用；？？？(类似于在static块中,或者直接给静态变量赋值了.这是因为这是在类的初始化过程中执行的,JVM内部存在着同步机制,因此这种方式初始化的任何对象都可以安全的被发布)
 \item 将对象的引用保存到volatile类型的域或者AtomicReference对象中；
 \item 将对象的引用保存到某个正确构造对象的final类型域中；
 \item 将对象的引用保存到一个由锁保护的域中。
@@ -470,6 +480,17 @@ public static Holder holder = new Holder(42);
 
 可变对象除了要安全发布之外，还必须保证后续访问使用同步来确保可见性。
 
+对象的发布需求取决于对象的可变性:
+\begin{itemize}
+\item 不可变对象可以通过任意机制来发布
+
+不可变对象: 对象创建以后其状态就不能修改;所有域都是final类型;正确的构造过程(对象创建期间,this引用没有逸出)
+
+\item 事实不可变对象必须通过安全方式来发布
+
+\item 可变对象必须通过安全方式来发布,并且必须是线程安全(在对象内部做了锁保护)的,或者通过锁保护起来.
+\end{itemize}
+
 \subsection{并发程序共享对象的策略}
 \begin{itemize}
 \item 线程封闭
@@ -482,7 +503,49 @@ public static Holder holder = new Holder(42);
 \section{对象的组合}
 
 
+\subsection{同步需求}
 
+\begin{itemize}
+
+\item 不变条件
+
+\item 后验条件
+
+\item 没有限制
+
+如更新一个保存的当前温度的变量,该变量之前的状态不影响计算结果.
+
+\end{itemize}
+
+
+\subsection{实例封闭}
+
+封装,能够访问被封装对象的所有代码路径都是已知的.通过封闭机制与合适的加锁策略结合起来,可以却博爱以线程安全的方式来使用非线程安全的对象.
+
+\begin{Java}
+@ThreadSafe
+public class PersonSet {
+
+	@GuardeBy("this")
+	private final Set<Person> mySet = new HashSet<>();
+	
+	public synchronized void addPerson(Person p)
+	{
+		mySet.add(p);
+	}
+	
+	public synchronized boolean containsPerson(Person p)
+	{
+		return mySet.contains(p);
+	}
+}
+\end{Java}
+
+
+\subsection{Java监视器}
+
+
+示例代码:
 
 
 
