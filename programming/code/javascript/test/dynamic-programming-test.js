@@ -118,3 +118,7 @@ function cacheCharge(cs, n) {
 }
 
 console.log("min charge from", charges, "for 6 is ", cacheCharge(charges, 6))
+
+
+
+// 例子3：
