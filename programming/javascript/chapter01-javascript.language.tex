@@ -352,7 +352,7 @@ Object & 先转换为基本类型，然后再按上面的转换 \\
 	\item 如果有boolean型，则将其转换为number，再比较
 	\item 如果有一方是对象，一方是数字或者字符串，将对象转换为基本类型再比较
 	\item 如果是数字和字符串比较，转换为数字在比较
-	\item 其他情况一律不相等
+	\item 其他情况一律不相等.
 	\end{itemize}
 \end{enumerate}
 
@@ -451,7 +451,9 @@ instanceof运算符用来检测constructor.prototype是否存在于参数object�
 \end{JavaScript}
 	
 \subsection{ECMA spec中和本节相关概念}
+
 \section{关于函数部分的准备知识}
+
 \subsection{Lexical Environment}
 
 Lexical Environment是规范中使用定义变量和函数标识符的关系结构。Lexical Environement由Environment Record和一个指向外部Lexical Environment的引用（可空）。
@@ -879,4 +881,7 @@ GetIdentifierReference (lex, name, strict)算法
 \end{JavaScript}
 \subsubsection{变量的赋值}
 通过GetIdentifierReference可以看到，找不到变量定义，reference type的base就是undefined，这个时候就会在global object上定义一个对应的property。
+
+
+\section{ES6}
 

@@ -263,13 +263,18 @@ public class CachedFactorizer extends AbstractFactorizer implements Servlet {
 
 \subsection{可见性}
 
-synchronized的作用
+可见性的意思就是当一个线程修改了一个共享变量，另外一个线程能够读取到这个修改的值。
+
+
+synchronized的作用（三种使用方式，锁当前实例，锁当前类的class对象，锁括号中带的对象）
 \begin{itemize}
 \item 实现原子性，确定临界区。防止某个线程在使用对象状态时，其他线程修改对象的状态。
 \item 内存可见性。确保一个线程修改了对象状态后，其他线程能够看到发生的变化。
 
 假设有锁M,那么线程A在解锁M之前的所有操作,对于任意线程B来说,如果线程B取得了锁M,那么之前A的操作就是可见的.
 \end{itemize}
+
+volatile可以理解为轻量级的synchronized
 
 \begin{Java}
 public class NoVisibility {
@@ -556,6 +561,7 @@ public class PersonSet {
 
 
 
+<<<<<<< HEAD
 \section{取消和关闭}
 
 \begin{Java}
@@ -564,6 +570,21 @@ public class PersonSet {
 
 
 \end{Java}
+=======
+\section{锁的底层实现}
+
+\subsection{CAS}
+
+Compare and Swap
+
+比较旧值，如果没有变化，则交换成新值，如果变化了，就不做操作。
+
+\subsection{volatile}
+
+\subsection{synchronized}
+
+\subsection{锁}
+>>>>>>> 0b5fd54e40bab58affa9c19a8a1bfcd80d94b589
 
 
 
