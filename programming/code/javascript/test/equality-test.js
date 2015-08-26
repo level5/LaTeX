@@ -50,7 +50,7 @@ describe('equality', function(){
             should('1e-2' - 0).be.eql(0.01)
 
             // NaN
-            should(isNaN('1R' - 0)).be.true
+            should('1R' - 0).be.NaN
 
         });
 
