@@ -167,7 +167,7 @@ describe('typeof & instanceof', function(){
 			})
 
 			describe('特例又来了，对于Function.prototype.bind创建的Function来说，结果又不一样了', function(){
-				it('这个时候,bind生成的[[HasInstance]]的实现是委托给被绑定的Function的[[HasInstance]]方法', function(){
+				it('这个时候,bind生成Function的[[HasInstance]]的实现是委托给被绑定的Function的[[HasInstance]]方法', function(){
 					//简单的说，就是这样的
 					var a = {} // 任意对象
 					function foo() {}
