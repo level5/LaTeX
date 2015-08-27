@@ -24,8 +24,6 @@ describe('typeof & instanceof', function(){
 			// Not-a-Number is a number
 			(typeof 1).should.be.exactly('number');
 			(typeof NaN).should.be.exactly('number');
-
-
 		});
 
 		it('typeof object', function(){
