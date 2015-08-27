@@ -531,8 +531,8 @@ GetIdentifierReference (lex, name, strict)算法
 创建:
 \begin{itemize}
 \item this: global object
-\item lexicalEnvironment: global environment
-\item variableEnvironment: global environment
+\item LexicalEnvironment: global environment
+\item VariableEnvironment: global environment
 \end{itemize}
 \paragraph{eval}
 创建：
@@ -541,8 +541,8 @@ GetIdentifierReference (lex, name, strict)算法
 否则
 \begin{itemize}
 \item this: this of calling context
-\item lexicalEnvironment: lexicalEnvironment of calling context
-\item variableEnvironment: variableEnvironment of calling context
+\item LexicalEnvironment: lexicalEnvironment of calling context
+\item VariableEnvironment: variableEnvironment of calling context
 \end{itemize}
 \begin{JavaScript}
 		it('should been add to environment of running execution context', function(){
@@ -664,7 +664,7 @@ GetIdentifierReference (lex, name, strict)算法
 		});
 \end{JavaScript}
 
-带名字的函数表达式创建的一个DeclarativeEnvironment，将running execution context的lexicalEnvironment，同时在新创建的DeclarativeEnvironment上绑定这个function object，将这个新创建DeclarativeEnvironment保存在function object的\lstinline![[Scope]]!上。（记得此处IE不是这么实现的）。
+带名字的函数表达式创建的一个LexicalEnvironment，这个新创建LexicalEnvironment的outer将指向running execution context的LexicalEnvironment，同时在新创建的LexicalEnvironment的EnviromentRecord上使用这个函数名字来绑定这个function object，将这个新创建LexicalEnvironment保存在function object的\lstinline![[Scope]]!上。（我记得此处某个版本的IE不是这么实现的）。
 
 \begin{JavaScript}
 		it('[[Scope]] should bind with a new DeclarativeEnvironment which outer is lexicalEnvironment of running execution context', function(){
