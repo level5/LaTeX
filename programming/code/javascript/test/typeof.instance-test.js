@@ -32,7 +32,9 @@ describe('typeof & instanceof', function(){
 			(typeof []).should.be.exactly('object');
 		});
 
-		it('typeof Symbol', function(){})
+		it('typeof Symbol', function(){
+			//...
+		})
 
 		it('Primitive Wrapper is object', function(){
 			(typeof new Boolean(true)).should.be.exactly('object');
