@@ -73,5 +73,9 @@ describe('object', function(){
             should(foo instanceof Foo).be.false;
             should(foo2 instanceof Foo).be.true;
         });
+
+        it('', function(){
+
+        })
     });
 });
