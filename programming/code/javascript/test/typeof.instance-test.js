@@ -3,11 +3,11 @@ var should = require('should');
 describe('typeof & instanceof', function(){
 	describe('# typeof', function(){
 
-		it('typeof <value>的结果是个字符串', function(){
+		it('typeof的结果是个字符串', function(){
 			should(typeof anything).be.String
 		})
 
-		it('typeof <ref>获取引用的值的时候不会导致报错,返回undefined', function(){
+		it('typeof <identifier>无法获取引用的值的时候不会导致报错,返回undefined', function(){
 
 			(function(){
 				var a = x;
