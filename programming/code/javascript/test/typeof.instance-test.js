@@ -4,7 +4,7 @@ describe('typeof & instanceof', function(){
 	describe('# typeof', function(){
 
 		it('typeof的结果是个字符串', function(){
-			should(typeof anything).be.String
+			should(typeof any).be.String()
 		})
 
 		it('typeof <identifier>无法获取引用的值的时候不会导致报错,返回undefined', function(){
@@ -187,7 +187,8 @@ describe('typeof & instanceof', function(){
 					should(d instanceof bFoo).be.eql(d instanceof foo)
 
 					// 所以这种情况下就和正常的function不一样了。
-					bFoo.prototype = {} // 因为默认情况下这个是undefined
+					should(bFoo.prototype).be.undefined(); // 因为默认情况下这个是undefined
+					bFoo.prototype = {} // 所以需要先设置一下
 					var f = Object.create(bFoo.prototype)
 					should(f instanceof bFoo).be.fasle
 				})
