@@ -99,14 +99,14 @@ describe('typeof & instanceof', function(){
 				it('如果<left-value>不是对象，返回false', function(){
 
 					//看起来是不会自动装箱
-					should(1 instanceof Number).be.false
-					should(new Number(1) instanceof Number).be.true
+					should(1 instanceof Number).be.false()
+					should(new Number(1) instanceof Number).be.true()
 
-					should('' instanceof String).be.false
-					should(new String('') instanceof String).be.true
+					should('' instanceof String).be.false()
+					should(new String('') instanceof String).be.true()
 
-					should(true instanceof Boolean).be.false
-					should(new Boolean(true) instanceof Boolean).be.true
+					should(true instanceof Boolean).be.false()
+					should(new Boolean(true) instanceof Boolean).be.true()
 
 				})
 
@@ -114,7 +114,7 @@ describe('typeof & instanceof', function(){
 					function func() {}
 					var f = new func();
 
-					should(f instanceof func).be.true;
+					should(f instanceof func).be.true();
 
 					(function(){
 						func.prototype = 1
@@ -150,21 +150,21 @@ describe('typeof & instanceof', function(){
 					function Foo(){}
 					var foo = new Foo
 					// 如果有一个对象和right-value的prototype相同，返回true
-					should(foo instanceof Foo).be.true
+					should(foo instanceof Foo).be.true()
 
 					var proto = {}
 					var foo2 = Object.create(proto)
 					var Foo2 = function(){};
 					Foo2.prototype = proto;
-					should(foo2 instanceof Foo2).be.true
+					should(foo2 instanceof Foo2).be.true()
 
 					// 如果原型链到达了顶端的null，返回false
 					// 这个例子因为Object.create(null)创建出来的对象的[[prototype]]就是null，所以只可能返回false
 					should(Object.getPrototypeOf(Object.create(null))).be.exactly(null)
-					should(Object.create(null) instanceof Object).be.false
+					should(Object.create(null) instanceof Object).be.false()
 
 					Foo.prototype = {}
-					should(foo instanceof Foo).be.false
+					should(foo instanceof Foo).be.false()
 				})
 			})
 

@@ -9,9 +9,9 @@ describe('Property', function(){
 			var descriptor = Object.getOwnPropertyDescriptor(foo, 'bar');
 			descriptor.should.eql(
 				{
-					value: undefined, 
-					writable: false, 
-					enumerable: false, 
+					value: undefined,
+					writable: false,
+					enumerable: false,
 					configurable: false
 				});
 		});
@@ -22,7 +22,7 @@ describe('Property', function(){
 			})
 
 			foo.bar = 200;
-			foo.bar.should.be.exactly(100).and.be.Number;
+			foo.bar.should.be.exactly(100).and.be.a.Number();
 		});
 
 		it('should not be able to enumerate in for in statement when enumerable is false', function(){
@@ -47,10 +47,10 @@ describe('Property', function(){
 			}).should.throw();
 
 			foo.bar = 200;
-			foo.bar.should.be.exactly(200).and.be.Number;			
+			foo.bar.should.be.exactly(200).and.be.a.Number();			
 		});
 	});
-	
+
 	describe("#Accessor Property", function(){
 		it('should get correct default descriptor', function(){
 			var foo = Object.create({}, {
@@ -69,7 +69,7 @@ describe('Property', function(){
 			var foo = Object.create({}, {
 				bar: {get: function(){
 					return this._bar;
-				}, 
+				},
 				set: function(value){
 					this._bar = value;
 				}}

@@ -4,23 +4,23 @@ describe('Equality', function(){
 
     describe('ToBoolean', function(){
         it('null, undefined转换为false', function(){
-            should(!!null).be.false
-            should(!!undefined).be.false
+            should(!!null).be.false()
+            should(!!undefined).be.false()
         })
 
         it('Number中+0，-0，NaN转换为false，其他为true', function(){
-            should(!!0).be.false
-            should(!!NaN).be.false
-            should(!!3).be.true
+            should(!!0).be.false()
+            should(!!NaN).be.false()
+            should(!!3).be.true()
         })
 
         it('String中空字符串转换为false，其他为true',function(){
-            should(!!'').be.false
-            should(!!'12f').be.true
+            should(!!'').be.false()
+            should(!!'12f').be.true()
         })
 
         it('Object都转换为true', function(){
-            should(!!Function).be.true
+            should(!!Function).be.true()
         })
     })
 
@@ -85,16 +85,16 @@ describe('Equality', function(){
         // 使用 == 触发ToPrimitvie
         describe('默认情况下，Hint为Number，先调用valueOf,然后调用toString，直到第一个返回primitive为止', function(){
             it('valueOf和toString都返回primitive时，使用valueOf的值', function(){
-                should(obj4 == 4).be.true
+                should(obj4 == 4).be.true()
             })
 
             it('valueOf返回Object，toString返回primitive, 使用toString的值',function(){
-                should(obj1 == 'obj').be.true
+                should(obj1 == 'obj').be.true()
 
                 // Array的valueOf返回的是对象本身
                 var arr = []
                 arr.valueOf().should.be.exactly(arr)
-                should(arr == arr.toString()).be.true
+                should(arr == arr.toString()).be.true()
             })
 
             it('valueOf和toString都返回Object,抛异常', function(){
@@ -108,8 +108,8 @@ describe('Equality', function(){
             it('等于toString', function(){
                 var d = new Date()
 
-                should(d.toString() == d).be.true
-                should(d.valueOf() == d).be.false
+                should(d.toString() == d).be.true()
+                should(d.valueOf() == d).be.false()
             })
         })
 
@@ -119,63 +119,63 @@ describe('Equality', function(){
         describe('比较相同的类型', function(){
 
             it('基本类型的比较，按值比较', function(){
-                should(undefined == undefined).be.true;
-                should(null == null).be.true;
-                should(1 == 1).be.true;
-                should('abc' == 'abc').be.true;
-                should(true == true).be.true;
+                should(undefined == undefined).be.true();
+                should(null == null).be.true();
+                should(1 == 1).be.true();
+                should('abc' == 'abc').be.true();
+                should(true == true).be.true();
             });
 
             it('对于Number型来说，特殊值NaN和任何值都不相等', function(){
-                should(NaN == 1).be.false;
-                should(NaN == NaN).be.false;
+                should(NaN == 1).be.false();
+                should(NaN == NaN).be.false();
             });
 
             it('对于Object类型来说，相同的引用才相等。其余都不相等',function(){
-                should({} == {}).be.false;
+                should({} == {}).be.false();
 
                 var obj = {};
-                should(obj == obj).be.true;
+                should(obj == obj).be.true();
             });
         });
 
         describe('比较不同的类型', function(){
             it('undefined等于null; undefined和null不等于其他', function(){
-                should(undefined == null).be.true;
+                should(undefined == null).be.true();
 
                 // 和Number比较
-                should(0 == undefined).be.false;
-                should(0 == null).be.false;
+                should(0 == undefined).be.false();
+                should(0 == null).be.false();
 
                 // 和String比较
-                should('undefined' == undefined).be.false;
-                should('null' == null).be.false;
+                should('undefined' == undefined).be.false();
+                should('null' == null).be.false();
 
-                should('' == undefined).be.false
-                should('' == null).be.false
+                should('' == undefined).be.false()
+                should('' == null).be.false()
 
-                should(' ' == undefined).be.false
-                should(' ' == null).be.false
+                should(' ' == undefined).be.false()
+                should(' ' == null).be.false()
 
                 // 和Boolean比较
-                should(true == undefined).be.false
-                should(false == undefined).be.false
-                should(true == null).be.false
-                should(false == null).be.false
+                should(true == undefined).be.false()
+                should(false == undefined).be.false()
+                should(true == null).be.false()
+                should(false == null).be.false()
 
                 // 和Object比较
                 // ... 待补充
             });
 
             it('String和Number比较时，String转换为Number',function(){
-                should('Infinity' == Infinity).be.true
-                should('1' == 1).be.true
-                should('1R' == 1).be.false
+                should('Infinity' == Infinity).be.true()
+                should('1' == 1).be.true()
+                should('1R' == 1).be.false()
             });
 
             it('有一方是boolean型的时候，将boolean转换为Number，再进行比较', function(){
-                should(true == 1).be.true
-                should(false == 0).be.true
+                should(true == 1).be.true()
+                should(false == 0).be.true()
             });
 
             it('所以说，if(3)和if(3 == true)是不一样的，因为前面一个是把3转成boolean，而后一个是把boolean转成数字', function(){
@@ -184,12 +184,12 @@ describe('Equality', function(){
             })
 
             it('有一方是String或者Number，另外一方是Object，将Object转换为Primitive，再进行比较', function(){
-                    should({valueOf:function(){return 1}} == 1).be.true
+                    should({valueOf:function(){return 1}} == 1).be.true()
             });
 
             it('来一些例子', function(){
                 // 先将false转成0，再将‘3’转成3，所以返回false
-                should(false == '3').be.false
+                should(false == '3').be.false()
 
                 // ... 待补充
             })
@@ -198,19 +198,19 @@ describe('Equality', function(){
 
     describe('#===', function(){
         it('相同的类型和==的结果一样', function(){
-            should(undefined === undefined).be.true;
-            should(null === null).be.true;
-            should(1 === 1).be.true
-            should('' === '').be.true
-            should('123' === '123').be.true
-            should(NaN === 1).be.false;
-            should(NaN === NaN).be.false;
-            should({} === {}).be.false;
+            should(undefined === undefined).be.true();
+            should(null === null).be.true();
+            should(1 === 1).be.true()
+            should('' === '').be.true()
+            should('123' === '123').be.true()
+            should(NaN === 1).be.false();
+            should(NaN === NaN).be.false();
+            should({} === {}).be.false();
         });
 
         it('不同类型的话，返回false',function(){
-            should(1 === '1').be.false
-            should(null === undefined).be.false
+            should(1 === '1').be.false()
+            should(null === undefined).be.false()
             // ... 待补充
         })
     });
