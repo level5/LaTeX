@@ -1,0 +1,59 @@
+\chapter{HTTP}
+
+\section{概述}
+
+
+\subsection{资源}
+
+
+\subsubsection{URI}
+
+\paragraph{URL}
+URL 是通过描述资源的位置来标识资源的；
+
+
+\begin{Bash}[格式]
+<scheme>://<user>:<password>@<host>:<port>/<path>;<params>?<query>#<frag>
+\end{Bash}
+
+\begin{itemize}
+\item schema（大小写无关），无默认值，使用什么协议
+\item 服务器，主机和端口（每个schema有特定的默认值，HTTP默认为80端口）。
+\item 资源路径
+\end{itemize}
+
+
+
+\paragraph{URN}
+URN则是通过名字来识别资源的‘
+\subsection{HTTP方法}
+
+\subsubsection{DELETE, GET, PUT, POST ...}
+
+
+\subsection{状态码}
+
+\subsubsection{2XX}
+
+\subsubsection{3XX}
+
+\subsubsection{4XX}
+
+\subsubsection{5XX}
+
+
+\subsection{报文格式}
+
+
+\subsubsection{起始行}
+
+\subsubsection{首部字段}
+
+\subsubsection{正文}
+
+
+\subsubsection{使用telnet测试}
+
+原来telnet可以干这个，其实telnet就是打开一个TCP连接，然后自己可以往上面发送内容。
+
+

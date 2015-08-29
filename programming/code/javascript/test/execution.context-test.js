@@ -1,6 +1,6 @@
 var should = require('should');
 
-describe('execution context', function(){
+describe('execution context', function() {
 
 	describe('#function', function(){
 

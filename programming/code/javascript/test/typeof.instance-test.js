@@ -13,7 +13,7 @@ describe('typeof & instanceof', function(){
 				var a = x;
 			}).should.throw()
 
-			should(typeof x).be.eql('undefined')
+			should(typeof x).eql('undefined')
 		})
 
 		it('typeof primitive value', function(){
@@ -174,17 +174,17 @@ describe('typeof & instanceof', function(){
 					var a = {} // 任意对象
 					function foo() {}
 					var bFoo = foo.bind({});
-					should(a instanceof bFoo).be.eql(a instanceof foo)
+					should(a instanceof bFoo).eql(a instanceof foo)
 
 					// 上面说的a可以是任意对象，比如：
 					var b = new foo()
-					should(b instanceof bFoo).be.eql(b instanceof foo)
+					should(b instanceof bFoo).eql(b instanceof foo)
 
 					var c = new bFoo()  // 问题来了，new的时候到底发生了什么？
-					should(c instanceof bFoo).be.eql(c instanceof foo)
+					should(c instanceof bFoo).eql(c instanceof foo)
 
 					var d = Object.create(foo.prototype)
-					should(d instanceof bFoo).be.eql(d instanceof foo)
+					should(d instanceof bFoo).eql(d instanceof foo)
 
 					// 所以这种情况下就和正常的function不一样了。
 					should(bFoo.prototype).be.undefined(); // 因为默认情况下这个是undefined

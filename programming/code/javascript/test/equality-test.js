@@ -29,25 +29,25 @@ describe('Equality', function(){
             // 前后可以有空格或者换行
             should(' \
             1  \
-            ' - 0).be.eql(1)
+            ' - 0).eql(1)
 
             // 数字，小数，正负数
-            should('1' - 0).be.eql(1)
-            should('1.2' - 0).be.eql(1.2)
-            should('+1' - 0).be.eql(1)
-            should('-1' - 0).be.eql(-1)
+            should('1' - 0).eql(1)
+            should('1.2' - 0).eql(1.2)
+            should('+1' - 0).eql(1)
+            should('-1' - 0).eql(-1)
 
             //16进制
-            should('0xF' - 0).be.eql(15)
-            should('0Xf' - 0).be.eql(15)
+            should('0xF' - 0).eql(15)
+            should('0Xf' - 0).eql(15)
 
             //无限大
-            should('Infinity' - 0).be.eql(Infinity)
+            should('Infinity' - 0).eql(Infinity)
 
             // 科学计数法
-            should('1E2' - 0).be.eql(100)
-            should('1e+2' - 0).be.eql(100)
-            should('1e-2' - 0).be.eql(0.01)
+            should('1E2' - 0).eql(100)
+            should('1e+2' - 0).eql(100)
+            should('1e-2' - 0).eql(0.01)
 
             // NaN
             should('1R' - 0).be.NaN
@@ -55,8 +55,8 @@ describe('Equality', function(){
         });
 
         it('boolean 转换为 Number', function(){
-            should(true - 0).be.eql(1)
-            should(false - 0).be.eql(0)
+            should(true - 0).eql(1)
+            should(false - 0).eql(0)
         });
     });
 
