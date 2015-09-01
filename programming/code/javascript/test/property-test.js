@@ -7,8 +7,7 @@ describe('Property', function(){
 				bar: {}
 			});
 			var descriptor = Object.getOwnPropertyDescriptor(foo, 'bar');
-			descriptor.should.eql(
-				{
+			descriptor.should.eql({
 					value: undefined,
 					writable: false,
 					enumerable: false,
@@ -18,9 +17,8 @@ describe('Property', function(){
 
 		it('should not be able to change property value when writable is false', function(){
 			var foo = Object.create({}, {
-				bar: {value: 100, writable: false}
+				bar: {value: 100, writable: false, configurable: true}
 			})
-
 			foo.bar = 200;
 			foo.bar.should.be.exactly(100).and.be.a.Number();
 		});
@@ -47,7 +45,7 @@ describe('Property', function(){
 			}).should.throw();
 
 			foo.bar = 200;
-			foo.bar.should.be.exactly(200).and.be.a.Number();			
+			foo.bar.should.be.exactly(200).and.be.a.Number();
 		});
 	});
 
