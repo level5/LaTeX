@@ -22,10 +22,10 @@ URL 是通过描述资源的位置来标识资源的；
 \item 资源路径
 \end{itemize}
 
-
+相对路径，
 
 \paragraph{URN}
-URN则是通过名字来识别资源的‘
+URN则是通过名字来识别资源的
 \subsection{HTTP方法}
 
 \subsubsection{DELETE, GET, PUT, POST ...}
@@ -36,6 +36,11 @@ URN则是通过名字来识别资源的‘
 \subsubsection{2XX}
 
 \subsubsection{3XX}
+
+\begin{itemize}
+\item 301 
+\item 304
+\end{itemize}
 
 \subsubsection{4XX}
 
@@ -50,6 +55,13 @@ URN则是通过名字来识别资源的‘
 \subsubsection{首部字段}
 
 \subsubsection{正文}
+
+\subsubsection{GET \& HEAD}
+
+安全方法；
+
+HEAD只返回头部，返回首部必须和GET方法返回的首部一样
+
 
 
 \subsubsection{使用telnet测试}
