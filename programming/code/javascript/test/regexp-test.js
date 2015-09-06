@@ -346,4 +346,19 @@ sticky; 在匹配时，从正则表达式的lastIndex property指定的位置开
         })
     })
 
+    describe('正则表达式处理汉字', function() {
+        describe('code的一些基本概念', function() {
+
+
+            it('code point', function() {
+
+            })
+
+            it('code unit', function() {
+
+            })
+
+        })
+    })
+
 })
