@@ -174,6 +174,14 @@ Access Property的话，相关Attribute是：
         describe('internal Property', function(){
             // 这个没办法来写测试了， 比如说[[prototype]]就是内部属性
         })
+
+        describe('property其他的部分', function() {
+
+            it('""空字符串也可以作为property的key', function() {
+                var a = { "": 100 }
+                a[""].should.eql(100)
+            })
+        })
     })
 
     describe('Prototype', function(){})

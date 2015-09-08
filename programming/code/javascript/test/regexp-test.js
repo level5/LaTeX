@@ -20,6 +20,9 @@ m
 multiline; (^和$)匹配每一个行的开始和结束，而不是匹配整个字符串的开始和结束
 y(还不能用啊，实验性质的API)
 sticky; 在匹配时，从正则表达式的lastIndex property指定的位置开始匹配目标字符串
+u(目前还不支持)
+匹配unicode
+
 */
 
             it('两种方式来构造正则表达式', function() {
@@ -46,6 +49,14 @@ sticky; 在匹配时，从正则表达式的lastIndex property指定的位置开
 
                 // 非多行模式下，^和$匹配的是整个字符串的首尾
                 (/^[^]*$/).exec('Bruce Li kicked your\n ass.')[0].should.eql('Bruce Li kicked your\n ass.');
+            })
+
+            it('y sticky', function() {
+                // node还不支持
+            })
+
+            it('u unicode', function() {
+                // node 还不支持
             })
 
             it('RegExp对象所含有的properties', function() {
@@ -351,7 +362,7 @@ sticky; 在匹配时，从正则表达式的lastIndex property指定的位置开
 
 
             it('code point', function() {
-
+                var a = /abc/u
             })
 
             it('code unit', function() {
