@@ -130,6 +130,16 @@ Named Data Property的descriptor可以写做这样由下面的attributes来表�
 
             })
 
+            it('对于Data Property的取值和赋值操作，取值遍历原型链，赋值在对象自身设定', function(){
+                var foo = Object.create({bar: 200}, {})
+
+                foo.bar.should.eql(200);
+                foo.hasOwnProperty('bar').should.be.false();
+                foo.bar = 300;
+                foo.hasOwnProperty('bar').should.be.true();
+            })
+
+
         })
 
 /*
@@ -168,6 +178,39 @@ Access Property的话，相关Attribute是：
                     enumerable: false,
                     configurable: false
                 })
+            })
+
+            it('get和set方法中的this值就是当前对象', function(){
+                var foo = Object.create({}, {
+                    bar: {get: function(){
+                        return this._bar;
+                    },
+                    set: function(value){
+                        this._bar = value;
+                    }}
+                });
+                foo.bar = 100;
+                foo.should.have.ownProperty('_bar').be.exactly(100);
+                foo.should.have.ownProperty('bar').be.exactly(100);
+            })
+
+
+            it('对于Access Property的取值和赋值操作，取值遍历原型链，使用get，赋值也是遍历，然后使用存在的set方法', function(){
+                var num = 200;
+                var sup = Object.create(Object.prototype, {
+                    bar: {
+                        get: function() { return num},
+                        set: function(v) { num = v},
+                        enumerable: true,
+                        configurable: true
+                    }
+                })
+                var foo = Object.create(sup, {});
+                num.should.eql(200);
+                foo.hasOwnProperty('bar').should.be.false();
+                foo.bar = 300;
+                num.should.eql(300);
+                foo.hasOwnProperty('bar').should.be.false();
             })
         })
 
