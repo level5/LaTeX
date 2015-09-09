@@ -1,5 +1,7 @@
 var age = 29;
 
+var should = window.Should;
+
 function sayAge() {
     return this.age;
 }
@@ -13,7 +15,4 @@ describe('Window', function(){
         });
     });
 
-    describe('frameset', function(){
-        it('not easy to implement', function());
-    });
 });

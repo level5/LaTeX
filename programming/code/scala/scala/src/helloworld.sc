@@ -1,6 +1,8 @@
 import com.level.scala.Resource
 
 object helloworld {
+
+	val str = "hello world!"                  //> str  : String = hello world!
    
   def inject(arr: Array[Int], initial: Int, operator: (Int, Int) => Int) : Int =
   {

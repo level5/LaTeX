@@ -59,7 +59,26 @@ describe('Equality', function(){
             should(false - 0).eql(0)
         });
     });
+/*
+根据ECMA262 2015进行更新：
 
+先判断是否有方法<object>.@@toPrimitive, 如果有，调用这个方法，传入的参数hint可能的值是default，number，string
+
+如果没有定义@@toPrimitive，如果hint是default(这就是默认的行为)，将hint置为number
+number：
+<"valueOf", "toString">的顺序来调用方法,直到返回primitive，否则抛出TypeError
+string：
+<"toString", "valueOf">的顺序来调用方法，直到返回primitive, 否则抛出TypeError
+
+目前有自行定义@@toPrimitive的两个Object(@@toPrimitive == Symbol.toPrimitive)
+Symbol.prototype[@@toPrimitive]:
+暂时还没看Symbol的细节，待补充...
+Date.prototype[@@toPrimitive]：
+行为是让default等于string，然后再按正常流程来走
+
+测试下来，貌似这个逻辑浏览器上面还没有实现
+
+*/
     describe('ObjectToPrimitive', function(){
 
         var obj1 = {
@@ -138,7 +157,11 @@ describe('Equality', function(){
                 should(obj == obj).be.true();
             });
         });
+/*
+ECMA262 2015 新加入的symbol
 
+
+*/
         describe('比较不同的类型', function(){
             it('undefined等于null; undefined和null不等于其他', function(){
                 should(undefined == null).be.true();
@@ -183,10 +206,22 @@ describe('Equality', function(){
                 (function(){if (3 == true) throw '3 == true'}).should.not.throw()
             })
 
+/*
+    这个时候，String， Number，symbol， Object转换为Primitive
+
+    感觉还是没有实现,和规范要求的不一样啊
+*/
             it('有一方是String或者Number，另外一方是Object，将Object转换为Primitive，再进行比较', function(){
                     should({valueOf:function(){return 1}} == 1).be.true()
             });
 
+/*
+            it('补充上面，有一个是Symbol，一个是Object，也是将Object转换为Primitve，再进行比较', function(){
+                (
+                    {valueOf:function(){return Symbol.for('test')}} == Symbol.for('test')
+                ).should.be.true();
+            })
+*/
             it('来一些例子', function(){
                 // 先将false转成0，再将‘3’转成3，所以返回false
                 should(false == '3').be.false()

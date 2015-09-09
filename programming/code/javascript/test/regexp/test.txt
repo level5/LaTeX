@@ -1,0 +1,12 @@
+1. validate ??
+
+2. add strategy
+
+3. user, remove user in finally?
+
+4. firmware对版本有要求吗？
+
+
+============================
+
+strategy中bean的注入
