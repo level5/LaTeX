@@ -35,4 +35,65 @@ val num = -2                                      //> num  : Int = -2
 
 "ABCD" toLowerCase                                //> res5: String = abcd
 
+
+/*
+优先级：
+根据方法的第一个字符来决定优先级，优先级由高到低
+
+* / %
++ -
+:
+= !
+< >
+&
+^
+|
+all letters
+all assignment operators
+
+
+特例：当以=结束，又不是<= >= !=中的一个时，优先级和assignment一样。
+
+*/
+
+var a0 = new ALLOpts(0)                           //> a0  : com.level.demo.types.ALLOpts = 0
+var a1 = new ALLOpts(1)                           //> a1  : com.level.demo.types.ALLOpts = 1
+var a2 = new ALLOpts(2)                           //> a2  : com.level.demo.types.ALLOpts = 2
+var a3 = new ALLOpts(3)                           //> a3  : com.level.demo.types.ALLOpts = 3
+-a0                                               //> res6: com.level.demo.types.ALLOpts = 0
+
+~a1                                               //> res7: com.level.demo.types.ALLOpts = -2
+
+!a2                                               //> res8: com.level.demo.types.ALLOpts = 1
+
+// 执行顺序是 (a0 ++ a1) **= a2 因为后面这个等号的优先级别最低
+a0 ++ a1 **= a2                                   //> res9: com.level.demo.types.ALLOpts = 4
+
+// 看上去可变应该等于2，其实还是0
+a0 += a2                                          //> res10: com.level.demo.types.ALLOpts = 2
+println(a0)                                       //> 0
+
+// 都是相同的级别，为最低级别
+a3 += a1 *= a2                                    //> res11: com.level.demo.types.ALLOpts = 8
+
+// 这里应该是因为=不是方法，是保留字
+val result = a3 += a1 *= a2                       //> result  : com.level.demo.types.ALLOpts = 8
+
+
+a0 +*: a2 ++: a3                                  //> res12: com.level.demo.types.ALLOpts = 0
+a0 +*: (a2 ++: a3)                                //> res13: com.level.demo.types.ALLOpts = 0
+(a0 +*: a2) ++: a3                                //> res14: com.level.demo.types.ALLOpts = 3
+
+(a0 +*: a2) ++ a3                                 //> res15: com.level.demo.types.ALLOpts = 3
+// 相同优先级，但是不同结合性的操作符是不能够结合的，这里会有编译错误
+// a0 +*: a2 ++ a3
+
+
+/*
+这个是怎么工作的？？
+*/
+var x = 1                                         //> x  : Int = 1
+x += 2
+println(x)                                        //> 3
+
 }
