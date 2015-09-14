@@ -1,5 +1,8 @@
 package com.level.demo.types
 
+// 必须要导入这个方法到当前的scope才能生效
+import com.level.demo.types.Rational.intToRational
+
 object operators {
 
 /*
@@ -95,5 +98,12 @@ a0 +*: (a2 ++: a3)                                //> res13: com.level.demo.type
 var x = 1                                         //> x  : Int = 1
 x += 2
 println(x)                                        //> 3
+
+
+new Rational(2) + 1                               //> res16: com.level.demo.types.Rational = 3/1
+
+// implicit 转换的方法必须导入到当前的scope才能生效
+// 上面从Rational的伴生对象import了这个方法。
+1 + new Rational(3)                               //> res17: com.level.demo.types.Rational = 4/1
 
 }
