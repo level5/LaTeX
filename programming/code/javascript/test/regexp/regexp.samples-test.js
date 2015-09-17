@@ -37,8 +37,31 @@ describe('例子', function() {
 
     })
 
+    it('匹配日期 例如: Jan 31', function() {
+
+        var shouldMatch = ["Jan 01", "Jan 1", "Jan 21", "Jan 29", "Jan 11", "Jan 19", "Jan 31"]
+        var shouldNotMatch = ["Jan 00", "Jan 33"]
+
+
+    })
+
     it('123456789替换成123,456,789， 使用环视', function(){
+        // (?=...) {?!...} lookahead
+        // (?:...) match but does not capture
         var regexp = /(\d)(?=(?:\d\d\d)+(?!\d))/g;
+        '123456789'.replace(regexp, '$1,').should.eql('123,456,789');
+
+        'I have 123456789 yuan.'.replace(regexp, '$1,').should.eql('I have 123,456,789 yuan.');
+
+        'tone of 12345HZ'.replace(regexp, '$1,').should.eql('tone of 12,345HZ');
+    })
+
+
+    it('123456789替换成123,456,789，使用环视:方案2', function(){
+
+        // 这里不是嵌套lookahead，而是匹配后面有一个非数字或者单词边界，感觉还是上面的方案更好
+        var regexp = /(\d)(?=(?:\d\d\d)+(\D|\b))/g;
+
         '123456789'.replace(regexp, '$1,').should.eql('123,456,789');
 
         'I have 123456789 yuan.'.replace(regexp, '$1,').should.eql('I have 123,456,789 yuan.');

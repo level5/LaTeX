@@ -387,32 +387,9 @@ volatile变量只能保证可见性，不能保证原子性。
 ThreadLocal保证了每个线程中只有一个对象。类似于全局变量，但是如果滥用会导致程序耦合，和使用全局变量导致耦合一样。
 
 
-\subsection{不变性}
-
-不可变对象一定是线程安全的。对于不便对象，失效数据，丢失更新操作或者观察到对象处于不一致的状态，对于不变对象来说，都是不存在的。
-
-这里说的这些问题，是说的不便对象本身的属性的访问。如果另外一个对象有一个不变对象的引用，这个引用没有同步还是存在可见性问题。
-
-满足什么条件对象才是不可变的：
-\begin{itemize}
-\item 对象创建以后其状态就不能修改；这一点，说明final引用的对象也是不可变的或者是基本类型（我的理解）
-\item 对象的所有域都是final类型；
-\item 对象是正确创建的（对象在创建期间，this引用没有逸出）
-\end{itemize}
 
 
-\subsubsection{Final}
 
-final除了表示不能修改之外，还能保证初始化过程的安全性。从而可以不受限制的访问不变对象。
-
-这里说的应该是final引用，但是final引用的对象不是正确发布或者不变对象的话，访问这个对象的状态还是可能存在问题。
-
-
-使用volatile类型来发布不可变对象。这里使用volatile类型就是说明引用还是要自己保证可见性，而不变对象自身是安全的。
-
-\begin{Java}
-//补充代码
-\end{Java}
 
 \subsection{安全发布}
 
@@ -467,7 +444,7 @@ public class Holder {
 
 安全发布一个对象，对象的引用和对象的状态必须同时对其他线程可见。
 \begin{itemize}
-\item 在静态初始化函数中初始化一个对象引用；？？？(类似于在static块中,或者直接给静态变量赋值了.这是因为这是在类的初始化过程中执行的,JVM内部存在着同步机制,因此这种方式初始化的任何对象都可以安全的被发布)
+\item 在静态初始化函数中初始化一个对象引用；(类似于在static块中,或者直接给静态变量赋值了.这是因为这是在类的初始化过程中执行的,JVM内部存在着同步机制,因此这种方式初始化的任何对象都可以安全的被发布)
 \item 将对象的引用保存到volatile类型的域或者AtomicReference对象中；
 \item 将对象的引用保存到某个正确构造对象的final类型域中；
 \item 将对象的引用保存到一个由锁保护的域中。
@@ -561,7 +538,7 @@ public class PersonSet {
 
 
 
-<<<<<<< HEAD
+
 \section{取消和关闭}
 
 \begin{Java}
@@ -570,29 +547,121 @@ public class PersonSet {
 
 
 \end{Java}
-=======
+
 \section{锁的底层实现}
 
 \subsection{CAS}
 
-Compare and Swap
+Compare and Set
 
 比较旧值，如果没有变化，则交换成新值，如果变化了，就不做操作。
 
 \subsection{volatile}
 
+
+
 \subsection{synchronized}
 
+三种形式：
+\begin{itemize}
+\item 普通方法；
+\item 静态方法：
+\item 同步方法块
+\end{itemize}
+
 \subsection{锁}
->>>>>>> 0b5fd54e40bab58affa9c19a8a1bfcd80d94b589
+
+\section{Java内存模型}
+
+堆线程之间共享；栈，线程之间不可见。
+
+\subsection{happen before}
+happen before: 如果一个操作的结果要需要对另一个操作可见，那么这两个操作之间必须存在happen before的关系。
+
+\begin{itemize}
+\item 程序顺序规则：一个线程中的每个操作，happens-before于该线程中的任意后续操作。
+\item 监视器锁规则：对一个锁的解锁，happens-before于随后对这个锁的加锁。
+\item volatile变量规则：对一个volatile域的写，happens-before于任意后续对这个volatile域的读。
+\item 传递性：如果A happens-before B，且B happens-beforeC，那么A happens-before C。
+\end{itemize}
+
+JMM不保证对64位的long型和double型变量的写操作具有原子性.这两个32位的写操作可能会被分配到不同的总线事务中执行，此时对这个64位变量的写操作将不具有原子性。
+
+仅仅只允许把一个64位long/double型变量的写操作拆分为两个32位的写操作来执行，任意的读操作在JSR-133中都必须具有原子性（即任意读操作必须要在单个读事务中执行）。
+
+\subsection{volatile}
+
+从内存语义的角度来说，volatile的写-读与锁的释放-获取有相同的内存效果：volatile写和锁的释放有相同的内存语义；volatile读与锁的获取有相同的内存语义。
+
+即使是64位的long型和double型变量，只要它是volatile变量，对该变量的读/写就具有原子性
 
 
+重排:
+\begin{itemize}
+\item 当第二个操作是volatile写时，不管第一个操作是什么，都不能重排序。这个规则确保volatile写之前的操作不会被编译器重排序到volatile写之后。
+\item 当第一个操作是volatile读时，不管第二个操作是什么，都不能重排序。这个规则确保volatile读之后的操作不会被编译器重排序到volatile读之前。
+\item 当第一个操作是volatile写，第二个操作是volatile读时，不能重排序。
+\end{itemize}
 
 
+\subsection{锁}
+
+当线程释放锁时，JMM会把该线程对应的本地内存中的共享变量刷新到主内存中。当线程获取锁时，JMM会把该线程对应的本地内存置为无效
 
 
+\subsection{final}
 
+final除了表示不能修改之外，还能保证初始化过程的安全性。从而可以不受限制的访问不变对象。
 
+基本类型：
+\begin{itemize}
+\item 在构造函数内对一个final域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
 
+JMM禁止编译器把final域的写重排序到构造函数之外
 
+\item 初次读一个包含final域的对象的引用，与随后初次读这个final域，这两个操作之间不能重排序。
+\end{itemize}
 
+引用类型：
+\begin{itemize}
+\item ：在构造函数内对一个final引用的对象的成员域的写入，与随后在构造函数外把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。
+\end{itemize}
+
+如果final类型的域所指向的是可变对象，那么在访问这些域所指向的对象的状态时，任然需要同步。
+
+\subsection{安全发布}
+
+在构造函数内部，不能让这个被构造对象的引用为其他线程所见，也就是对象引用不能在构造函数中“逸出”。
+
+只要对象是正确构造的（被构造对象的引用在构造函数中没有“逸出”），那么不需要使用同步（指lock和volatile的使用）就可以保证任意线程都能看到这个final域在构造函数中被初始化之后的值。
+
+即使对象的引用对其他线程可见，也不代表该对象的状态对于线程来说是可见的，这样就需要同步了。
+
+安全发布一个对象，对象的引用和对象的状态必须同时对其他线程可见。
+\begin{itemize}
+\item 在静态初始化函数中初始化一个对象引用；(类似于在static块中,或者直接给静态变量赋值了.这是因为这是在类的初始化过程中执行的,JVM内部存在着同步机制,因此这种方式初始化的任何对象都可以安全的被发布)
+\item 将对象的引用保存到volatile类型的域或者AtomicReference对象中；
+\item 将对象的引用保存到某个正确构造对象的final类型域中；
+\item 将对象的引用保存到一个由锁保护的域中。
+\end{itemize}
+
+发布一个静态构造的对象，最简单和最安全的方式是使用静态的初始化器：
+\begin{Java}
+public static Holder holder = new Holder(42);
+\end{Java}
+
+事实不可变对象：
+就是对象发布后不会被修改。这种情况下，安全发布就足够了。
+
+\subsubsection{不变性}
+
+不可变对象一定是线程安全的。对于不便对象，失效数据，丢失更新操作或者观察到对象处于不一致的状态，对于不变对象来说，都是不存在的。
+
+这里说的这些问题，是说的不便对象本身的属性的访问。如果另外一个对象有一个不变对象的引用，这个引用没有同步还是存在可见性问题。
+
+满足什么条件对象才是不可变的：
+\begin{itemize}
+\item 对象创建以后其状态就不能修改；这一点，说明final引用的对象也是不可变的或者是基本类型（我的理解）
+\item 对象的所有域都是final类型；
+\item 对象是正确创建的（对象在创建期间，this引用没有逸出）
+\end{itemize}
