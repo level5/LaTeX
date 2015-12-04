@@ -18,7 +18,7 @@ object tt {
     case _         => false
   }                                               //> res4: Boolean = true
 
-  val canoneql = """a\u030A""".r                  //> canoneql  : scala.util.matching.Regex = a虋
+  val canoneql = """a\u030A""".r                  //> canoneql  : scala.util.matching.Regex = a�
 
   "s".r                                           //> res5: scala.util.matching.Regex = s
 
@@ -32,18 +32,18 @@ object tt {
   /*
    * 如果使用scala提供的regex对象的话，flags必须嵌套在pattern string中，
    * 因为不提供option来提供flags
-   * 例子： (?i)打开忽略大小写， (?-i)关闭忽略大小写
+   * 例子�(?i)打开忽略大小写， (?-i)关闭忽略大小�
    * 支持的mode
    */
 
-  // i 忽略大小写
+  // i 忽略大小�
   val caseIgnore = """(?i)hello""".r              //> caseIgnore  : scala.util.matching.Regex = (?i)hello
   "HellO" match {
     case caseIgnore() => true
     case _            => false
   }                                               //> res7: Boolean = true
 
-  // x 注释，准许空白和注释出现在pattern中.
+  // x 注释，准许空白和注释出现在pattern�
   val withComment = """(?x)
 					(								# group 1: whole matched string
 					(\d\d\d\d)			# group 2: year
@@ -74,7 +74,7 @@ object tt {
   }                                               //> res8: Option[String] = Some(matched: 2015-09-14. year is 2015, month is 09,
                                                   //|  date is 14)
   // s dot匹配newline
-  // .不匹配换行
+  // .不匹配换�
   ".".r findFirstIn "\n"                          //> res9: Option[String] = None
   // s是的.匹配换行
   "(?s).".r findFirstIn "\n"                      //> res10: Option[String] = Some(
