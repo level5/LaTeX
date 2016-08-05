@@ -1,0 +1,30 @@
+{
+  "name": "javascript-cases",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start --single-run",
+    "test_watch": "karma start --auto-watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.13.1",
+    "babel-loader": "^6.2.4",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2015": "^6.13.1",
+    "karma": "^1.1.2",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-mocha": "^1.1.1",
+    "karma-phantomjs-launcher": "^1.0.1",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^1.7.0",
+    "mocha": "^3.0.1",
+    "phantomjs-polyfill": "0.0.2",
+    "phantomjs-prebuilt": "^2.1.7",
+    "should": "^10.0.0",
+    "sinon": "^2.0.0-pre.2",
+    "webpack": "^1.13.1"
+  }
+}
