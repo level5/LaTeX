@@ -26,5 +26,8 @@
     "should": "^10.0.0",
     "sinon": "^2.0.0-pre.2",
     "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "rx": "^4.1.0"
   }
 }
