@@ -13,6 +13,7 @@
 
 \usepackage{xeCJK}
 \setCJKmainfont{KaiTi}
+%\setCJKmainfont{微軟正黑體}
 
 %\defaultCJKfontfeatures{AutoFakeBold=6,AutoFakeSlant=.4} %以後不用再設定粗斜
 \newCJKfontfamily\Kai{標楷體}       %定義指令\Kai則切換成標楷體
@@ -29,6 +30,7 @@
 %			上海 长宁}
 \date{April 20, 2014}
 
+%\includeonly{acp/vol1.chapter1}
 
 %\includeonly{c/chapter-c.learn.when.i.was.studying.unix}
 
@@ -39,6 +41,8 @@
 %\includeonly{javascript/chapter03-javaScript.library}
 %\includeonly{javascript/chapter-javascript.browser}
 %\includeonly{javascript/chapter-javascript.node}
+
+%\includeonly{javascript/chapter-javascript.grommet}
 
 %\includeonly{css/chapter-css.toturial}
 
@@ -52,7 +56,7 @@
 %\includeonly{function.programming/chapter-scala}
 
 %\i1ncludeonly{chapter-ruby.koans}
-\includeonly{java/chapter-java.concurrency}
+%\includeonly{java/chapter-java.concurrency}
 %\includeonly{java/chapter-java.performance}
 %\includeonly{java/chapter-java.key.tech}
 
@@ -65,7 +69,7 @@
 
 %\includeonly{linux/chapter-system.api}
 %\includeonly{linux/chapter-linux.notes}
-%\includeonly{linux/chapter-regex}
+\includeonly{linux/chapter-regex}
 %\includeonly{linux/chapter-linux.shell.commands}
 
 
@@ -77,6 +81,10 @@
 
 % contents
 %\tableofcontents
+
+\part{计算机程序设计艺术卷1}
+
+%\include{acp/vol1.chapter1}
 
 \part{C语言}
 
@@ -93,15 +101,16 @@
 \include{javascript/chapter03-javaScript.library}
 \include{chapter-javaScript.projects}
 
-
 \include{javascript/chapter-javascript.node}
+
+\include{javascript/chapter-javascript.grommet}
 
 
 \part{CSS}
 \include{css/chapter-css.toturial}
 
 \part{Ruby}  
-\include{chapter-ruby.koans}
+%\include{chapter-ruby.koans}
 
 \part{Java}
 \include{java/chapter-java.concurrency}

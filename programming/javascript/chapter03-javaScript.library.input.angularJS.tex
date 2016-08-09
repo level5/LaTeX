@@ -1,236 +1,239 @@
-	\section{AngularJS}
-	  这里，通过AngularJS自带的例子来学习他。
-	
-	  首先，从github上clone下整个项目。然后使用npm安装依赖，在这里，即使使用镜像，也可能报错，所以最好使用vpn来翻墙安装依赖包。然后启动应用，这里如果第一次启动了应用，再启动报错的话，可以关闭开关命令窗口，重新启动。原因可能是因为是使用的是ctrl+z来关闭的nodejs，而不是使用的ctrl+c来关闭。
-	
-	  在读完整个教程，对AngularJS有一个初步的理解之后，开始学习一下AngularJS的基本概念。
-	
-	
-	  \subsection{Template}
-	  可以看做HTML的增强。在HTML上增加了angular的一些元素和属性。angular使用template，model和controller来渲染用户在浏览器中看到的view。
-	
-	  有这样一些元素和属性：
-	  \begin{itemize}
-	  \item Directive --
-	  \item Markup -- \{\{\}\}就是markup，将表达式和元素绑定。 
-	  \item Filter -- 格式化数据为想要显示的样子。
-	  \item Form controls -- 验证用户输入。
-	  \end{itemize}
-	
-	
-	  \subsection{Controller}
-	
-	  Controller是一个构造函数，用来提升Angular Scope，稍后解释什么是Angular Scope。
-	
-	  当一个Controller通过ng-controller和一个DOM绑定，Angular将会通过这个构造方法实例化一个Controller的对象。一个新的子scope将最为参数传递给构造方法，参数名是\$scope。
-	
-	  可以通过Controller来
-	  \begin{itemize}
-	  \item 初始化\$scope对象的属性；
-	  \item 给\$scope对象添加行为。
-	  \end{itemize}
-	
-	  但是不要通过Controller来
-	  \begin{itemize}
-	  \item 操作DOM，Controller只应该包含业务逻辑。在Controller中加入展现的逻辑将影响他的可测试性。angular有databinding来处理绝大情况，也可以使用directive来封装DOM操作。
-	  \item 格式化输入，使用form control来做。
-	  \item 过滤输出，使用filter来做。
-	  \item 在Controller共享代码和状态，使用service来完成。
-	  \item 管理其他部件的生命周期。例如实例化service。
-	  \end{itemize}
-	
-	  保持Controller简单，只做单一的view需要的业务逻辑，而将不属于Contoller的逻辑分装在service中，通过依赖注入来一来service。
-	
-	  You can associate Controllers with scope object implicitly via the ngController directive or \$route service. ??? 这句话真不知道什么意思！！！
-	
-	  可以这么理解，碰到ngController directive，这个directive会产生一个\$scope，然后调用controller这个构造函数，而对于\$route service，当跳转到相应的hash url时，也会产生一个新的\$scope,并且绑定controller和template，这也是为什么在这种情况下，template中不需要使用ngController这个directive。
-	
-	  在ngController是嵌套的情况下，他们的scope是可以访问父scope的property，如果他们本身的property没有因为名字相同隐藏了父scope的property的话。
-	  
-	  
-	 \subsection{Service}
-	 
-	 \subsection{Provider}
-	 
-	 对于AngularJS应用，我们使用injector来初始话我们需要的一些有用的对象，service和一些特殊的object，如controller，directive。但是injector需要知道怎么来创建这些对象，这就需要我们来注册一些``菜单''来告诉injector怎么来创建这些对象。总共有五种类型的``菜单''，这里，最啰嗦，但是也是最全面的provider，其他的value，Factory， Service和constant，只是一些provider的语法糖而已。
-	 
-	 对于被注册的recipe，都有一个对象的标识符，以及怎么来创建这个对象的描述。并且，任何一个recipe都属于一个angular的module，angular的module就是一个用来盛装一个或多个recipe的包裹。而且module还有对其他module依赖的信息。
-	  
-	  当一个angular应用启动的时候，angular将创建一个injector的实例，他将按顺序穿件一个recipe的登记档，所有定义在core ng module，应用module，以及应用module的依赖的recipe作为一个union登记在其中，当你需要创建一个对象给你的应用时，injector就会查询这个recipe登记档。
-	  
-	  \paragraph{Value Recipe}
-	  
-	  我们创建一个简单的service，他提供一个字符串用来最为远程API的授权ID。
-	  \begin{JavaScript}
-	var myApp = angular.module('myApp', []);	
-	myApp.value('clientId', 'a12345654321x');  
-	  \end{JavaScript}
-	  接着我们通过angular的数据绑定来显示他。
-	  \begin{JavaScript}
-	myApp.controller('DemoController', ['clientId', function DemoController(clientId) {
-  		this.clientId = clientId;
-	}]);
-	  \end{JavaScript}
-	  
-	  
-	  \begin{HTML}
-	<html ng-app="myApp">
-  		<body ng-controller="DemoController as demo">
-    		Client ID: {{demo.clientId}}
- 		</body>
-	</html>	  
-	  \end{HTML}
-	  
-	  这个例子使用了value recipe来定义一个简单的service，这个service就是一个字符串。
-	  
-	  
-	  \paragraph{Factory Recipe}
-	  
-	  value recipe使用简单，但是缺乏一些我们平时需要的很重要的功能，让我们来看看Factory recipe，他就拥有这些重要的功能：
-	  
-	  \begin{itemize}
-	  	\item 可以使用其他service；
-	  	\item service的初始化；
-	  	\item 延时加载。
-	  \end{itemize}
-	  
-	  
-	  Factory recipe通过带有零个或者多个参数的函数来构造新的service，这个函数的返回值就是这个recipe创建的service实例。有一点需要特别注意，angular创建的service都是单例，这就表示injector最多对每个recipe使用一次来穿件service实例，接着，injector将缓存这个实例以供未来使用。
-	  
-	  我们使用Factory recipe来重写上面的例子。我们可以返回一个字符串字面量。
-	  
-	  \begin{JavaScript}
+\section{AngularJS}
+这里，通过AngularJS自带的例子来学习他。
+
+首先，从github上clone下整个项目。然后使用npm安装依赖(墙内使用淘宝镜像cnpm来安装)。然后启动应用，这里如果第一次启动了应用，再启动报错的话，可以关闭开关命令窗口，重新启动。原因可能是因为是使用的是ctrl+z来关闭的nodejs，而不是使用的ctrl+c来关闭。
+
+在读完整个教程，对AngularJS有一个初步的理解之后，开始学习一下AngularJS的基本概念。
+
+
+约定： \lstinline$spinal-case$和\lstinline$camel$
+
+
+\subsection{Template}
+可以看做HTML的增强。在HTML上增加了angular的一些元素和属性。angular使用template，model和controller来渲染用户在浏览器中看到的view。
+
+有这样一些元素和属性：
+\begin{itemize}
+\item Directive --
+\item Markup -- \{\{\}\}就是markup，将表达式和元素绑定。
+\item Filter -- 格式化数据为想要显示的样子。
+\item Form controls -- 验证用户输入。
+\end{itemize}
+
+
+\subsection{Controller}
+
+Controller是一个构造函数，用来提升Angular Scope，稍后解释什么是Angular Scope。
+
+当一个Controller通过ng-controller和一个DOM绑定，Angular将会通过这个构造方法实例化一个Controller的对象。一个新的子scope将最为参数传递给构造方法，参数名是\$scope。
+
+可以通过Controller来
+\begin{itemize}
+\item 初始化\$scope对象的属性；
+\item 给\$scope对象添加行为。
+\end{itemize}
+
+但是不要通过Controller来
+\begin{itemize}
+\item 操作DOM，Controller只应该包含业务逻辑。在Controller中加入展现的逻辑将影响他的可测试性。angular有databinding来处理绝大情况，也可以使用directive来封装DOM操作。
+\item 格式化输入，使用form control来做。
+\item 过滤输出，使用filter来做。
+\item 在Controller共享代码和状态，使用service来完成。
+\item 管理其他部件的生命周期。例如实例化service。
+\end{itemize}
+
+保持Controller简单，只做单一的view需要的业务逻辑，而将不属于Contoller的逻辑分装在service中，通过依赖注入来一来service。
+
+You can associate Controllers with scope object implicitly via the ngController directive or \$route service. ??? 这句话真不知道什么意思！！！
+
+可以这么理解，碰到ngController directive，这个directive会产生一个\$scope，然后调用controller这个构造函数，而对于\$route service，当跳转到相应的hash url时，也会产生一个新的\$scope,并且绑定controller和template，这也是为什么在这种情况下，template中不需要使用ngController这个directive。
+
+在ngController是嵌套的情况下，他们的scope是可以访问父scope的property，如果他们本身的property没有因为名字相同隐藏了父scope的property的话。
+
+
+\subsection{Service}
+
+\subsection{Provider}
+
+对于AngularJS应用，我们使用injector来初始话我们需要的一些有用的对象，service和一些特殊的object，如controller，directive。但是injector需要知道怎么来创建这些对象，这就需要我们来注册一些``菜单''来告诉injector怎么来创建这些对象。总共有五种类型的``菜单''，这里，最啰嗦，但是也是最全面的provider，其他的value，Factory， Service和constant，只是一些provider的语法糖而已。
+
+对于被注册的recipe，都有一个对象的标识符，以及怎么来创建这个对象的描述。并且，任何一个recipe都属于一个angular的module，angular的module就是一个用来盛装一个或多个recipe的包裹。而且module还有对其他module依赖的信息。
+
+当一个angular应用启动的时候，angular将创建一个injector的实例，他将按顺序穿件一个recipe的登记档，所有定义在core ng module，应用module，以及应用module的依赖的recipe作为一个union登记在其中，当你需要创建一个对象给你的应用时，injector就会查询这个recipe登记档。
+
+\paragraph{Value Recipe}
+
+我们创建一个简单的service，他提供一个字符串用来最为远程API的授权ID。
+\begin{JavaScript}
+var myApp = angular.module('myApp', []);
+myApp.value('clientId', 'a12345654321x');
+\end{JavaScript}
+接着我们通过angular的数据绑定来显示他。
+\begin{JavaScript}
+myApp.controller('DemoController', ['clientId', function DemoController(clientId) {
+	this.clientId = clientId;
+}]);
+\end{JavaScript}
+
+
+\begin{HTML}
+<html ng-app="myApp">
+	<body ng-controller="DemoController as demo">
+	Client ID: {{demo.clientId}}
+	</body>
+</html>
+\end{HTML}
+
+这个例子使用了value recipe来定义一个简单的service，这个service就是一个字符串。
+
+
+\paragraph{Factory Recipe}
+
+value recipe使用简单，但是缺乏一些我们平时需要的很重要的功能，让我们来看看Factory recipe，他就拥有这些重要的功能：
+
+\begin{itemize}
+	\item 可以使用其他service；
+	\item service的初始化；
+	\item 延时加载。
+\end{itemize}
+
+
+Factory recipe通过带有零个或者多个参数的函数来构造新的service，这个函数的返回值就是这个recipe创建的service实例。有一点需要特别注意，angular创建的service都是单例，这就表示injector最多对每个recipe使用一次来穿件service实例，接着，injector将缓存这个实例以供未来使用。
+
+我们使用Factory recipe来重写上面的例子。我们可以返回一个字符串字面量。
+
+\begin{JavaScript}
 myApp.factory('clientId', function clientIdFactory() {
   return 'a12345654321x';
-});	  
-	  \end{JavaScript}
-	  
-	  我们也可创建一个service来计算token的值，这个service依赖clientId。
-	  \begin{JavaScript}
+});
+\end{JavaScript}
+
+我们也可创建一个service来计算token的值，这个service依赖clientId。
+\begin{JavaScript}
 myApp.factory('apiToken', ['clientId', function apiTokenFactory(clientId) {
   var encrypt = function(data1, data2) {
     // NSA-proof encryption algorithm:
     return (data1 + ':' + data2).toUpperCase();
   };
- 
+
   var secret = window.localStorage.getItem('myApp.secret');
   var apiToken = encrypt(clientId, secret);
- 
+
   return apiToken;
-}]);	  
-	  \end{JavaScript}
-	  
-	  
-	  \paragraph{Service Recipe}
-	  
-	  下面是我们定制的Service的构造函数
-	  
-	  \begin{JavaScript}
+}]);
+\end{JavaScript}
+
+
+\paragraph{Service Recipe}
+
+下面是我们定制的Service的构造函数
+
+\begin{JavaScript}
 function UnicornLauncher(apiToken) {
- 
+
   this.launchedCount = 0;
   this.launch = function() {
     // make a request to the remote api and include the apiToken
     ...
     this.launchedCount++;
   }
-}	  
-	  \end{JavaScript}
+}
+\end{JavaScript}
 
-	他依赖于apiToken，我们可以通过Factory Recipe来注册他，通过new操作来生成Service实例。
+他依赖于apiToken，我们可以通过Factory Recipe来注册他，通过new操作来生成Service实例。
 
-	\begin{JavaScript}
+\begin{JavaScript}
 myApp.factory('unicornLauncher', ["apiToken", function(apiToken) {
   return new UnicornLauncher(apiToken);
-}]);	
-	\end{JavaScript}	
-	
-	但是，这个情况下更加适合Service Recipe，他类似于Value和Factory recipe，但是是通过new来调用，他可以带参数，参数也是通过依赖来解决。
-	
-	\begin{JavaScript}
-myApp.service('unicornLauncher', ["apiToken", UnicornLauncher]);	
-	\end{JavaScript}  
-	
-	
-	
-	\paragraph{Provider Recipe}
-	
-	
-	正如我们前面说的，其他所有的recipe都只是在Provider recipe之上包裹了一层语法糖。Factory Recipe就是注册了一个空的provider recipe，将provider的\$get设置为Factory recipe传入的函数。
-	
-	大多数情况下，其他recipe已经可以满足我们的需求了，我们使用provider recipe的原因是需要在angular app load起来之前，通过config方法来对service做一些设置。看下面的例子
-	
-	\begin{lstlisting}
+}]);
+\end{JavaScript}
+
+但是，这个情况下更加适合Service Recipe，他类似于Value和Factory recipe，但是是通过new来调用，他可以带参数，参数也是通过依赖来解决。
+
+\begin{JavaScript}
+myApp.service('unicornLauncher', ["apiToken", UnicornLauncher]);
+\end{JavaScript}
+
+
+
+\paragraph{Provider Recipe}
+
+
+正如我们前面说的，其他所有的recipe都只是在Provider recipe之上包裹了一层语法糖。Factory Recipe就是注册了一个空的provider recipe，将provider的\$get设置为Factory recipe传入的函数。
+
+大多数情况下，其他recipe已经可以满足我们的需求了，我们使用provider recipe的原因是需要在angular app load起来之前，通过config方法来对service做一些设置。看下面的例子
+
+\begin{lstlisting}
 myApp.provider('unicornLauncher', function UnicornLauncherProvider() {
   var useTinfoilShielding = false;
- 
+
   this.useTinfoilShielding = function(value) {
     useTinfoilShielding = !!value;
   };
- 
+
   this.$get = ["apiToken", function unicornLauncherFactory(apiToken) {
- 
+
     // let's assume that the UnicornLauncher constructor was also changed to
     // accept and use the useTinfoilShielding argument
     return new UnicornLauncher(apiToken, useTinfoilShielding);
   }];
-});	
-	\end{lstlisting}  
-	
-	\begin{JavaScript}
+});
+\end{lstlisting}
+
+\begin{JavaScript}
 myApp.config(["unicornLauncherProvider", function(unicornLauncherProvider) {
   unicornLauncherProvider.useTinfoilShielding(true);
-}]);	
-	\end{JavaScript}
-	
-	
+}]);
+\end{JavaScript}
+
+
 	可以看到，我们天通过module的API来调用config方法，然后设置了unicornLauncherProvider的参数。在这里，unicorn provider使用过provider injector来注入的，这个injector不同于实例injector。在应用启动完成之前，provider injector初始化所有provider的实例，我们叫他应用生命周期的configuraton阶段。在这个阶段，service是不能够被使用的，因为他们还没有被初始化。
-	
+
 	一旦启动阶段结束，和provider的交互将不再被允许，同时开始创建service，我们称之为应用生命周期的运行阶段。
-	
-	
-	\paragraph{Constant Recipe}
-	
+
+
+\paragraph{Constant Recipe}
+
 	因为在应用声明的configuration阶段，所有的service都是不可用的，即使是value recipe，因为他们还没有实例化。但是有些东西，如url的前缀部分，他们没有依赖或者设置，需要在整个生命周期的configuration和run阶段都可以访问，这就是Constant Recipe要做的。
-	
-	
-	\begin{JavaScript}
-myApp.constant('planetName', 'Greasy Giant');	
-	\end{JavaScript}
-	
-	
-	\begin{JavaScript}
+
+
+\begin{JavaScript}
+myApp.constant('planetName', 'Greasy Giant');
+\end{JavaScript}
+
+
+\begin{JavaScript}
 myApp.config(['unicornLauncherProvider', 'planetName', function(unicornLauncherProvider, planetName) {
   unicornLauncherProvider.useTinfoilShielding(true);
   unicornLauncherProvider.stampText(planetName);
-}]);	
-	\end{JavaScript}
-	
-	例如，在这个例子里面，unicorn发射的行星名字是在整个应用固定的，所以我们使用constant recipe,并且在configuration阶段提供给provider使用。而由于constant recipe是在整个生命周期都可以访问，所以我们在运行时也可以访问他的值。
-	
-	
-	\begin{JavaScript}
+}]);
+\end{JavaScript}
+
+例如，在这个例子里面，unicorn发射的行星名字是在整个应用固定的，所以我们使用constant recipe,并且在configuration阶段提供给provider使用。而由于constant recipe是在整个生命周期都可以访问，所以我们在运行时也可以访问他的值。
+
+
+\begin{JavaScript}
 myApp.controller('DemoController', ["clientId", "planetName", function DemoController(clientId, planetName) {
   this.clientId = clientId;
   this.planetName = planetName;
-}]);	
-	\end{JavaScript}
-	  
-	\begin{HTML}
+}]);
+\end{JavaScript}
+
+\begin{HTML}
 <html ng-app="myApp">
   <body ng-controller="DemoController as demo">
    Client ID: {{demo.clientId}}
    <br>
    Planet Name: {{demo.planetName}}
   </body>
-</html>	
-	\end{HTML}  
-	
-	
-	\paragraph{Special Purpose Objects}
-	
-	
-	\paragraph{结论}
-	
-	
-  
+</html>
+\end{HTML}
+
+
+\paragraph{Special Purpose Objects}
+
+
+\paragraph{结论}
+
+
+

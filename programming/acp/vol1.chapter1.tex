@@ -1,0 +1,76 @@
+\chapter{基本概念}
+
+\section{算法}
+
+
+\subsection{欧几里德算法}
+
+给定两个正整数m和n，求他们的最大公因数，即同时整除m和n的最大正整数。
+
+算法描述
+\begin{enumerate}
+\item 求余数。 用n除m（\( m / n \)），令r为余数。（我们将有\(0 \le r < n \)）
+\item 余数为0？如果\( r = 0\),算法终止，n是答案。
+\item 减少。 置 \( m \leftarrow n, n \leftarrow r\),然后返回到步骤1.
+\end{enumerate}
+
+不需要处理n和m谁大。因为第一次执行n除m的时候，如果n小，当第一次执行完，就交换了两者的位置。
+
+\begin{itemize}
+\item 有限性，算法必须在有限的步骤后终止。
+
+这里是满足的，因为每次r都会比n小，对于正数序列，r最后必然等于0。
+
+\item 正确性。
+
+\item 输入
+
+\item 输出                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
+\end{itemize}
+
+
+\begin{Scala}
+
+    def gcd(m: Int, n: Int): Int = {
+      val r = m % n
+      if (r == 0)
+        n
+      else
+        gcd(n, r)
+    }
+
+\end{Scala}
+
+\begin{Scala}
+
+    def gcd(m: Int, n: Int): Int =
+      if (n == 0)
+        m
+      else gcd(n, m % n)
+      
+\end{Scala}
+
+\section{数学准备}
+
+\subsection{数学归纳法}
+
+证明P(n)为真：
+\begin{enumerate}
+\item 证明P(1)为真
+\item 证明P(1) P(2)...P(n)为真，那么P(n+1)也为真
+\end{enumerate}
+
+\subsection{推广的欧几里德算法}
+
+算法： 给定两个正数m和n，计算他们的最大公因数为d，并计算两个未必为正数的正数a和b，使得 \( am + bn = d \)
+
+\begin{enumerate}
+\item 初始化： 设置 \( a' \leftarrow b \leftarrow 1, a \leftarrow b' \leftarrow 0, c \leftarrow m, d \leftarrow n \)
+
+\item 令q和r分别是用d除c所得的商和余数。（我们得到 \( c = qd + r　\) 和 \( 0 \le r < d \)　）
+
+\item 余数为0？如果　\( r = 0 \)，算法终止， 此时 \( am + bn = d \)
+
+\item 循环 设置 \( c \leftarrow d, d \leftarrow r,  t \leftarrow a', a' \leftarrow a, a \leftarrow t - qa, t \leftarrow b', b' \leftarrow b, b \leftarrow t - qb \),然后返回2.
+\end{enumerate}

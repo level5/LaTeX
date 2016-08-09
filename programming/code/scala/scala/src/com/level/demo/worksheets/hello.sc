@@ -1,7 +1,12 @@
 package com.level.demo.worksheets
 
 object hello {
-  
+
+
+
+	/*****************************************************************
+									关于变量
+  *****************************************************************/
   // type inference 类型推导，自动推导类型为String
   val hello = "Hello world!"                      //> hello  : String = Hello world!
   // 显示指定也是可以的
@@ -13,6 +18,11 @@ object hello {
   hello3 = "new String"
   println(hello3)                                 //> new String
   
+  
+  
+  /*****************************************************************
+									关于函数定义
+  *****************************************************************/
   
   // 定义函数
   def max(x : Int, y : Int): Int = {
@@ -41,10 +51,22 @@ object hello {
   // 因为任何类型都能够转换为Unit类型
   def greet2():Unit = "hello"                     //> greet2: ()Unit
   
+/*****************************************************************
+									关于函数定义
+  *****************************************************************/
+  
   val array = Array(1, 2, 3)                      //> array  : Array[Int] = Array(1, 2, 3)
   // 函数字面量
   // (x: Int, y: Int) => x + y
   array.foreach(arg=>println(arg))                //> 1
+                                                  //| 2
+                                                  //| 3
+                                                  
+  array.foreach(println)                          //> 1
+                                                  //| 2
+                                                  //| 3
+  
+  array.foreach(println(_))                       //> 1
                                                   //| 2
                                                   //| 3
   // 这里的v是val，而不是var。这里因为是val，所以不需要写，直接写v就可以了

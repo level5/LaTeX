@@ -1,7 +1,6 @@
 package com.level.demo.types
 
 // 必须要导入这个方法到当前的scope才能生效
-import com.level.demo.types.Rational.intToRational
 
 object operators {
 
@@ -72,7 +71,7 @@ var a3 = new ALLOpts(3)                           //> a3  : com.level.demo.types
 // 执行顺序是 (a0 ++ a1) **= a2 因为后面这个等号的优先级别最低
 a0 ++ a1 **= a2                                   //> res9: com.level.demo.types.ALLOpts = 4
 
-// 看上去可变应该等于2，其实还是0
+// 看上去可变应该等于2（相对于其他语言来说，但这里和具体实现有关），其实还是0
 a0 += a2                                          //> res10: com.level.demo.types.ALLOpts = 2
 println(a0)                                       //> 0
 
@@ -81,7 +80,6 @@ a3 += a1 *= a2                                    //> res11: com.level.demo.type
 
 // 这里应该是因为=不是方法，是保留字
 val result = a3 += a1 *= a2                       //> result  : com.level.demo.types.ALLOpts = 8
-
 
 a0 +*: a2 ++: a3                                  //> res12: com.level.demo.types.ALLOpts = 0
 a0 +*: (a2 ++: a3)                                //> res13: com.level.demo.types.ALLOpts = 0
@@ -99,11 +97,9 @@ var x = 1                                         //> x  : Int = 1
 x += 2
 println(x)                                        //> 3
 
-
-new Rational(2) + 1                               //> res16: com.level.demo.types.Rational = 3/1
+ 
 
 // implicit 转换的方法必须导入到当前的scope才能生效
 // 上面从Rational的伴生对象import了这个方法。
-1 + new Rational(3)                               //> res17: com.level.demo.types.Rational = 4/1
 
 }

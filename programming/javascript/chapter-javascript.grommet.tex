@@ -1,0 +1,466 @@
+\chapter{Grommet}
+
+\section{node}
+
+\subsection{npm}
+
+\subsubsection{代理，仓库的配置}
+
+\subsubsection{package.json}
+
+\subsubsection{看到的有用的module}
+
+\begin{Bash}
+
+# serve， 在存放静态文件的目录运行serve，自动启动一个端口为3000的server来访问这些静态文件
+npm i serve -g
+
+
+\end{Bash}
+
+\subsection{express}
+
+这里先不用管....
+
+\section{Gulp}
+
+\subsection{steam的概念是个基础}
+
+看上去挺简单的，就是几个接口
+
+\begin{JavaScript}[Gulp]
+
+gulp.task()
+
+gulp.src()
+
+gulp.dest()
+
+gulp.watch()
+
+\end{JavaScript}
+
+\subsection{dev task}
+
+\subsection{test task}
+
+\subsection{release task}
+
+
+\section{webpack}
+
+gulp和webpack的区别.
+
+\subsection{js模块化}
+目前主流三种模块方式
+\begin{itemize}
+\item CommonJS
+\begin{JavaScript}
+var module = require('path/module')
+\end{JavaScript}
+\item AMD
+\begin{JavaScript}
+require(['module1', 'module2'], function(module1, module2) {
+	return newModule
+})
+\end{JavaScript}
+\item es2015 Module
+\begin{JavaScript}
+
+\end{JavaScript}
+\end{itemize}
+
+\section{Babel}
+
+
+babel的配置\lstinline$.bablerc$文件
+
+babel6的两种插件：
+\begin{itemize}
+\item sytnax
+\item tranform???
+\end{itemize}
+
+\section{React}
+
+\subsection{Virtual DOM}
+
+
+\subsection{知识点}
+
+\subsubsection{state}
+
+\subsubsection{life cycle}
+
+\subsubsection{Refs to Components}
+
+
+\section{React-Router}
+
+\begin{JavaScript}[目前使用的配置方案]
+
+const routeConfig = [
+  { path: '/',
+    component: App,
+    indexRoute: { component: Dashboard },
+    childRoutes: [
+      { path: 'about', component: About },
+      { path: 'inbox',
+        component: Inbox,
+        childRoutes: [
+          { path: '/messages/:id', component: Message },
+          { path: 'messages/:id',
+            onEnter: function (nextState, replaceState) {
+              replaceState(null, '/messages/' + nextState.params.id)
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+
+// TODO: 查看一下API，看看history这个怎么定义
+render(<Router routes={routeConfig} />, document.body)
+
+\end{JavaScript}
+
+\section{Flux}
+...
+
+\section{Redux}
+
+\subsection{redux}
+
+\subsubsection{三个优先原则}
+
+由Flux而来，发展了Flux。
+
+\begin{itemize}
+
+\item The state of your whole application is stored in an object tree within a single store.
+
+\item The only way to mutate the state is to emit an action, an object describing what happened.
+
+保证view或者network的callback都不会去修改状态。
+
+\item To specify how the state tree is transformed by actions, you write pure reducers.
+
+什么时候reducer？
+
+Reducers are just pure functions that take the previous state and an action, and return the next state. 
+
+\end{itemize}
+
+\subsubsection{和相似的模式的对比}
+
+\paragraph{Flux}
+
+\begin{itemize}
+
+\item concentrate your model update logic in a certain layer of your application (“stores” in Flux, “reducers” in Redux). Instead of letting the application code directly mutate the data, both tell you to describe every mutation as a plain object called an “action”.
+
+\item Redux does not have the concept of a Dispatcher; Redux assumes you never mutate your data(You should always return a new object)
+
+
+
+\end{itemize}
+
+\subsubsection{state的范式化， 参看normalizr }
+
+\subsubsection{Action 和 Action创建函数}
+
+Action 是把数据从应用.传到 store 的有效载荷。它是 store 数据的唯一来源。一般来说你会通过 store.dispatch() 将 action 传到 store.
+
+Action创建函数应该是纯函数，这个点貌似我们的项目中做得有问题呀....
+
+那么，改在哪里放松rest请求呢，如果不能再Action创建函数中的话！！！
+
+
+
+\subsubsection{Reducer}
+
+永远不要在 reducer 里做这些操作：
+
+\begin{itemize}
+\item 修改传入的参数
+\item 执行有副作用的操作，如API请求和路由跳转
+\end{itemize}
+
+
+Reducer
+\begin{itemize}
+\item 不要修改 state
+\item 在 default 情况下返回旧的 state。遇到未知的 action 时，一定要返回旧的 state。
+\end{itemize}
+
+\paragraph{组合Reducer}
+
+注意每个 reducer 只负责管理全局 state 中它负责的一部分。每个 reducer 的 state 参数都不同，分别对应它管理的那部分 state 数据。
+
+\begin{JavaScript}
+
+function todos(state = [], action) {
+  switch (action.type) {
+    case ADD_TODO:
+      return [...state, {
+        text: action.text,
+        completed: false
+      }];
+    case COMPLETE_TODO:
+      return [
+        ...state.slice(0, action.index),
+        Object.assign({}, state[action.index], {
+          completed: true
+        }),
+        ...state.slice(action.index + 1)
+      ];
+    default:
+      return state;
+  }
+}
+
+function visibilityFilter(state = SHOW_ALL, action) {
+  switch (action.type) {
+    case SET_VISIBILITY_FILTER:
+      return action.filter;
+    default:
+      return state;
+  }
+}
+
+function todoApp(state = {}, action) {
+  return {
+    visibilityFilter: visibilityFilter(state.visibilityFilter, action),
+    todos: todos(state.todos, action)
+  };
+}
+
+
+\end{JavaScript}
+
+\begin{JavaScript}[使用Redux提供的工具]
+
+import { combineReducers } from 'redux';
+
+const todoApp = combineReducers({
+  visibilityFilter,
+  todos
+});
+
+export default todoApp;
+
+\end{JavaScript}
+
+\begin{JavaScript}[上面的代码完全等价于]
+
+export default function todoApp(state, action) {
+  return {
+    visibilityFilter: visibilityFilter(state.visibilityFilter, action),
+    todos: todos(state.todos, action)
+  };
+}
+
+\end{JavaScript}
+
+\begin{JavaScript}[再次说明]
+
+const reducer = combineReducers({
+  a: doSomethingWithA,
+  b: processB,
+  c: c
+});
+
+
+// 上面等价于下面这段：
+
+function reducer(state, action) {
+  return {
+    a: doSomethingWithA(state.a, action),
+    b: processB(state.b, action),
+    c: c(state.c, action)
+  };
+}
+
+\end{JavaScript}
+
+\subsubsection{Store}
+
+Redux 应用只有一个单一的 store， store的职责：
+\begin{itemize}
+
+\item 维持state 
+
+\item 提供\lstinline$getState()$方法获取 state
+
+\item 提供\lstinline$dispatch(action)$方法更新state
+
+\item 提供\lstinline$subscribe(listner)$注册监听
+
+\end{itemize}
+
+\begin{JavaScript}[使用已有的reduce来创建]
+
+import { createStore } from 'redux'
+import todoApp from './reducers'
+let store = createStore(todoApp)
+
+\end{JavaScript}
+
+\subsubsection{数据流动}
+
+% 这里修改成ol
+严格的单向数据流是 Redux 架构的设计核心（和Flux有共同的设计思想）。
+\begin{itemize}
+
+\item 调用 \lstinline$store.dispatch(action)$
+
+\item Redux store 调用传入的 reducer 函数
+
+\item 根 reducer 应该把多个子 reducer 输出合并成一个单一的 state 树
+
+\item Redux store 保存了根 reducer 返回的完整 state 树
+
+\end{itemize}
+
+\subsection{react-redux redux的react绑定}
+
+
+\begin{Bash}[需要单独安装]
+npm install --save react-redux
+\end{Bash}
+
+只在最顶层组件（如路由操作）里使用 Redux。其余内部组件仅仅是展示性的，所有数据都通过 props 传入。
+
+
+\subsection{redux and react}
+
+怎么组织componet和redux？？？
+
+
+My dumb components:
+\begin{itemize}
+\item Have no dependencies on the rest of the app, e.g. Flux actions or stores.
+\item Often allow containment via this.props.children.
+\item Receive data and callbacks exclusively via props.
+\item Have a CSS file associated with them. ??? 这里怎么做？？？
+\item Rarely have their own state.
+\item Might use other dumb components.
+\end{itemize}
+
+
+\section{local storage}
+
+\section{history}
+
+\subsection{HTML5 History API}
+
+history对象。
+
+修改URL，但是页面并不会真正的跳转。不过，这些URL都会被保存在浏览器的历史记录中。如果用户返回上一张幻灯片，就会触发\lstinline$onPopState$事件。
+
+
+\begin{itemize}
+
+\item \lstinline$pushState()$ 只允许修改网页的URL部分。
+
+\item \lstinline$onPopState$事件， 在用户点击回退的时候触发
+
+\item \lstinline$replaceState()$ 修改与当前页面相关的状态。
+
+\end{itemize}
+
+\subsection{history库}
+
+
+
+\section{Web Socket}
+
+\subsection{简介}
+
+\subsubsection{URL}
+
+\begin{JavaScript}[ws和wss]
+
+
+var socket = new WebSocket("ws://localhost/socketServer.php");
+
+var socket = new WebSocket("wss://localhost/socketServer.php");
+
+\end{JavaScript}
+
+
+\subsection{Browser Webscoket API}
+
+\begin{JavaScript}
+
+// 补充代码
+
+\end{JavaScript}
+
+
+\subsection{websocket/ws}
+
+\begin{JavaScript}[client]
+
+var WebSocket = require('ws');
+var ws = new WebSocket('ws://www.host.com/path');
+
+ws.on('open', function open() {
+  ws.send('something');
+});
+
+ws.on('message', function(data, flags) {
+  // flags.binary will be set if a binary data is received.
+  // flags.masked will be set if the data was masked.
+});
+
+\end{JavaScript}
+
+
+\begin{JavaScript}[server]
+var WebSocketServer = require('ws').Server
+  , wss = new WebSocketServer({ port: 8080 });
+
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+  });
+
+  ws.send('something');
+});
+\end{JavaScript}
+
+\begin{JavaScript}[express]
+var server = require('http').createServer()
+  , url = require('url')
+  , WebSocketServer = require('ws').Server
+  , wss = new WebSocketServer({ server: server })
+  , express = require('express')
+  , app = express()
+  , port = 4080;
+
+app.use(function (req, res) {
+  res.send({ msg: "hello" });
+});
+
+wss.on('connection', function connection(ws) {
+  var location = url.parse(ws.upgradeReq.url, true);
+  // you might use location.query.access_token to authenticate or share sessions
+  // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+  });
+
+  ws.send('something');
+});
+
+server.on('request', app);
+server.listen(port, function () { console.log('Listening on ' + server.address().port) });
+\end{JavaScript}
+
+
+\section{本地化}
+
+\subsection{yahoo react-intl}

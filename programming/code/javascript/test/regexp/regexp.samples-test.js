@@ -11,7 +11,6 @@ describe('例子', function() {
 
     it('引号内的字符串', function() {
         var regexp = /"[^"]*"/
-
         // 更复杂的定义是允许
     })
 
