@@ -115,23 +115,6 @@ describe('RxJs', () => {
 
     describe('onError', () => {
 
-
-      it('catch errors', () => {
-
-        Rx.Observable.from(['{}', '{]', '{"a": 1}'])
-          .map(str => JSON.parse(str))
-          .catch(function(a, b, c){
-            console.log('xxx', a, b, c);
-            return Rx.Observable.return({error: 'err'});
-          })
-          .subscribe(
-            v => console.log('g', v),
-            v => console.log('g1', v),
-            v => console.log('g22', v)
-          );
-
-      });
-
     });
 
   });
