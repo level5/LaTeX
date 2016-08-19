@@ -28,6 +28,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
+    "lodash": "^4.15.0",
     "rx": "^4.1.0"
   }
 }
